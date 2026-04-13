@@ -6,64 +6,7 @@ import SiteFooter from "@/components/layout/site-footer";
 import SectionShell from "@/components/layout/section-shell";
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-
-const categories = [
-  "Все стили",
-  "Pinterest",
-  "Luxury",
-  "Business",
-  "Dating",
-  "Travel",
-  "Editorial"
-];
-
-const styles = [
-  {
-    title: "Old Money Portrait",
-    category: "Luxury",
-    text: "Тихая роскошь, дорогой спокойный образ, мягкий теплый свет."
-  },
-  {
-    title: "Pinterest Soft",
-    category: "Pinterest",
-    text: "Воздушная эстетика, нежные тона и ощущение идеальной съемки."
-  },
-  {
-    title: "Business Clean",
-    category: "Business",
-    text: "Деловые портреты для сайта, LinkedIn и личного бренда."
-  },
-  {
-    title: "Dating Premium",
-    category: "Dating",
-    text: "Живые привлекательные кадры для дейтинга и соцсетей."
-  },
-  {
-    title: "Travel Luxury",
-    category: "Travel",
-    text: "Серия с дорогим отпускным вайбом и premium-настроением."
-  },
-  {
-    title: "Editorial Vogue",
-    category: "Editorial",
-    text: "Журнальная композиция, fashion-подача и выразительный портрет."
-  },
-  {
-    title: "Studio Glow",
-    category: "Pinterest",
-    text: "Мягкий студийный свет и чистая дорогая картинка."
-  },
-  {
-    title: "Dark Masculine",
-    category: "Luxury",
-    text: "Более темный контрастный стиль с дорогим мужским образом."
-  },
-  {
-    title: "City Business Woman",
-    category: "Business",
-    text: "Сильная городская эстетика для экспертов и личного бренда."
-  }
-];
+import { styleCategories, stylePresets } from "@/lib/data/style-presets";
 
 export default function StylesPage() {
   return (
@@ -76,24 +19,24 @@ export default function StylesPage() {
             Каталог фотосессий
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl leading-[1.04] text-[#3d3128] sm:text-5xl lg:text-6xl">
-            Готовые стили, которые можно выбрать за пару секунд
+            Готовые стили ATELIA, которые можно выбрать за пару секунд
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Не нужно думать над промптом. Просто выбирай эстетику, которая
-            подходит под Instagram, дейтинг, бизнес или личный бренд.
+            Пользователь авторизуется по почте, пополняет баланс кредитов и
+            запускает генерацию в нужной эстетике без сложных промптов.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="xl">
-              <Link href="/#pricing">
-                Запустить генерацию
+              <Link href="/create">
+                Создать фотосессию
                 <ArrowRight className="size-4.5" />
               </Link>
             </Button>
 
             <Button variant="secondary" size="xl">
               <SlidersHorizontal className="size-4.5" />
-              Фильтры скоро добавим
+              Фильтры добавим следующим этапом
             </Button>
           </div>
         </Container>
@@ -102,11 +45,11 @@ export default function StylesPage() {
       <SectionShell
         eyebrow="Подборка"
         title="Стили под разные цели"
-        description="Сейчас это визуальная витрина. Дальше сюда легко добавим фильтры, поиск, избранное и переход к заказу."
+        description="Сейчас страница уже собрана на общих данных. Дальше сюда легко добавить фильтры, поиск, избранное и переход к оплате кредитами."
         centered={false}
       >
         <div className="mb-8 flex flex-wrap gap-2">
-          {categories.map((category, index) => (
+          {styleCategories.map((category, index) => (
             <button
               key={category}
               className={`rounded-full px-4 py-2 text-sm transition ${
@@ -121,9 +64,9 @@ export default function StylesPage() {
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {styles.map((item, index) => (
+          {stylePresets.map((item, index) => (
             <article
-              key={item.title}
+              key={item.id}
               className="group overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white shadow-[0_10px_35px_rgba(88,62,40,0.06)] transition hover:-translate-y-1"
             >
               <div
@@ -142,10 +85,12 @@ export default function StylesPage() {
                 </div>
 
                 <h2 className="mt-4 text-2xl text-[#3d3128]">{item.title}</h2>
-                <p className="mt-3 text-sm leading-7 text-[#7e6f63]">{item.text}</p>
+                <p className="mt-3 text-sm leading-7 text-[#7e6f63]">{item.description}</p>
 
                 <div className="mt-6 flex gap-3">
-                  <Button size="lg">Выбрать стиль</Button>
+                  <Button asChild size="lg">
+                    <Link href={`/create?style=${item.id}`}>Выбрать стиль</Link>
+                  </Button>
                   <Button variant="secondary" size="lg">
                     Подробнее
                   </Button>
