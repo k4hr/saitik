@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PaymentStatus, CreditTransactionType } from "@prisma/client";
+import { CreditTransactionType, PaymentStatus } from "@prisma/client";
 
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -60,7 +60,6 @@ export async function POST(req: NextRequest) {
           id: true,
           email: true,
           login: true,
-          nickname: true,
           creditBalance: true,
         },
       });
