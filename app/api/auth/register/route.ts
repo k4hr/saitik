@@ -1,0 +1,129 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import { prisma } from "@/lib/prisma";
+import { createSessionToken, hashPassword, setSessionCookie } from "@/lib/auth";
+
+type RegisterBody = {
+  email?: string;
+  login?: string;
+  nickname?: string;
+  password?: string;
+};
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+function normalizeLogin(login: string): string {
+  return login.trim().toLowerCase();
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = (await req.json()) as RegisterBody;
+
+    const email = body.email ? normalizeEmail(body.email) : "";
+    const login = body.login ? normalizeLogin(body.login) : "";
+    const nickname = body.nickname?.trim() ?? "";
+    const password = body.password ?? "";
+
+    if (!email || !login || !nickname || !password) {
+      return NextResponse.json(
+        { error: "email, login, nickname и password обязательны" },
+        { status: 400 }
+      );
+    }
+
+    if (!email.includes("@")) {
+      return NextResponse.json(
+        { error: "Некорректный email" },
+        { status: 400 }
+      );
+    }
+
+    if (login.length < 3 || login.length > 24) {
+      return NextResponse.json(
+        { error: "Логин должен быть от 3 до 24 символов" },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[a-z0-9._-]+$/.test(login)) {
+      return NextResponse.json(
+        { error: "Логин может содержать только a-z, 0-9, точку, дефис и нижнее подчеркивание" },
+        { status: 400 }
+      );
+    }
+
+    if (nickname.length < 2 || nickname.length > 40) {
+      return NextResponse.json(
+        { error: "Никнейм должен быть от 2 до 40 символов" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: "Пароль должен быть минимум 6 символов" },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { login }],
+      },
+      select: {
+        id: true,
+        email: true,
+        login: true,
+      },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Пользователь с таким email или login уже существует" },
+        { status: 409 }
+      );
+    }
+
+    const passwordHash = await hashPassword(password);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        login,
+        nickname,
+        passwordHash,
+      },
+      select: {
+        id: true,
+        email: true,
+        login: true,
+        nickname: true,
+        creditBalance: true,
+        createdAt: true,
+      },
+    });
+
+    const token = await createSessionToken({
+      userId: user.id,
+      email: user.email,
+      login: user.login,
+    });
+
+    await setSessionCookie(token);
+
+    return NextResponse.json({
+      ok: true,
+      user,
+    });
+  } catch (error) {
+    console.error("register error", error);
+
+    return NextResponse.json(
+      { error: "Не удалось зарегистрировать пользователя" },
+      { status: 500 }
+    );
+  }
+}
