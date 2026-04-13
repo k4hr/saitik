@@ -1,25 +1,31 @@
-import SectionShell from '@/components/layout/section-shell';
+import Link from "next/link";
 
-const plans = [
+import SectionShell from "@/components/layout/section-shell";
+import { Button } from "@/components/ui/button";
+
+const creditPacks = [
   {
-    name: 'Start',
-    price: '990 ₽',
-    desc: 'Для первого знакомства с сервисом.',
-    features: ['1 стиль', '8 фото', 'Стандартное качество'],
+    name: "Starter",
+    credits: "150 кредитов",
+    price: "990 ₽",
+    desc: "Для первого входа в сервис и нескольких базовых генераций.",
+    features: ["Готовые стили", "История заказов", "Хранение в кабинете"],
     featured: false,
   },
   {
-    name: 'Premium',
-    price: '2 490 ₽',
-    desc: 'Оптимально для красивой полноценной серии.',
-    features: ['3 стиля', '20 фото', '1 reroll', 'Повышенное качество'],
+    name: "Growth",
+    credits: "400 кредитов",
+    price: "2 490 ₽",
+    desc: "Оптимальный баланс для регулярных генераций и референсов.",
+    features: ["Лучший курс", "Референсы и reroll", "Подходит для частых заказов"],
     featured: true,
   },
   {
-    name: 'Reference Pro',
-    price: '3 990 ₽',
-    desc: 'Если пользователь загружает свой референс.',
-    features: ['Свой референс', '12 фото', 'Приоритетная генерация'],
+    name: "Studio",
+    credits: "900 кредитов",
+    price: "4 990 ₽",
+    desc: "Для активного использования и дорогих сценариев с апгрейдами.",
+    features: ["Максимально выгодно", "4K и upscale", "Серии заказов"],
     featured: false,
   },
 ];
@@ -28,47 +34,48 @@ export default function PricingSection() {
   return (
     <SectionShell
       id="pricing"
-      eyebrow="Тарифы"
-      title="Пакеты под разный сценарий"
-      description="Можно начать с базового варианта, а можно сразу брать продвинутый режим со своим референсом."
+      eyebrow="Кредиты"
+      title="Баланс, который тратится на генерации"
+      description="Пользователь покупает кредиты на баланс, а потом тратит их на стили, референсы, reroll, upscale и другие действия внутри кабинета."
     >
       <div className="grid gap-5 lg:grid-cols-3">
-        {plans.map((plan) => (
+        {creditPacks.map((pack) => (
           <div
-            key={plan.name}
+            key={pack.name}
             className={`rounded-[30px] border p-7 shadow-[0_10px_35px_rgba(88,62,40,0.06)] ${
-              plan.featured
-                ? 'border-[#caa789] bg-[#fffaf6]'
-                : 'border-[#eadfd6] bg-white'
+              pack.featured
+                ? "border-[#caa789] bg-[#fffaf6]"
+                : "border-[#eadfd6] bg-white"
             }`}
           >
-            {plan.featured ? (
+            {pack.featured ? (
               <span className="inline-flex rounded-full bg-[#f1e0d1] px-3 py-1 text-xs uppercase tracking-[0.18em] text-[#9a7658]">
                 Popular
               </span>
             ) : null}
 
-            <h3 className="mt-4 text-3xl text-[#3d3128]">{plan.name}</h3>
-            <p className="mt-3 text-sm leading-7 text-[#7e6f63]">{plan.desc}</p>
-            <p className="mt-6 text-4xl text-[#3d3128]">{plan.price}</p>
+            <h3 className="mt-4 text-3xl text-[#3d3128]">{pack.name}</h3>
+            <p className="mt-3 text-sm leading-7 text-[#7e6f63]">{pack.desc}</p>
+            <p className="mt-6 text-lg text-[#8a715d]">{pack.credits}</p>
+            <p className="mt-2 text-4xl text-[#3d3128]">{pack.price}</p>
 
             <ul className="mt-6 space-y-3 text-sm text-[#6d5f54]">
-              {plan.features.map((feature) => (
+              {pack.features.map((feature) => (
                 <li key={feature}>• {feature}</li>
               ))}
             </ul>
 
-            <button
-              className={`mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm transition ${
-                plan.featured
-                  ? 'bg-[#b79273] text-white hover:bg-[#a88466]'
-                  : 'border border-[#d8c5b7] text-[#5f5248] hover:bg-[#f2e7de]'
-              }`}
-            >
-              Выбрать тариф
-            </button>
+            <Button asChild size="lg" className="mt-8 w-full">
+              <Link href="/dashboard/billing">Пополнить баланс</Link>
+            </Button>
           </div>
         ))}
+      </div>
+
+      <div className="mt-8 rounded-[28px] border border-[#eadfd6] bg-white p-6 text-sm leading-7 text-[#7e6f63] shadow-[0_10px_35px_rgba(88,62,40,0.05)]">
+        Пример списаний: готовый стиль — <span className="text-[#3d3128]">40 кредитов</span>,
+        генерация по своему референсу — <span className="text-[#3d3128]">70 кредитов</span>,
+        reroll — <span className="text-[#3d3128]">20 кредитов</span>, 4K export — <span className="text-[#3d3128]">30 кредитов</span>.
       </div>
     </SectionShell>
   );

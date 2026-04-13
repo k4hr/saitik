@@ -1,4 +1,7 @@
-import Container from '@/components/ui/container';
+import Link from "next/link";
+
+import Container from "@/components/ui/container";
+import { Button } from "@/components/ui/button";
 
 export default function CTASection() {
   return (
@@ -10,27 +13,21 @@ export default function CTASection() {
           </p>
 
           <h2 className="mx-auto mt-4 max-w-4xl text-3xl leading-tight text-[#3d3128] sm:text-4xl lg:text-5xl">
-            Сделай первую AI-фотосессию в премиальном стиле
+            Войди по почте и собери первую AI-фотосессию в ATELIA
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[#7e6f63] sm:text-base">
-            Выбирай готовую эстетику, загружай свои фото и получай изображения,
-            которые выглядят как результат дорогой реальной съёмки.
+            Авторизация, баланс кредитов, каталог стилей и личный кабинет уже
+            заложены в архитектуру проекта и готовы к следующему этапу.
           </p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <a
-              href="#styles"
-              className="inline-flex items-center justify-center rounded-full bg-[#b79273] px-7 py-3.5 text-sm text-white transition hover:bg-[#a88466]"
-            >
-              Начать
-            </a>
-            <a
-              href="#pricing"
-              className="inline-flex items-center justify-center rounded-full border border-[#d8c5b7] px-7 py-3.5 text-sm text-[#5f5248] transition hover:bg-[#efe4db]"
-            >
-              Посмотреть тарифы
-            </a>
+            <Button asChild size="lg">
+              <Link href="/auth/sign-in">Войти по почте</Link>
+            </Button>
+            <Button asChild variant="secondary" size="lg">
+              <Link href="/dashboard/billing">Посмотреть кредиты</Link>
+            </Button>
           </div>
         </div>
       </Container>
