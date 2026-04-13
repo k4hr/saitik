@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING_PAYMENT
+  PAID
+  PROCESSING
+  DONE
+  FAILED
+  CANCELED
+}
+
+enum AssetType {
+  FACE
+  REFERENCE
+  RESULT
+}
+
+enum CreditTransactionType {
+  TOPUP
+  SPEND
+  REFUND
+  ADMIN_ADJUSTMENT
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+model User {
+  id                String              @id @default(cuid())
+  email             String              @unique
+  login             String              @unique
+  nickname          String
+  passwordHash      String
+  creditBalance     Int                 @default(0)
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  orders            Order[]
+  payments          Payment[]
+  creditTransactions CreditTransaction[]
+}
+
+model StylePreset {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  category      String
+  description   String
+  coverImageUrl String?
+  isActive      Boolean   @default(true)
+  sortOrder     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orders        Order[]
+}
+
+model Order {
+  id                 String               @id @default(cuid())
+  userId             String
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stylePresetId      String?
+  stylePreset        StylePreset?         @relation(fields: [stylePresetId], references: [id], onDelete: SetNull)
+
+  title              String?
+  goal               String?
+  status             OrderStatus          @default(DRAFT)
+
+  selectedFormat     String?
+  selectedMood       String?
+  notes              String?
+
+  creditsSpent       Int                  @default(0)
+  priceRub           Int?
+  currency           String               @default("RUB")
+
+  paidAt             DateTime?
+  startedAt          DateTime?
+  finishedAt         DateTime?
+
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  assets             OrderAsset[]
+  payments           Payment[]
+  creditTransactions CreditTransaction[]
+}
+
+model OrderAsset {
+  id         String    @id @default(cuid())
+  orderId    String
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  type       AssetType
+  url        String
+  mimeType   String?
+  width      Int?
+  height     Int?
+  sortOrder  Int       @default(0)
+
+  createdAt  DateTime  @default(now())
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderId           String?
+  order             Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  provider          String
+  externalPaymentId String?       @unique
+  amountRub         Int
+  creditsPurchased  Int?
+  status            PaymentStatus @default(PENDING)
+  paidAt            DateTime?
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model CreditTransaction {
+  id           String                @id @default(cuid())
+  userId       String
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderId      String?
+  order        Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  type         CreditTransactionType
+  amount       Int
+  balanceAfter Int
+  description  String?
+
+  createdAt    DateTime              @default(now())
+}
