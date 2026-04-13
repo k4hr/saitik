@@ -17,7 +17,6 @@ export async function GET() {
         id: true,
         email: true,
         login: true,
-        nickname: true,
         creditBalance: true,
         createdAt: true,
       },
