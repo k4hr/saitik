@@ -6,7 +6,6 @@ import { createSessionToken, hashPassword, setSessionCookie } from "@/lib/auth";
 type RegisterBody = {
   email?: string;
   login?: string;
-  nickname?: string;
   password?: string;
 };
 
@@ -24,12 +23,11 @@ export async function POST(req: NextRequest) {
 
     const email = body.email ? normalizeEmail(body.email) : "";
     const login = body.login ? normalizeLogin(body.login) : "";
-    const nickname = body.nickname?.trim() ?? "";
     const password = body.password ?? "";
 
-    if (!email || !login || !nickname || !password) {
+    if (!email || !login || !password) {
       return NextResponse.json(
-        { error: "email, login, nickname и password обязательны" },
+        { error: "email, login и password обязательны" },
         { status: 400 }
       );
     }
@@ -50,14 +48,10 @@ export async function POST(req: NextRequest) {
 
     if (!/^[a-z0-9._-]+$/.test(login)) {
       return NextResponse.json(
-        { error: "Логин может содержать только a-z, 0-9, точку, дефис и нижнее подчеркивание" },
-        { status: 400 }
-      );
-    }
-
-    if (nickname.length < 2 || nickname.length > 40) {
-      return NextResponse.json(
-        { error: "Никнейм должен быть от 2 до 40 символов" },
+        {
+          error:
+            "Логин может содержать только a-z, 0-9, точку, дефис и нижнее подчеркивание",
+        },
         { status: 400 }
       );
     }
@@ -75,8 +69,6 @@ export async function POST(req: NextRequest) {
       },
       select: {
         id: true,
-        email: true,
-        login: true,
       },
     });
 
@@ -93,14 +85,12 @@ export async function POST(req: NextRequest) {
       data: {
         email,
         login,
-        nickname,
         passwordHash,
       },
       select: {
         id: true,
         email: true,
         login: true,
-        nickname: true,
         creditBalance: true,
         createdAt: true,
       },
