@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
         id: true,
         email: true,
         login: true,
-        nickname: true,
         passwordHash: true,
         creditBalance: true,
         isActive: true,
@@ -78,7 +77,6 @@ export async function POST(req: NextRequest) {
         id: user.id,
         email: user.email,
         login: user.login,
-        nickname: user.nickname,
         creditBalance: user.creditBalance,
       },
     });
