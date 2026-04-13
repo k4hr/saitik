@@ -89,8 +89,8 @@ export default function MobileMenu({ items }: MobileMenuProps) {
 
               <div className="mt-4 grid gap-2">
                 <Button asChild size="lg">
-                  <Link href="#hero" onClick={() => setOpen(false)}>
-                    Попробовать
+                  <Link href="/create" onClick={() => setOpen(false)}>
+                    Создать
                   </Link>
                 </Button>
 
