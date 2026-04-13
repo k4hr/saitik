@@ -4,15 +4,30 @@ import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import MobileMenu from "@/components/layout/mobile-menu";
 
-const navItems = [
+type SiteHeaderProps = {
+  isAuthenticated?: boolean;
+};
+
+const publicNavItems = [
   { label: "Стили", href: "/styles" },
   { label: "Создать", href: "/create" },
-  { label: "Кредиты", href: "/dashboard/billing" },
-  { label: "Заказы", href: "/dashboard/orders" },
+  { label: "Как это работает", href: "/#how-it-works" },
+  { label: "Тарифы", href: "/#pricing" },
   { label: "FAQ", href: "/#faq" },
 ];
 
-export default function SiteHeader() {
+const privateNavItems = [
+  { label: "Создать", href: "/create" },
+  { label: "Стили", href: "/styles" },
+  { label: "Заказы", href: "/dashboard/orders" },
+  { label: "Кредиты", href: "/dashboard/billing" },
+];
+
+export default function SiteHeader({
+  isAuthenticated = false,
+}: SiteHeaderProps) {
+  const navItems = isAuthenticated ? privateNavItems : publicNavItems;
+
   return (
     <header className="sticky top-0 z-50 border-b border-[#eadfd6]/80 bg-[#f8f2ed]/80 backdrop-blur-xl">
       <Container className="flex h-16 items-center justify-between gap-4 sm:h-20">
@@ -38,16 +53,30 @@ export default function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Button asChild variant="secondary">
-            <Link href="/auth/sign-in">Войти</Link>
-          </Button>
+          {!isAuthenticated ? (
+            <>
+              <Button asChild variant="secondary">
+                <Link href="/styles">Каталог</Link>
+              </Button>
 
-          <Button asChild>
-            <Link href="/dashboard">Кабинет</Link>
-          </Button>
+              <Button asChild>
+                <Link href="/auth/sign-in">Войти / Регистрация</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="secondary">
+                <Link href="/dashboard/billing">Баланс</Link>
+              </Button>
+
+              <Button asChild>
+                <Link href="/dashboard">Личный кабинет</Link>
+              </Button>
+            </>
+          )}
         </div>
 
-        <MobileMenu items={navItems} />
+        <MobileMenu items={navItems} isAuthenticated={isAuthenticated} />
       </Container>
     </header>
   );
