@@ -1,4 +1,6 @@
-import Container from '@/components/ui/container';
+import Link from "next/link";
+
+import Container from "@/components/ui/container";
 
 export default function SiteFooter() {
   return (
@@ -13,6 +15,9 @@ export default function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap gap-4 text-sm text-[#7e6f63]">
+          <Link href="/styles" className="transition hover:text-[#3b2f26]">
+            Стили
+          </Link>
           <a href="#" className="transition hover:text-[#3b2f26]">
             Политика
           </a>
