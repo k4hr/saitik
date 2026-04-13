@@ -3,64 +3,31 @@
 import { useMemo, useState } from "react";
 
 import Container from "@/components/ui/container";
-import StepStylePicker, { type StyleOption } from "@/components/create/step-style-picker";
+import StepStylePicker from "@/components/create/step-style-picker";
 import StepFaceUpload from "@/components/create/step-face-upload";
 import StepReferenceUpload from "@/components/create/step-reference-upload";
 import StepOrderSettings from "@/components/create/step-order-settings";
 import OrderSummaryCard from "@/components/create/order-summary-card";
+import { stylePresets, type StyleOption } from "@/lib/data/style-presets";
 
-const styleOptions: StyleOption[] = [
-  {
-    id: "old-money-portrait",
-    title: "Old Money Portrait",
-    category: "Luxury",
-    description: "Тихая роскошь, мягкий свет и дорогой спокойный образ."
-  },
-  {
-    id: "pinterest-soft",
-    title: "Pinterest Soft",
-    category: "Pinterest",
-    description: "Нежные оттенки, воздушная эстетика и премиальный мягкий вайб."
-  },
-  {
-    id: "business-clean",
-    title: "Business Clean",
-    category: "Business",
-    description: "Чистые деловые кадры для сайта, LinkedIn и личного бренда."
-  },
-  {
-    id: "dating-premium",
-    title: "Dating Premium",
-    category: "Dating",
-    description: "Живые естественные фото, которые выглядят дорого и цепляют."
-  },
-  {
-    id: "travel-luxury",
-    title: "Travel Luxury",
-    category: "Travel",
-    description: "Картинка как из отпуска мечты с премиальной подачей."
-  },
-  {
-    id: "editorial-vogue",
-    title: "Editorial Vogue",
-    category: "Editorial",
-    description: "Журнальная композиция, выразительный портрет и fashion-подача."
-  }
-];
+type CreateOrderShellProps = {
+  initialStyleId?: string;
+};
 
-const demoFaceFiles = [
-  "face-main.jpg",
-  "face-side-1.jpg",
-  "face-side-2.jpg"
-];
+const demoFaceFiles = ["face-main.jpg", "face-side-1.jpg", "face-side-2.jpg"];
 
-export default function CreateOrderShell() {
-  const [selectedStyleId, setSelectedStyleId] = useState<string>(styleOptions[0].id);
+export default function CreateOrderShell({ initialStyleId }: CreateOrderShellProps) {
+  const fallbackStyleId =
+    initialStyleId && stylePresets.some((item) => item.id === initialStyleId)
+      ? initialStyleId
+      : stylePresets[0].id;
+
+  const [selectedStyleId, setSelectedStyleId] = useState<string>(fallbackStyleId);
   const [selectedFormat, setSelectedFormat] = useState<string>("Портрет");
   const [selectedMood, setSelectedMood] = useState<string>("Luxury");
 
-  const selectedStyle = useMemo(
-    () => styleOptions.find((item) => item.id === selectedStyleId),
+  const selectedStyle = useMemo<StyleOption | undefined>(
+    () => stylePresets.find((item) => item.id === selectedStyleId),
     [selectedStyleId]
   );
 
@@ -75,15 +42,15 @@ export default function CreateOrderShell() {
             Собери заказ на AI-фотосессию
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Это уже основа будущего product flow: выбор стиля, загрузка лица,
-            референс и параметры заказа в одном премиальном интерфейсе.
+            Это уже основа product flow ATELIA: email-аккаунт, стиль,
+            загрузка лица, референс, параметры заказа и списание кредитов.
           </p>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
           <div className="space-y-6">
             <StepStylePicker
-              items={styleOptions}
+              items={stylePresets}
               selectedStyleId={selectedStyleId}
               onSelectStyle={setSelectedStyleId}
             />

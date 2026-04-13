@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Sparkles } from "lucide-react";
+import { CheckCircle2, Sparkles, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { StyleOption } from "@/components/create/step-style-picker";
+import type { StyleOption } from "@/lib/data/style-presets";
 
 type OrderSummaryCardProps = {
   selectedStyle?: StyleOption;
@@ -17,7 +17,7 @@ type OrderSummaryCardProps = {
 export default function OrderSummaryCard({
   selectedStyle,
   selectedFormat,
-  selectedMood
+  selectedMood,
 }: OrderSummaryCardProps) {
   return (
     <Card className="sticky top-24 overflow-hidden">
@@ -29,12 +29,10 @@ export default function OrderSummaryCard({
           Сводка заказа
         </div>
 
-        <CardTitle className="mt-2">
-          {selectedStyle?.title ?? "Выбери стиль"}
-        </CardTitle>
+        <CardTitle className="mt-2">{selectedStyle?.title ?? "Выбери стиль"}</CardTitle>
 
         <CardDescription>
-          Здесь пользователь увидит краткую сводку перед оплатой.
+          Здесь пользователь увидит краткую сводку перед списанием кредитов и запуском генерации.
         </CardDescription>
       </CardHeader>
 
@@ -51,9 +49,9 @@ export default function OrderSummaryCard({
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
             <div>
-              <p className="text-sm text-[#3d3128]">8–20 готовых фото</p>
+              <p className="text-sm text-[#3d3128]">Готовый стиль — 40 кредитов</p>
               <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                В зависимости от выбранного тарифа и сценария.
+                Базовая генерация по каталогу ATELIA.
               </p>
             </div>
           </div>
@@ -61,9 +59,9 @@ export default function OrderSummaryCard({
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
             <div>
-              <p className="text-sm text-[#3d3128]">Поддержка референса</p>
+              <p className="text-sm text-[#3d3128]">Референс — +30 кредитов</p>
               <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                Можно выбрать шаблон или свой Pinterest-референс.
+                Доплата, если пользователь загружает свою картинку.
               </p>
             </div>
           </div>
@@ -71,9 +69,9 @@ export default function OrderSummaryCard({
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
             <div>
-              <p className="text-sm text-[#3d3128]">Премиальная подача</p>
+              <p className="text-sm text-[#3d3128]">Reroll и upscale отдельно</p>
               <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                UI уже готов под подключение реальной логики оплаты и генерации.
+                Позже легко подключим дополнительные действия по кредитам.
               </p>
             </div>
           </div>
@@ -81,18 +79,21 @@ export default function OrderSummaryCard({
 
         <div className="rounded-[24px] border border-[#eadfd6] bg-white p-5">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-[#7e6f63]">Стартовый пакет</p>
-            <p className="text-xl text-[#3d3128]">990 ₽</p>
+            <div className="flex items-center gap-2 text-sm text-[#7e6f63]">
+              <Wallet className="size-4" />
+              Баланс пользователя
+            </div>
+            <p className="text-xl text-[#3d3128]">150 credits</p>
           </div>
           <p className="mt-2 text-xs leading-6 text-[#8f7f73]">
-            Для MVP это просто визуальный блок. Дальше сюда подключим выбор тарифа.
+            Для MVP это пока UI-заглушка. Следом сюда подключим реальные данные пользователя.
           </p>
         </div>
 
         <div className="grid gap-3">
-          <Button size="xl">Перейти к оплате</Button>
+          <Button size="xl">Запустить за кредиты</Button>
           <Button asChild variant="secondary" size="xl">
-            <Link href="/styles">Вернуться к стилям</Link>
+            <Link href="/dashboard/billing">Пополнить баланс</Link>
           </Button>
         </div>
       </CardContent>
