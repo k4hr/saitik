@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
 
     const orderId = body.orderId?.trim() || "";
     const credits = Number(body.credits);
-    const description = body.description?.trim() || "Списание кредитов за генерацию";
+    const description =
+      body.description?.trim() || "Списание кредитов за генерацию";
 
     if (!orderId) {
       return NextResponse.json(
@@ -79,7 +80,6 @@ export async function POST(req: NextRequest) {
           id: true,
           email: true,
           login: true,
-          nickname: true,
           creditBalance: true,
         },
       });
