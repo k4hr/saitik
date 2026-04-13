@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowRight, Sparkles, Stars, Wand2 } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -14,21 +15,24 @@ const tags = [
   "Email sign-in",
 ];
 
-const floatingCards = [
+const floatingImages = [
   {
-    title: "Email account",
-    subtitle: "Заказы и история в кабинете",
+    src: "/demo/hero-float-1.png",
+    alt: "ATELIA sample portrait",
     className: "left-0 top-8 sm:left-4 lg:-left-10 lg:top-16",
+    rotation: "-rotate-3",
   },
   {
-    title: "Reference match",
-    subtitle: "По своей картинке",
+    src: "/demo/hero-float-2.png",
+    alt: "ATELIA sample editorial portrait",
     className: "right-0 top-0 sm:right-6 lg:-right-8 lg:top-10",
+    rotation: "rotate-2",
   },
   {
-    title: "Credits wallet",
-    subtitle: "Покупка генераций за кредиты",
+    src: "/demo/hero-float-3.png",
+    alt: "ATELIA sample luxury portrait",
     className: "bottom-6 left-4 sm:left-12 lg:bottom-10 lg:left-2",
+    rotation: "rotate-3",
   },
 ];
 
@@ -96,7 +100,9 @@ export default function HeroSection() {
           <div className="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-[#e7dbd1] pt-6">
             <div>
               <p className="text-2xl text-[#3d3128] sm:text-3xl">150</p>
-              <p className="mt-2 text-sm text-[#7b6c61]">кредитов стартовый пакет</p>
+              <p className="mt-2 text-sm text-[#7b6c61]">
+                кредитов стартовый пакет
+              </p>
             </div>
             <div>
               <p className="text-2xl text-[#3d3128] sm:text-3xl">20+</p>
@@ -116,16 +122,22 @@ export default function HeroSection() {
           className="order-1 lg:order-2"
         >
           <div className="relative mx-auto max-w-[560px]">
-            {floatingCards.map((card, index) => (
+            {floatingImages.map((item, index) => (
               <motion.div
-                key={card.title}
+                key={item.src}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 + index * 0.08, duration: 0.35 }}
-                className={`absolute z-20 hidden rounded-[22px] border border-[#eadfd6] bg-white/85 p-4 shadow-[0_20px_60px_rgba(88,62,40,0.12)] backdrop-blur-xl md:block ${card.className}`}
+                className={`absolute z-20 hidden h-[92px] w-[132px] overflow-hidden rounded-[24px] border border-white/70 bg-white shadow-[0_20px_60px_rgba(88,62,40,0.14)] backdrop-blur-xl md:block ${item.className} ${item.rotation}`}
               >
-                <p className="text-sm text-[#3d3128]">{card.title}</p>
-                <p className="mt-1 text-xs text-[#8a7a6d]">{card.subtitle}</p>
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  fill
+                  className="object-cover"
+                  sizes="132px"
+                  priority={index === 0}
+                />
               </motion.div>
             ))}
 
@@ -137,22 +149,30 @@ export default function HeroSection() {
                 className="space-y-4 sm:space-y-5"
               >
                 <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[#e9ddd2] shadow-[0_18px_60px_rgba(88,62,40,0.10)]">
-                  <div className="relative aspect-[0.78] bg-[linear-gradient(180deg,#d8c5b7_0%,#f3ebe5_100%)]">
-                    <div className="absolute inset-x-5 bottom-5 rounded-[22px] border border-white/70 bg-white/70 p-4 backdrop-blur-md">
-                      <div className="flex items-center gap-2 text-sm text-[#8f735f]">
-                        <Wand2 className="size-4" />
-                        Выбран стиль
-                      </div>
-                      <p className="mt-2 text-lg text-[#3d3128]">Old Money Portrait</p>
-                    </div>
+                  <div className="relative aspect-[0.78]">
+                    <Image
+                      src="/demo/hero-main-1.png"
+                      alt="ATELIA premium portrait"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, 280px"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.10)_100%)]" />
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border border-[#eadfd6] bg-white/65 p-5 backdrop-blur-sm">
-                  <p className="text-sm text-[#a18672]">Почта и кабинет</p>
-                  <p className="mt-2 text-lg leading-7 text-[#3d3128]">
-                    Каждый заказ привязан к аккаунту пользователя и виден в истории.
-                  </p>
+                <div className="overflow-hidden rounded-[24px] border border-white/70 bg-white/75 shadow-[0_18px_60px_rgba(88,62,40,0.08)] backdrop-blur-sm">
+                  <div className="relative aspect-[1.3]">
+                    <Image
+                      src="/demo/hero-main-2.png"
+                      alt="ATELIA soft portrait sample"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, 280px"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.00)_0%,rgba(61,49,40,0.06)_100%)]" />
+                  </div>
                 </div>
               </motion.div>
 
@@ -162,22 +182,29 @@ export default function HeroSection() {
                 transition={{ delay: 0.24, duration: 0.42 }}
                 className="space-y-4 pt-8 sm:space-y-5 sm:pt-10"
               >
-                <div className="rounded-[24px] border border-[#eadfd6] bg-white/70 p-5 backdrop-blur-sm">
-                  <div className="flex items-center gap-2 text-sm text-[#a18672]">
-                    <Stars className="size-4" />
-                    Кредиты вместо тарифов
+                <div className="overflow-hidden rounded-[24px] border border-white/70 bg-white/80 shadow-[0_18px_60px_rgba(88,62,40,0.08)] backdrop-blur-sm">
+                  <div className="relative aspect-[1.05]">
+                    <Image
+                      src="/demo/hero-main-3.png"
+                      alt="ATELIA editorial portrait sample"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, 280px"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.00)_0%,rgba(61,49,40,0.06)_100%)]" />
                   </div>
-                  <p className="mt-2 text-lg leading-7 text-[#3d3128]">
-                    Пополняй баланс и оплачивай генерации, референсы и улучшения по действиям.
-                  </p>
                 </div>
 
                 <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[#eadfd6] shadow-[0_18px_60px_rgba(88,62,40,0.10)]">
-                  <div className="relative aspect-[0.78] bg-[linear-gradient(180deg,#cdb7a7_0%,#f7f0ea_100%)]">
-                    <div className="absolute inset-x-5 top-5 rounded-[22px] border border-white/70 bg-white/75 p-4 backdrop-blur-md">
-                      <p className="text-sm text-[#8f735f]">Баланс</p>
-                      <p className="mt-2 text-lg text-[#3d3128]">400 credits available</p>
-                    </div>
+                  <div className="relative aspect-[0.78]">
+                    <Image
+                      src="/demo/hero-main-4.png"
+                      alt="ATELIA luxury portrait"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, 280px"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.10)_100%)]" />
                   </div>
                 </div>
               </motion.div>
