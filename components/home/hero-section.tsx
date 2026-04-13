@@ -52,7 +52,7 @@ export default function HeroSection() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="xl">
               <Link href="/auth/sign-in">
-                Начать через email
+                Начать
                 <ArrowRight className="size-4.5" />
               </Link>
             </Button>
