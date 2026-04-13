@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OKAK — AI фотосессии",
+  title: "ATELIA — AI фотосессии",
   description:
-    "Фотосессия как на Pinterest — с твоим лицом. Загрузи фото, выбери стиль и получи премиальные AI-кадры."
+    "Премиальные AI-фотосессии по готовым стилям и референсам. Авторизация по email, баланс кредитов и личный кабинет с заказами.",
 };
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
