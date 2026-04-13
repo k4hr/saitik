@@ -6,8 +6,8 @@ import MobileMenu from "@/components/layout/mobile-menu";
 
 const navItems = [
   { label: "Стили", href: "/styles" },
+  { label: "Создать", href: "/create" },
   { label: "Как это работает", href: "/#how-it-works" },
-  { label: "До / После", href: "/#before-after" },
   { label: "Тарифы", href: "/#pricing" },
   { label: "FAQ", href: "/#faq" }
 ];
@@ -43,7 +43,7 @@ export default function SiteHeader() {
           </Button>
 
           <Button asChild>
-            <Link href="/#hero">Попробовать</Link>
+            <Link href="/create">Создать</Link>
           </Button>
         </div>
 
