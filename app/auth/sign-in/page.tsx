@@ -11,14 +11,17 @@ export default function SignInPage() {
         <Container className="max-w-[960px]">
           <div className="mb-10 max-w-2xl">
             <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
-              Вход по email
+              Вход и регистрация
             </p>
+
             <h1 className="mt-4 text-4xl leading-[1.06] sm:text-5xl">
               Войди в ATELIA и управляй своими заказами
             </h1>
+
             <p className="mt-5 text-base leading-8 text-[#726458] sm:text-lg">
-              Перед генерацией пользователь входит по почте, получает личный
-              кабинет, баланс кредитов и историю всех фотосессий.
+              Пользователь регистрируется по email, логину, никнейму и паролю,
+              получает личный кабинет, баланс кредитов и историю всех
+              фотосессий.
             </p>
           </div>
 
