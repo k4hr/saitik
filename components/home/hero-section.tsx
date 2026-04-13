@@ -1,25 +1,65 @@
-import Container from '@/components/ui/container';
+"use client";
+
+import Link from "next/link";
+import { motion } from "motion/react";
+import { ArrowRight, Sparkles, Stars, Wand2 } from "lucide-react";
+
+import Container from "@/components/ui/container";
+import { Button } from "@/components/ui/button";
 
 const tags = [
-  'Pinterest aesthetic',
-  'Luxury portrait',
-  'Dating photos',
-  'Business look',
+  "Pinterest aesthetic",
+  "Luxury portrait",
+  "Dating photos",
+  "Business look"
+];
+
+const floatingCards = [
+  {
+    title: "Soft editorial",
+    subtitle: "Подходит для Instagram",
+    className:
+      "left-0 top-8 sm:left-4 lg:-left-10 lg:top-16"
+  },
+  {
+    title: "Reference match",
+    subtitle: "По своей картинке",
+    className:
+      "right-0 top-0 sm:right-6 lg:-right-8 lg:top-10"
+  },
+  {
+    title: "Identity focus",
+    subtitle: "Максимум сходства",
+    className:
+      "bottom-6 left-4 sm:left-12 lg:bottom-10 lg:left-2"
+  }
 ];
 
 export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.95),_rgba(248,242,237,1)_55%)]"
+      className="relative overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.96),_rgba(248,242,237,1)_55%)]"
     >
-      <Container className="grid min-h-[calc(100vh-64px)] items-center gap-10 py-12 sm:min-h-[calc(100vh-80px)] sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:py-20">
-        <div className="order-2 lg:order-1">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-[#a18672]">
-            AI premium photo studio
-          </p>
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-[-140px] h-[360px] w-[360px] -translate-x-1/2 rounded-full bg-[#efe2d7]/70 blur-3xl" />
+        <div className="absolute bottom-[-180px] left-[-60px] h-[280px] w-[280px] rounded-full bg-[#f3e8de] blur-3xl" />
+        <div className="absolute right-[-80px] top-[140px] h-[260px] w-[260px] rounded-full bg-[#ead8c9]/70 blur-3xl" />
+      </div>
 
-          <h1 className="max-w-3xl text-4xl leading-[1.05] text-[#3d3128] sm:text-5xl lg:text-7xl">
+      <Container className="relative grid min-h-[calc(100vh-64px)] items-center gap-12 py-12 sm:min-h-[calc(100vh-80px)] sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:py-20">
+        <motion.div
+          initial={{ opacity: 0, y: 26 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+          className="order-2 lg:order-1"
+        >
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#eadfd6] bg-white/75 px-4 py-2 text-xs uppercase tracking-[0.22em] text-[#9e7f68] backdrop-blur-sm">
+            <Sparkles className="size-3.5" />
+            AI premium photo studio
+          </div>
+
+          <h1 className="mt-5 max-w-3xl text-4xl leading-[1.02] text-[#3d3128] sm:text-5xl lg:text-7xl">
             Фотосессия как на Pinterest — с твоим лицом
           </h1>
 
@@ -30,28 +70,29 @@ export default function HeroSection() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="#styles"
-              className="inline-flex items-center justify-center rounded-full bg-[#b79273] px-7 py-3.5 text-sm text-white transition hover:bg-[#a88466]"
-            >
-              Выбрать стиль
-            </a>
-            <a
-              href="#how-it-works"
-              className="inline-flex items-center justify-center rounded-full border border-[#d8c5b7] px-7 py-3.5 text-sm text-[#5f5248] transition hover:bg-[#efe4db]"
-            >
-              Как это работает
-            </a>
+            <Button asChild size="xl">
+              <Link href="/styles">
+                Выбрать стиль
+                <ArrowRight className="size-4.5" />
+              </Link>
+            </Button>
+
+            <Button asChild variant="secondary" size="xl">
+              <Link href="/#how-it-works">Как это работает</Link>
+            </Button>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <span
+            {tags.map((tag, index) => (
+              <motion.span
                 key={tag}
-                className="rounded-full border border-[#e5d6ca] bg-white/70 px-4 py-2 text-xs text-[#7b6c61] backdrop-blur-sm"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.12 + index * 0.06, duration: 0.35 }}
+                className="rounded-full border border-[#e5d6ca] bg-white/75 px-4 py-2 text-xs text-[#7b6c61] backdrop-blur-sm"
               >
                 {tag}
-              </span>
+              </motion.span>
             ))}
           </div>
 
@@ -69,35 +110,85 @@ export default function HeroSection() {
               <p className="mt-2 text-sm text-[#7b6c61]">доступно в Pro</p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="order-1 lg:order-2">
-          <div className="grid grid-cols-2 gap-4 sm:gap-5">
-            <div className="space-y-4 sm:space-y-5">
-              <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[#e9ddd2] shadow-[0_18px_60px_rgba(88,62,40,0.10)]">
-                <div className="aspect-[0.78] bg-[linear-gradient(180deg,#d8c5b7_0%,#f3ebe5_100%)]" />
-              </div>
-              <div className="rounded-[24px] border border-[#eadfd6] bg-white/65 p-5 backdrop-blur-sm">
-                <p className="text-sm text-[#a18672]">Референс или шаблон</p>
-                <p className="mt-2 text-lg leading-7 text-[#3d3128]">
-                  Выбирай готовую фотосессию или загружай свою картинку.
-                </p>
-              </div>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, y: 26 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08, duration: 0.55 }}
+          className="order-1 lg:order-2"
+        >
+          <div className="relative mx-auto max-w-[560px]">
+            {floatingCards.map((card, index) => (
+              <motion.div
+                key={card.title}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 + index * 0.08, duration: 0.35 }}
+                className={`absolute z-20 hidden rounded-[22px] border border-[#eadfd6] bg-white/85 p-4 shadow-[0_20px_60px_rgba(88,62,40,0.12)] backdrop-blur-xl md:block ${card.className}`}
+              >
+                <p className="text-sm text-[#3d3128]">{card.title}</p>
+                <p className="mt-1 text-xs text-[#8a7a6d]">{card.subtitle}</p>
+              </motion.div>
+            ))}
 
-            <div className="space-y-4 pt-8 sm:space-y-5 sm:pt-10">
-              <div className="rounded-[24px] border border-[#eadfd6] bg-white/70 p-5 backdrop-blur-sm">
-                <p className="text-sm text-[#a18672]">Идеально под телефон</p>
-                <p className="mt-2 text-lg leading-7 text-[#3d3128]">
-                  Загрузка фото, оплата и просмотр результата без лишних шагов.
-                </p>
-              </div>
-              <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[#eadfd6] shadow-[0_18px_60px_rgba(88,62,40,0.10)]">
-                <div className="aspect-[0.78] bg-[linear-gradient(180deg,#cdb7a7_0%,#f7f0ea_100%)]" />
-              </div>
+            <div className="grid grid-cols-2 gap-4 sm:gap-5">
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.16, duration: 0.42 }}
+                className="space-y-4 sm:space-y-5"
+              >
+                <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[#e9ddd2] shadow-[0_18px_60px_rgba(88,62,40,0.10)]">
+                  <div className="relative aspect-[0.78] bg-[linear-gradient(180deg,#d8c5b7_0%,#f3ebe5_100%)]">
+                    <div className="absolute inset-x-5 bottom-5 rounded-[22px] border border-white/70 bg-white/70 p-4 backdrop-blur-md">
+                      <div className="flex items-center gap-2 text-sm text-[#8f735f]">
+                        <Wand2 className="size-4" />
+                        Выбран стиль
+                      </div>
+                      <p className="mt-2 text-lg text-[#3d3128]">Old Money Portrait</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[24px] border border-[#eadfd6] bg-white/65 p-5 backdrop-blur-sm">
+                  <p className="text-sm text-[#a18672]">Референс или шаблон</p>
+                  <p className="mt-2 text-lg leading-7 text-[#3d3128]">
+                    Выбирай готовую фотосессию или загружай свою картинку.
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.24, duration: 0.42 }}
+                className="space-y-4 pt-8 sm:space-y-5 sm:pt-10"
+              >
+                <div className="rounded-[24px] border border-[#eadfd6] bg-white/70 p-5 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 text-sm text-[#a18672]">
+                    <Stars className="size-4" />
+                    Идеально под телефон
+                  </div>
+                  <p className="mt-2 text-lg leading-7 text-[#3d3128]">
+                    Загрузка фото, оплата и просмотр результата без лишних шагов.
+                  </p>
+                </div>
+
+                <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[#eadfd6] shadow-[0_18px_60px_rgba(88,62,40,0.10)]">
+                  <div className="relative aspect-[0.78] bg-[linear-gradient(180deg,#cdb7a7_0%,#f7f0ea_100%)]">
+                    <div className="absolute inset-x-5 top-5 rounded-[22px] border border-white/70 bg-white/75 p-4 backdrop-blur-md">
+                      <p className="text-sm text-[#8f735f]">Результат</p>
+                      <p className="mt-2 text-lg text-[#3d3128]">
+                        Luxury editorial set · 12 photos
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </Container>
     </section>
   );
