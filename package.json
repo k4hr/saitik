@@ -8,13 +8,16 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.1",
+    "@prisma/client": "^6.6.0",
     "@radix-ui/react-slot": "^1.2.0",
+    "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "jose": "^5.9.6",
     "lucide-react": "^0.511.0",
     "motion": "^12.23.24",
     "next": "^16.0.0",
@@ -31,7 +34,7 @@
     "eslint": "^9.35.0",
     "eslint-config-next": "^16.0.0",
     "postcss": "^8.5.6",
-    "prisma": "^6.16.1",
+    "prisma": "^6.6.0",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2"
   }
