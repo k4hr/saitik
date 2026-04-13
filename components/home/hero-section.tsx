@@ -18,20 +18,17 @@ const floatingCards = [
   {
     title: "Soft editorial",
     subtitle: "Подходит для Instagram",
-    className:
-      "left-0 top-8 sm:left-4 lg:-left-10 lg:top-16"
+    className: "left-0 top-8 sm:left-4 lg:-left-10 lg:top-16"
   },
   {
     title: "Reference match",
     subtitle: "По своей картинке",
-    className:
-      "right-0 top-0 sm:right-6 lg:-right-8 lg:top-10"
+    className: "right-0 top-0 sm:right-6 lg:-right-8 lg:top-10"
   },
   {
     title: "Identity focus",
     subtitle: "Максимум сходства",
-    className:
-      "bottom-6 left-4 sm:left-12 lg:bottom-10 lg:left-2"
+    className: "bottom-6 left-4 sm:left-12 lg:bottom-10 lg:left-2"
   }
 ];
 
@@ -71,14 +68,14 @@ export default function HeroSection() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="xl">
-              <Link href="/styles">
-                Выбрать стиль
+              <Link href="/create">
+                Создать фотосессию
                 <ArrowRight className="size-4.5" />
               </Link>
             </Button>
 
             <Button asChild variant="secondary" size="xl">
-              <Link href="/#how-it-works">Как это работает</Link>
+              <Link href="/styles">Посмотреть стили</Link>
             </Button>
           </div>
 
