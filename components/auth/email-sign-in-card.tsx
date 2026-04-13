@@ -4,7 +4,13 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -27,7 +33,6 @@ export default function EmailSignInCard() {
 
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerLogin, setRegisterLogin] = useState("");
-  const [registerNickname, setRegisterNickname] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
 
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -101,7 +106,6 @@ export default function EmailSignInCard() {
         body: JSON.stringify({
           email: registerEmail.trim(),
           login: registerLogin.trim(),
-          nickname: registerNickname.trim(),
           password: registerPassword,
         }),
       });
@@ -245,28 +249,16 @@ export default function EmailSignInCard() {
               />
             </label>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block">
-                <span className="mb-2 block text-sm text-[#6f6156]">Логин</span>
-                <Input
-                  placeholder="Например: atelia_user"
-                  value={registerLogin}
-                  onChange={(e) => setRegisterLogin(e.target.value)}
-                  autoComplete="username"
-                  disabled={isSubmitting}
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm text-[#6f6156]">Никнейм</span>
-                <Input
-                  placeholder="Как тебя показывать в кабинете"
-                  value={registerNickname}
-                  onChange={(e) => setRegisterNickname(e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </label>
-            </div>
+            <label className="block">
+              <span className="mb-2 block text-sm text-[#6f6156]">Логин</span>
+              <Input
+                placeholder="Например: atelia_user"
+                value={registerLogin}
+                onChange={(e) => setRegisterLogin(e.target.value)}
+                autoComplete="username"
+                disabled={isSubmitting}
+              />
+            </label>
 
             <label className="block">
               <span className="mb-2 block text-sm text-[#6f6156]">Пароль</span>
