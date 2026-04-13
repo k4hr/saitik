@@ -15,9 +15,13 @@ type NavItem = {
 
 type MobileMenuProps = {
   items: NavItem[];
+  isAuthenticated?: boolean;
 };
 
-export default function MobileMenu({ items }: MobileMenuProps) {
+export default function MobileMenu({
+  items,
+  isAuthenticated = false,
+}: MobileMenuProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -88,17 +92,38 @@ export default function MobileMenu({ items }: MobileMenuProps) {
               </nav>
 
               <div className="mt-4 grid gap-2">
-                <Button asChild size="lg">
-                  <Link href="/dashboard" onClick={() => setOpen(false)}>
-                    Кабинет
-                  </Link>
-                </Button>
+                {!isAuthenticated ? (
+                  <>
+                    <Button asChild size="lg">
+                      <Link href="/auth/sign-in" onClick={() => setOpen(false)}>
+                        Войти / Регистрация
+                      </Link>
+                    </Button>
 
-                <Button asChild variant="secondary" size="lg">
-                  <Link href="/auth/sign-in" onClick={() => setOpen(false)}>
-                    Войти по почте
-                  </Link>
-                </Button>
+                    <Button asChild variant="secondary" size="lg">
+                      <Link href="/styles" onClick={() => setOpen(false)}>
+                        Каталог стилей
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button asChild size="lg">
+                      <Link href="/dashboard" onClick={() => setOpen(false)}>
+                        Личный кабинет
+                      </Link>
+                    </Button>
+
+                    <Button asChild variant="secondary" size="lg">
+                      <Link
+                        href="/dashboard/billing"
+                        onClick={() => setOpen(false)}
+                      >
+                        Баланс
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </motion.div>
           </>
