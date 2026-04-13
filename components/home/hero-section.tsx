@@ -40,7 +40,7 @@ export default function HeroSection() {
           </div>
 
           <h1 className="mt-5 max-w-3xl text-4xl leading-[1.02] text-[#3d3128] sm:text-5xl lg:text-7xl">
-            Премиальные AI-фотосессии с кабинетом, балансом и заказами
+            Премиальные фотосессии с Вашим лицом
           </h1>
 
           <p className="mt-6 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
