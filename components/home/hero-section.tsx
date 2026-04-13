@@ -15,27 +15,6 @@ const tags = [
   "Email sign-in",
 ];
 
-const floatingImages = [
-  {
-    src: "/demo/hero-float-1.png",
-    alt: "ATELIA sample portrait",
-    className: "left-0 top-8 sm:left-4 lg:-left-10 lg:top-16",
-    rotation: "-rotate-3",
-  },
-  {
-    src: "/demo/hero-float-2.png",
-    alt: "ATELIA sample editorial portrait",
-    className: "right-0 top-0 sm:right-6 lg:-right-8 lg:top-10",
-    rotation: "rotate-2",
-  },
-  {
-    src: "/demo/hero-float-3.png",
-    alt: "ATELIA sample luxury portrait",
-    className: "bottom-6 left-4 sm:left-12 lg:bottom-10 lg:left-2",
-    rotation: "rotate-3",
-  },
-];
-
 export default function HeroSection() {
   return (
     <section
@@ -121,26 +100,7 @@ export default function HeroSection() {
           transition={{ delay: 0.08, duration: 0.55 }}
           className="order-1 lg:order-2"
         >
-          <div className="relative mx-auto max-w-[560px]">
-            {floatingImages.map((item, index) => (
-              <motion.div
-                key={item.src}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 + index * 0.08, duration: 0.35 }}
-                className={`absolute z-20 hidden h-[92px] w-[132px] overflow-hidden rounded-[24px] border border-white/70 bg-white shadow-[0_20px_60px_rgba(88,62,40,0.14)] backdrop-blur-xl md:block ${item.className} ${item.rotation}`}
-              >
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  fill
-                  className="object-cover"
-                  sizes="132px"
-                  priority={index === 0}
-                />
-              </motion.div>
-            ))}
-
+          <div className="mx-auto max-w-[560px]">
             <div className="grid grid-cols-2 gap-4 sm:gap-5">
               <motion.div
                 initial={{ opacity: 0, y: 18 }}
