@@ -1,6 +1,7 @@
-import { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
-import Container from '@/components/ui/container';
+import { ReactNode } from "react";
+
+import { cn } from "@/lib/utils";
+import Container from "@/components/ui/container";
 
 type SectionShellProps = {
   id?: string;
@@ -21,16 +22,16 @@ export default function SectionShell({
   children,
   className,
   innerClassName,
-  centered = true,
+  centered = true
 }: SectionShellProps) {
   return (
-    <section id={id} className={cn('py-16 sm:py-20 lg:py-28', className)}>
+    <section id={id} className={cn("py-16 sm:py-20 lg:py-28", className)}>
       <Container>
-        {(eyebrow || title || description) && (
+        {(eyebrow || title || description) ? (
           <div
             className={cn(
-              'mb-10 sm:mb-12 lg:mb-14',
-              centered ? 'text-center' : 'text-left'
+              "mb-10 sm:mb-12 lg:mb-14",
+              centered ? "text-center" : "text-left"
             )}
           >
             {eyebrow ? (
@@ -51,7 +52,7 @@ export default function SectionShell({
               </p>
             ) : null}
           </div>
-        )}
+        ) : null}
 
         <div className={innerClassName}>{children}</div>
       </Container>
