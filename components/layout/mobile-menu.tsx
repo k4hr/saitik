@@ -89,14 +89,14 @@ export default function MobileMenu({ items }: MobileMenuProps) {
 
               <div className="mt-4 grid gap-2">
                 <Button asChild size="lg">
-                  <Link href="/create" onClick={() => setOpen(false)}>
-                    Создать
+                  <Link href="/dashboard" onClick={() => setOpen(false)}>
+                    Кабинет
                   </Link>
                 </Button>
 
                 <Button asChild variant="secondary" size="lg">
-                  <Link href="/styles" onClick={() => setOpen(false)}>
-                    Каталог стилей
+                  <Link href="/auth/sign-in" onClick={() => setOpen(false)}>
+                    Войти по почте
                   </Link>
                 </Button>
               </div>

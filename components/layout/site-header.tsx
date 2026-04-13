@@ -7,9 +7,9 @@ import MobileMenu from "@/components/layout/mobile-menu";
 const navItems = [
   { label: "Стили", href: "/styles" },
   { label: "Создать", href: "/create" },
-  { label: "Как это работает", href: "/#how-it-works" },
-  { label: "Тарифы", href: "/#pricing" },
-  { label: "FAQ", href: "/#faq" }
+  { label: "Кредиты", href: "/dashboard/billing" },
+  { label: "Заказы", href: "/dashboard/orders" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 export default function SiteHeader() {
@@ -21,7 +21,7 @@ export default function SiteHeader() {
             href="/"
             className="shrink-0 text-lg tracking-[0.18em] text-[#3b2f26] sm:text-xl"
           >
-            OKAK
+            ATELIA
           </Link>
         </div>
 
@@ -39,11 +39,11 @@ export default function SiteHeader() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <Button asChild variant="secondary">
-            <Link href="/styles">Каталог</Link>
+            <Link href="/auth/sign-in">Войти</Link>
           </Button>
 
           <Button asChild>
-            <Link href="/create">Создать</Link>
+            <Link href="/dashboard">Кабинет</Link>
           </Button>
         </div>
 
