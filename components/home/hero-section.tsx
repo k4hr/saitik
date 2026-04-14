@@ -9,13 +9,6 @@ import { useEffect, useState } from "react";
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 
-const tags = [
-  "Pinterest aesthetic",
-  "Luxury portrait",
-  "Credits balance",
-  "Email sign-in",
-];
-
 type CurrentUserResponse = {
   user?: {
     id: string;
@@ -101,31 +94,17 @@ export default function HeroSection() {
             реальная съёмка.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="xl">
-              <Link href={primaryHref}>
-                Начать
-                <ArrowRight className="size-4.5" />
+          <div className="mt-8 flex">
+            <Button
+              asChild
+              size="xl"
+              className="group relative min-w-[196px] overflow-hidden rounded-[22px] border border-white/60 bg-white/30 px-7 py-6 text-[15px] font-medium text-[#3d3128] shadow-[0_14px_40px_rgba(95,69,48,0.14),inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/38 hover:shadow-[0_20px_50px_rgba(95,69,48,0.18),inset_0_1px_0_rgba(255,255,255,0.65)] sm:min-w-[220px] sm:px-8"
+            >
+              <Link href={primaryHref} className="relative z-10 gap-2.5">
+                <span>Начать</span>
+                <ArrowRight className="size-4.5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </Button>
-
-            <Button asChild variant="secondary" size="xl">
-              <Link href="/styles">Посмотреть стили</Link>
-            </Button>
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-2">
-            {tags.map((tag, index) => (
-              <motion.span
-                key={tag}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.12 + index * 0.06, duration: 0.35 }}
-                className="rounded-full border border-[#e5d6ca] bg-white/75 px-4 py-2 text-xs text-[#7b6c61] backdrop-blur-sm"
-              >
-                {tag}
-              </motion.span>
-            ))}
           </div>
 
           <div className="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-[#e7dbd1] pt-6">
