@@ -1,61 +1,47 @@
-import { ReactNode } from "react";
+import SectionShell from "@/components/layout/section-shell";
 
-import { cn } from "@/lib/utils";
-import Container from "@/components/ui/container";
+const steps = [
+  {
+    number: "01",
+    title: "Выберите стиль фотографии который желаете получить",
+    text: "Выберите стиль будущей фотосессии из каталога готовых образов.",
+  },
+  {
+    number: "02",
+    title: "Загрузите фотографию Вашего лица",
+    text: "Подойдет обычное фото с телефона. Главное, чтобы лицо было хорошо видно.",
+  },
+  {
+    number: "03",
+    title: "Получите профессиональные кадры",
+    text: "Сервис создаст стильную фотосессию с Вашим лицом в выбранной эстетике.",
+  },
+];
 
-type SectionShellProps = {
-  id?: string;
-  eyebrow?: string;
-  title?: string;
-  description?: string;
-  children: ReactNode;
-  className?: string;
-  innerClassName?: string;
-  centered?: boolean;
-};
-
-export default function SectionShell({
-  id,
-  eyebrow,
-  title,
-  description,
-  children,
-  className,
-  innerClassName,
-  centered = true
-}: SectionShellProps) {
+export default function HowItWorksSection() {
   return (
-    <section id={id} className={cn("py-16 sm:py-20 lg:py-28", className)}>
-      <Container>
-        {(eyebrow || title || description) ? (
+    <SectionShell
+      id="how-it-works"
+      eyebrow="КАК ЭТО ПРОИСХОДИТ?"
+      title="Простой путь от селфи до стильной фотосессии"
+      className="bg-[#fbf7f3]"
+    >
+      <div className="grid gap-4 md:grid-cols-3">
+        {steps.map((step) => (
           <div
-            className={cn(
-              "mb-10 sm:mb-12 lg:mb-14",
-              centered ? "text-center" : "text-left"
-            )}
+            key={step.number}
+            className="rounded-[28px] border border-[#eadfd6] bg-white p-6 shadow-[0_10px_35px_rgba(88,62,40,0.06)]"
           >
-            {eyebrow ? (
-              <p className="mb-3 text-xs font-medium uppercase tracking-[0.22em] text-[#a18672]">
-                {eyebrow}
-              </p>
-            ) : null}
-
-            {title ? (
-              <h2 className="mx-auto max-w-4xl text-3xl leading-tight text-[#3d3128] sm:text-4xl lg:text-5xl">
-                {title}
-              </h2>
-            ) : null}
-
-            {description ? (
-              <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#7e6f63] sm:text-base">
-                {description}
-              </p>
-            ) : null}
+            <p className="text-xs uppercase tracking-[0.24em] text-[#b28e72]">
+              {step.number}
+            </p>
+            <h3 className="mt-4 text-2xl leading-tight text-[#3d3128]">
+              {step.title}
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-[#7e6f63]">{step.text}</p>
           </div>
-        ) : null}
-
-        <div className={innerClassName}>{children}</div>
-      </Container>
-    </section>
+        ))}
+      </div>
+    </SectionShell>
   );
 }
