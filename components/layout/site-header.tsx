@@ -52,25 +52,13 @@ export default async function SiteHeader() {
 
         <div className="hidden items-center gap-3 lg:flex">
           {!isAuthenticated ? (
-            <>
-              <Button asChild variant="secondary">
-                <Link href="/styles">Каталог</Link>
-              </Button>
-
-              <Button asChild>
-                <Link href="/auth/sign-in">Войти / Регистрация</Link>
-              </Button>
-            </>
+            <Button asChild>
+              <Link href="/auth/sign-in">Войти / Регистрация</Link>
+            </Button>
           ) : (
-            <>
-              <Button asChild variant="secondary">
-                <Link href="/dashboard/billing">Баланс</Link>
-              </Button>
-
-              <Button asChild>
-                <Link href="/dashboard">Личный кабинет</Link>
-              </Button>
-            </>
+            <Button asChild>
+              <Link href="/dashboard">Личный кабинет</Link>
+            </Button>
           )}
         </div>
 
