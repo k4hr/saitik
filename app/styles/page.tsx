@@ -69,7 +69,7 @@ const styles = [
     image: "/demo/styles/dark-masculine.png",
   },
   {
-    title: "City Business Woman",
+    title: "City Business",
     category: "Business",
     text: "Сильная городская эстетика для экспертов и личного бренда.",
     image: "/demo/styles/city-business-woman.png",
