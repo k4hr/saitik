@@ -31,6 +31,8 @@ const createOptions = [
       "/demo/create/styles-1.png",
       "/demo/create/styles-2.png",
       "/demo/create/styles-3.png",
+      "/demo/create/styles-4.png",
+      "/demo/create/styles-5.png",
     ],
     bgClass: "bg-[linear-gradient(180deg,#e6d7cb_0%,#f8f3ee_100%)]",
     glowClass:
@@ -46,6 +48,8 @@ const createOptions = [
       "/demo/create/reference-1.png",
       "/demo/create/reference-2.png",
       "/demo/create/reference-3.png",
+      "/demo/create/reference-4.png",
+      "/demo/create/reference-5.png",
     ],
     bgClass: "bg-[linear-gradient(180deg,#eadfd7_0%,#fbf7f3_100%)]",
     glowClass:
@@ -61,6 +65,8 @@ const createOptions = [
       "/demo/create/edit-1.png",
       "/demo/create/edit-2.png",
       "/demo/create/edit-3.png",
+      "/demo/create/edit-4.png",
+      "/demo/create/edit-5.png",
     ],
     bgClass: "bg-[linear-gradient(180deg,#dccab9_0%,#f4ebe4_100%)]",
     glowClass:
