@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, SlidersHorizontal } from "lucide-react";
 
@@ -23,46 +24,55 @@ const styles = [
     title: "Old Money Portrait",
     category: "Luxury",
     text: "Тихая роскошь, дорогой спокойный образ, мягкий теплый свет.",
+    image: "/demo/styles/old-money-portrait.png",
   },
   {
     title: "Pinterest Soft",
     category: "Pinterest",
     text: "Воздушная эстетика, нежные тона и ощущение идеальной съемки.",
+    image: "/demo/styles/pinterest-soft.png",
   },
   {
     title: "Business Clean",
     category: "Business",
     text: "Деловые портреты для сайта, LinkedIn и личного бренда.",
+    image: "/demo/styles/business-clean.png",
   },
   {
     title: "Dating Premium",
     category: "Dating",
     text: "Живые привлекательные кадры для дейтинга и соцсетей.",
+    image: "/demo/styles/dating-premium.png",
   },
   {
     title: "Travel Luxury",
     category: "Travel",
     text: "Серия с дорогим отпускным вайбом и premium-настроением.",
+    image: "/demo/styles/travel-luxury.png",
   },
   {
     title: "Editorial Vogue",
     category: "Editorial",
     text: "Журнальная композиция, fashion-подача и выразительный портрет.",
+    image: "/demo/styles/editorial-vogue.png",
   },
   {
     title: "Studio Glow",
     category: "Pinterest",
     text: "Мягкий студийный свет и чистая дорогая картинка.",
+    image: "/demo/styles/studio-glow.png",
   },
   {
     title: "Dark Masculine",
     category: "Luxury",
     text: "Более темный контрастный стиль с дорогим мужским образом.",
+    image: "/demo/styles/dark-masculine.png",
   },
   {
     title: "City Business Woman",
     category: "Business",
     text: "Сильная городская эстетика для экспертов и личного бренда.",
+    image: "/demo/styles/city-business-woman.png",
   },
 ];
 
@@ -125,7 +135,7 @@ export default async function StylesPage() {
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {styles.map((item, index) => {
+          {styles.map((item) => {
             const styleHref = session ? "/create" : "/auth/sign-in";
 
             return (
@@ -133,15 +143,16 @@ export default async function StylesPage() {
                 key={item.title}
                 className="group overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white shadow-[0_10px_35px_rgba(88,62,40,0.06)] transition hover:-translate-y-1"
               >
-                <div
-                  className={`aspect-[1/1.18] ${
-                    index % 3 === 0
-                      ? "bg-[linear-gradient(180deg,#dac7b8_0%,#f3ebe5_100%)]"
-                      : index % 3 === 1
-                        ? "bg-[linear-gradient(180deg,#e8ddd3_0%,#f8f3ee_100%)]"
-                        : "bg-[linear-gradient(180deg,#ccb7a8_0%,#efe5de_100%)]"
-                  }`}
-                />
+                <div className="relative aspect-[1/1.18] overflow-hidden bg-[#eadfd6]">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.08)_100%)]" />
+                </div>
 
                 <div className="p-6">
                   <div className="inline-flex rounded-full bg-[#f3e8df] px-3 py-1 text-xs uppercase tracking-[0.16em] text-[#9d7b62]">
