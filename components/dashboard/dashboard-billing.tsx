@@ -1,6 +1,12 @@
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const packs = [
   { title: "150 кредитов", price: "990 ₽", note: "Стартовый пакет" },
@@ -8,13 +14,24 @@ const packs = [
   { title: "900 кредитов", price: "4 990 ₽", note: "Для активного использования" },
 ];
 
-const topupTransactions = [
-  { type: "Пополнение баланса", value: "+150 credits", amountRub: "990 ₽", date: "Сегодня" },
-  { type: "Пополнение баланса", value: "+400 credits", amountRub: "2 490 ₽", date: "12 апреля 2026" },
-  { type: "Пополнение баланса", value: "+900 credits", amountRub: "4 990 ₽", date: "8 апреля 2026" },
-];
+type TransactionItem = {
+  id: string;
+  credits: number;
+  amountRub: number;
+  dateLabel: string;
+};
 
-export default function DashboardBilling() {
+type DashboardBillingProps = {
+  transactions: TransactionItem[];
+};
+
+function formatRub(value: number): string {
+  return new Intl.NumberFormat("ru-RU").format(value) + " ₽";
+}
+
+export default function DashboardBilling({
+  transactions,
+}: DashboardBillingProps) {
   return (
     <section className="py-12 sm:py-14 lg:py-18">
       <Container>
@@ -32,7 +49,7 @@ export default function DashboardBilling() {
             <CardHeader>
               <CardTitle>Выберите пакет</CardTitle>
               <CardDescription>
-                После подключения оплаты здесь будут реальные покупки кредитов.
+                Здесь будут реальные покупки кредитов через оплату.
               </CardDescription>
             </CardHeader>
 
@@ -62,24 +79,38 @@ export default function DashboardBilling() {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              {topupTransactions.map((item) => (
-                <div
-                  key={`${item.type}-${item.date}-${item.amountRub}`}
-                  className="rounded-[20px] border border-[#eadfd6] bg-white p-4 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-[#3d3128]">{item.type}</p>
-                      <p className="mt-1 text-xs text-[#8f7f73]">{item.date}</p>
-                    </div>
+              {transactions.length === 0 ? (
+                <div className="rounded-[20px] border border-[#eadfd6] bg-white p-4 text-sm text-[#7e6f63]">
+                  Пока нет ни одного пополнения.
+                </div>
+              ) : (
+                transactions.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-[20px] border border-[#eadfd6] bg-white p-4 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-[#3d3128]">
+                          Пополнение баланса
+                        </p>
+                        <p className="mt-1 text-xs text-[#8f7f73]">
+                          {item.dateLabel}
+                        </p>
+                      </div>
 
-                    <div className="text-right">
-                      <p className="text-sm text-[#3d3128]">{item.value}</p>
-                      <p className="mt-1 text-xs text-[#8f7f73]">{item.amountRub}</p>
+                      <div className="text-right">
+                        <p className="text-sm text-[#3d3128]">
+                          +{item.credits} credits
+                        </p>
+                        <p className="mt-1 text-xs text-[#8f7f73]">
+                          {formatRub(item.amountRub)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </CardContent>
           </Card>
         </div>
