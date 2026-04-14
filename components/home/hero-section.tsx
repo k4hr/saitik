@@ -4,62 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 
-type CurrentUserResponse = {
-  user?: {
-    id: string;
-    email: string;
-    login: string;
-    creditBalance: number;
-    createdAt: string;
-  } | null;
+type HeroSectionProps = {
+  isAuthenticated: boolean;
 };
 
-export default function HeroSection() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadCurrentUser() {
-      try {
-        const response = await fetch("/api/auth/me", {
-          method: "GET",
-          credentials: "include",
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          if (!cancelled) {
-            setIsAuthenticated(false);
-          }
-          return;
-        }
-
-        const data = (await response.json()) as CurrentUserResponse;
-
-        if (!cancelled) {
-          setIsAuthenticated(Boolean(data.user));
-        }
-      } catch {
-        if (!cancelled) {
-          setIsAuthenticated(false);
-        }
-      }
-    }
-
-    loadCurrentUser();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+export default function HeroSection({
+  isAuthenticated,
+}: HeroSectionProps) {
   const primaryHref = isAuthenticated ? "/create" : "/auth/sign-in";
+  const primaryLabel = isAuthenticated ? "Начать" : "Попробовать бесплатно";
 
   return (
     <section
@@ -104,7 +61,7 @@ export default function HeroSection() {
                 href={primaryHref}
                 className="flex items-center justify-center gap-2.5"
               >
-                <span>Начать</span>
+                <span>{primaryLabel}</span>
                 <ArrowRight className="size-4.5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </Button>
