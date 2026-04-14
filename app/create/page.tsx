@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
-import CreateOrderShell from "@/components/create/create-order-shell";
+import CreateEntryShell from "@/components/create/create-entry-shell";
 import { getSession } from "@/lib/auth";
 
 export default async function CreatePage() {
@@ -15,7 +15,7 @@ export default async function CreatePage() {
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
       <SiteHeader />
-      <CreateOrderShell />
+      <CreateEntryShell />
       <SiteFooter />
     </main>
   );
