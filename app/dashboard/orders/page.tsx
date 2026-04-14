@@ -4,6 +4,36 @@ import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
 import DashboardOrders from "@/components/dashboard/dashboard-orders";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+function formatStatus(status: string): string {
+  switch (status) {
+    case "DRAFT":
+      return "Черновик";
+    case "PENDING_PAYMENT":
+      return "Ожидает оплату";
+    case "PAID":
+      return "Оплачено";
+    case "PROCESSING":
+      return "В обработке";
+    case "DONE":
+      return "Готово";
+    case "FAILED":
+      return "Ошибка";
+    case "CANCELED":
+      return "Отменено";
+    default:
+      return status;
+  }
+}
+
+function formatDateLabel(date: Date): string {
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
 
 export default async function DashboardOrdersPage() {
   const session = await getSession();
@@ -12,10 +42,53 @@ export default async function DashboardOrdersPage() {
     redirect("/auth/sign-in");
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!user) {
+    redirect("/auth/sign-in");
+  }
+
+  const orders = await prisma.order.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      creditsSpent: true,
+      createdAt: true,
+      stylePreset: {
+        select: {
+          title: true,
+        },
+      },
+    },
+  });
+
+  const generations = orders.map((order) => ({
+    id: order.id,
+    title:
+      order.title?.trim() ||
+      order.stylePreset?.title ||
+      "Генерация без названия",
+    status: formatStatus(order.status),
+    credits: order.creditsSpent,
+    createdAtLabel: formatDateLabel(order.createdAt),
+  }));
+
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
       <SiteHeader />
-      <DashboardOrders />
+      <DashboardOrders generations={generations} />
       <SiteFooter />
     </main>
   );
