@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,58 @@ const tags = [
   "Email sign-in",
 ];
 
+type CurrentUserResponse = {
+  user?: {
+    id: string;
+    email: string;
+    login: string;
+    creditBalance: number;
+    createdAt: string;
+  } | null;
+};
+
 export default function HeroSection() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadCurrentUser() {
+      try {
+        const response = await fetch("/api/auth/me", {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          if (!cancelled) {
+            setIsAuthenticated(false);
+          }
+          return;
+        }
+
+        const data = (await response.json()) as CurrentUserResponse;
+
+        if (!cancelled) {
+          setIsAuthenticated(Boolean(data.user));
+        }
+      } catch {
+        if (!cancelled) {
+          setIsAuthenticated(false);
+        }
+      }
+    }
+
+    loadCurrentUser();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const primaryHref = isAuthenticated ? "/create" : "/auth/sign-in";
+
   return (
     <section
       id="hero"
@@ -51,7 +103,7 @@ export default function HeroSection() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="xl">
-              <Link href="/auth/sign-in">
+              <Link href={primaryHref}>
                 Начать
                 <ArrowRight className="size-4.5" />
               </Link>
