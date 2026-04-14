@@ -1,7 +1,21 @@
 import Container from "@/components/ui/container";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export default function DashboardSettings() {
+type DashboardSettingsProps = {
+  login: string;
+  email: string;
+};
+
+export default function DashboardSettings({
+  login,
+  email,
+}: DashboardSettingsProps) {
   return (
     <section className="py-12 sm:py-14 lg:py-18">
       <Container>
@@ -10,23 +24,32 @@ export default function DashboardSettings() {
             Настройки
           </h1>
           <p className="mt-5 text-base leading-8 text-[#726458] sm:text-lg">
-            Здесь позже будут настройки аккаунта, email, пароль и параметры профиля.
+            Здесь информация об аккаунте пользователя.
           </p>
         </div>
 
         <Card className="rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
           <CardHeader>
-            <CardTitle>Раздел в разработке</CardTitle>
+            <CardTitle>Данные аккаунта</CardTitle>
             <CardDescription>
-              Подключим реальные настройки пользователя на следующем этапе.
+              Базовые данные текущего пользователя.
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="text-sm leading-7 text-[#7e6f63]">
-            • изменение login<br />
-            • смена email<br />
-            • смена пароля<br />
-            • управление аккаунтом
+          <CardContent className="space-y-5">
+            <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-[#a18672]">
+                Login
+              </p>
+              <p className="mt-2 text-lg text-[#3d3128]">{login}</p>
+            </div>
+
+            <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-[#a18672]">
+                Email
+              </p>
+              <p className="mt-2 text-lg text-[#3d3128]">{email}</p>
+            </div>
           </CardContent>
         </Card>
       </Container>
