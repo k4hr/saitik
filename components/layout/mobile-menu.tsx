@@ -93,36 +93,17 @@ export default function MobileMenu({
 
               <div className="mt-4 grid gap-2">
                 {!isAuthenticated ? (
-                  <>
-                    <Button asChild size="lg">
-                      <Link href="/auth/sign-in" onClick={() => setOpen(false)}>
-                        Войти / Регистрация
-                      </Link>
-                    </Button>
-
-                    <Button asChild variant="secondary" size="lg">
-                      <Link href="/styles" onClick={() => setOpen(false)}>
-                        Каталог стилей
-                      </Link>
-                    </Button>
-                  </>
+                  <Button asChild size="lg">
+                    <Link href="/auth/sign-in" onClick={() => setOpen(false)}>
+                      Войти / Регистрация
+                    </Link>
+                  </Button>
                 ) : (
-                  <>
-                    <Button asChild size="lg">
-                      <Link href="/dashboard" onClick={() => setOpen(false)}>
-                        Личный кабинет
-                      </Link>
-                    </Button>
-
-                    <Button asChild variant="secondary" size="lg">
-                      <Link
-                        href="/dashboard/billing"
-                        onClick={() => setOpen(false)}
-                      >
-                        Баланс
-                      </Link>
-                    </Button>
-                  </>
+                  <Button asChild size="lg">
+                    <Link href="/dashboard" onClick={() => setOpen(false)}>
+                      Личный кабинет
+                    </Link>
+                  </Button>
                 )}
               </div>
             </motion.div>
