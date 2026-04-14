@@ -2,8 +2,13 @@ import Link from "next/link";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
+import { getSession } from "@/lib/auth";
 
-export default function CTASection() {
+export default async function CTASection() {
+  const session = await getSession();
+  const primaryHref = session ? "/create" : "/auth/sign-in";
+  const secondaryHref = session ? "/dashboard/billing" : "/auth/sign-in";
+
   return (
     <section className="bg-[#f6efe9] py-16 sm:py-20 lg:py-24">
       <Container>
@@ -23,10 +28,15 @@ export default function CTASection() {
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
-              <Link href="/auth/sign-in">Войти по почте</Link>
+              <Link href={primaryHref}>
+                {session ? "Перейти к созданию" : "Войти по почте"}
+              </Link>
             </Button>
+
             <Button asChild variant="secondary" size="lg">
-              <Link href="/dashboard/billing">Посмотреть кредиты</Link>
+              <Link href={secondaryHref}>
+                {session ? "Посмотреть кредиты" : "Открыть кабинет"}
+              </Link>
             </Button>
           </div>
         </div>
