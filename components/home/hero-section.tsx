@@ -98,24 +98,14 @@ export default function HeroSection() {
             <Button
               asChild
               size="xl"
-              className="group relative min-w-[208px] overflow-hidden rounded-[24px] border border-white/55 bg-[linear-gradient(135deg,rgba(255,255,255,0.42)_0%,rgba(255,248,242,0.24)_45%,rgba(234,216,201,0.30)_100%)] px-8 py-6 text-[15px] font-medium text-[#3d3128] shadow-[0_18px_48px_rgba(95,69,48,0.16),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-1px_0_rgba(150,112,82,0.08)] backdrop-blur-2xl transition-all duration-500 hover:-translate-y-1 hover:border-white/70 hover:bg-[linear-gradient(135deg,rgba(255,255,255,0.52)_0%,rgba(255,248,242,0.30)_45%,rgba(234,216,201,0.38)_100%)] hover:shadow-[0_24px_60px_rgba(95,69,48,0.20),inset_0_1px_0_rgba(255,255,255,0.82),inset_0_-1px_0_rgba(150,112,82,0.10)] sm:min-w-[232px] sm:px-9"
+              className="group min-w-[208px] rounded-[24px] border border-[#c8ab8d] bg-[#bc9670] px-8 py-6 text-[15px] font-medium text-[#3d3128] shadow-[0_16px_40px_rgba(95,69,48,0.18),inset_0_1px_0_rgba(255,255,255,0.20)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#b38b64] hover:shadow-[0_22px_52px_rgba(95,69,48,0.24)] sm:min-w-[232px] sm:px-9"
             >
               <Link
                 href={primaryHref}
-                className="relative z-10 flex items-center justify-center gap-2.5"
+                className="flex items-center justify-center gap-2.5"
               >
-                <span className="relative">
-                  Начать
-                  <span className="absolute left-0 top-0 text-white/50 blur-[10px]">
-                    Начать
-                  </span>
-                </span>
-
+                <span>Начать</span>
                 <ArrowRight className="size-4.5 transition-transform duration-300 group-hover:translate-x-1" />
-
-                <span className="pointer-events-none absolute inset-0 rounded-[24px] bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.65),transparent_34%),radial-gradient(circle_at_78%_26%,rgba(255,255,255,0.30),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.18),transparent_46%,rgba(255,255,255,0.06)_100%)] opacity-90" />
-                <span className="pointer-events-none absolute inset-x-[12%] top-0 h-px bg-white/80" />
-                <span className="pointer-events-none absolute -left-10 top-[-120%] h-[260%] w-20 rotate-[24deg] bg-white/30 blur-2xl transition-transform duration-700 group-hover:translate-x-[290px]" />
               </Link>
             </Button>
           </div>
