@@ -65,7 +65,7 @@ const styles = [
   {
     title: "Dark Masculine",
     category: "Luxury",
-    text: "Более темный контрастный стиль с дорогим мужским образом.",
+    text: "Более темный контрастный стиль с дорогим образом.",
     image: "/demo/styles/dark-masculine.png",
   },
   {
