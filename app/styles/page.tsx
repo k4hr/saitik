@@ -6,6 +6,7 @@ import SiteFooter from "@/components/layout/site-footer";
 import SectionShell from "@/components/layout/section-shell";
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
+import { getSession } from "@/lib/auth";
 
 const categories = [
   "Все стили",
@@ -65,7 +66,10 @@ const styles = [
   },
 ];
 
-export default function StylesPage() {
+export default async function StylesPage() {
+  const session = await getSession();
+  const primaryHref = session ? "/create" : "/auth/sign-in";
+
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
       <SiteHeader />
@@ -85,7 +89,7 @@ export default function StylesPage() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="xl">
-              <Link href="/create">
+              <Link href={primaryHref}>
                 Запустить генерацию
                 <ArrowRight className="size-4.5" />
               </Link>
@@ -121,40 +125,45 @@ export default function StylesPage() {
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {styles.map((item, index) => (
-            <article
-              key={item.title}
-              className="group overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white shadow-[0_10px_35px_rgba(88,62,40,0.06)] transition hover:-translate-y-1"
-            >
-              <div
-                className={`aspect-[1/1.18] ${
-                  index % 3 === 0
-                    ? "bg-[linear-gradient(180deg,#dac7b8_0%,#f3ebe5_100%)]"
-                    : index % 3 === 1
-                      ? "bg-[linear-gradient(180deg,#e8ddd3_0%,#f8f3ee_100%)]"
-                      : "bg-[linear-gradient(180deg,#ccb7a8_0%,#efe5de_100%)]"
-                }`}
-              />
+          {styles.map((item, index) => {
+            const styleHref = session ? "/create" : "/auth/sign-in";
 
-              <div className="p-6">
-                <div className="inline-flex rounded-full bg-[#f3e8df] px-3 py-1 text-xs uppercase tracking-[0.16em] text-[#9d7b62]">
-                  {item.category}
+            return (
+              <article
+                key={item.title}
+                className="group overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white shadow-[0_10px_35px_rgba(88,62,40,0.06)] transition hover:-translate-y-1"
+              >
+                <div
+                  className={`aspect-[1/1.18] ${
+                    index % 3 === 0
+                      ? "bg-[linear-gradient(180deg,#dac7b8_0%,#f3ebe5_100%)]"
+                      : index % 3 === 1
+                        ? "bg-[linear-gradient(180deg,#e8ddd3_0%,#f8f3ee_100%)]"
+                        : "bg-[linear-gradient(180deg,#ccb7a8_0%,#efe5de_100%)]"
+                  }`}
+                />
+
+                <div className="p-6">
+                  <div className="inline-flex rounded-full bg-[#f3e8df] px-3 py-1 text-xs uppercase tracking-[0.16em] text-[#9d7b62]">
+                    {item.category}
+                  </div>
+
+                  <h2 className="mt-4 text-2xl text-[#3d3128]">{item.title}</h2>
+                  <p className="mt-3 text-sm leading-7 text-[#7e6f63]">{item.text}</p>
+
+                  <div className="mt-6 flex gap-3">
+                    <Button asChild size="lg">
+                      <Link href={styleHref}>Выбрать стиль</Link>
+                    </Button>
+
+                    <Button variant="secondary" size="lg">
+                      Подробнее
+                    </Button>
+                  </div>
                 </div>
-
-                <h2 className="mt-4 text-2xl text-[#3d3128]">{item.title}</h2>
-                <p className="mt-3 text-sm leading-7 text-[#7e6f63]">{item.text}</p>
-
-                <div className="mt-6 flex gap-3">
-                  <Button asChild size="lg">
-                    <Link href="/create">Выбрать стиль</Link>
-                  </Button>
-                  <Button variant="secondary" size="lg">
-                    Подробнее
-                  </Button>
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </SectionShell>
 
