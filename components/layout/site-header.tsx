@@ -3,10 +3,7 @@ import Link from "next/link";
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import MobileMenu from "@/components/layout/mobile-menu";
-
-type SiteHeaderProps = {
-  isAuthenticated?: boolean;
-};
+import { getSession } from "@/lib/auth";
 
 const publicNavItems = [
   { label: "Стили", href: "/styles" },
@@ -23,9 +20,10 @@ const privateNavItems = [
   { label: "Кредиты", href: "/dashboard/billing" },
 ];
 
-export default function SiteHeader({
-  isAuthenticated = false,
-}: SiteHeaderProps) {
+export default async function SiteHeader() {
+  const session = await getSession();
+  const isAuthenticated = Boolean(session);
+
   const navItems = isAuthenticated ? privateNavItems : publicNavItems;
 
   return (
