@@ -1,8 +1,13 @@
 import Link from "next/link";
 
 import Container from "@/components/ui/container";
+import { getSession } from "@/lib/auth";
 
-export default function SiteFooter() {
+export default async function SiteFooter() {
+  const session = await getSession();
+  const createHref = session ? "/create" : "/auth/sign-in";
+  const billingHref = session ? "/dashboard/billing" : "/auth/sign-in";
+
   return (
     <footer className="border-t border-[#eadfd6] bg-[#f6efe9]">
       <Container className="flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
@@ -18,10 +23,10 @@ export default function SiteFooter() {
           <Link href="/styles" className="transition hover:text-[#3b2f26]">
             Стили
           </Link>
-          <Link href="/create" className="transition hover:text-[#3b2f26]">
+          <Link href={createHref} className="transition hover:text-[#3b2f26]">
             Создать
           </Link>
-          <Link href="/dashboard/billing" className="transition hover:text-[#3b2f26]">
+          <Link href={billingHref} className="transition hover:text-[#3b2f26]">
             Кредиты
           </Link>
           <a href="#" className="transition hover:text-[#3b2f26]">
