@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
-      <SiteHeader isAuthenticated />
+      <SiteHeader />
       <DashboardOverview />
       <SiteFooter />
     </main>
