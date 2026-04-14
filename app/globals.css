@@ -68,9 +68,31 @@ body {
     radial-gradient(circle at top, rgba(255, 255, 255, 0.86), transparent 34%),
     var(--background);
   color: var(--foreground);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif), serif;
+  letter-spacing: -0.02em;
+}
+
+p,
+span,
+a,
+button,
+input,
+textarea,
+select,
+label,
+li {
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
 a {
