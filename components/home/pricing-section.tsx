@@ -123,13 +123,15 @@ export default async function PricingSection() {
                 size="lg"
                 className={`mt-8 h-14 w-full rounded-[20px] text-base ${
                   pack.featured
-                    ? "bg-[#bc9670] text-[#2f241d] hover:bg-[#b18861]"
-                    : "bg-[#2f241d] text-white hover:bg-[#241b16]"
+                    ? "bg-[#bc9670] !text-[#2f241d] hover:bg-[#b18861]"
+                    : "bg-[#2f241d] !text-white hover:bg-[#241b16]"
                 }`}
               >
                 <Link
                   href={primaryHref}
-                  className={pack.featured ? "text-[#2f241d]" : "text-white"}
+                  className={`flex h-full w-full items-center justify-center ${
+                    pack.featured ? "!text-[#2f241d]" : "!text-white"
+                  }`}
                 >
                   Купить
                 </Link>
@@ -161,11 +163,11 @@ export default async function PricingSection() {
             <Button
               asChild
               size="xl"
-              className="min-w-[240px] rounded-[22px] border border-[#d8c0ad] bg-white text-[#2f241d] hover:bg-[#f7efe9]"
+              className="min-w-[240px] rounded-[22px] border border-[#d8c0ad] bg-white !text-[#2f241d] hover:bg-[#f7efe9]"
             >
               <Link
                 href={session ? "/create" : "/auth/sign-in"}
-                className="text-[#2f241d]"
+                className="flex h-full w-full items-center justify-center !text-[#2f241d]"
               >
                 {session ? "Начать" : "Попробовать бесплатно"}
               </Link>
