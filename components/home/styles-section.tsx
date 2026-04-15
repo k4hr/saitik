@@ -60,7 +60,7 @@ export default async function StylesSection() {
         </Button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .styles-marquee {
           animation: styles-marquee 40s linear infinite;
           will-change: transform;
