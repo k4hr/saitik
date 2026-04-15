@@ -9,9 +9,30 @@ import {
 } from "@/components/ui/card";
 
 const packs = [
-  { title: "150 кредитов", price: "990 ₽", note: "Стартовый пакет" },
-  { title: "400 кредитов", price: "2 490 ₽", note: "Лучший курс" },
-  { title: "900 кредитов", price: "4 990 ₽", note: "Для активного использования" },
+  {
+    title: "60 кредитов",
+    price: "290 ₽",
+    note: "Старт · 6 изображений",
+    featured: false,
+  },
+  {
+    title: "160 кредитов",
+    price: "690 ₽",
+    note: "Креатор · 16 изображений",
+    featured: false,
+  },
+  {
+    title: "380 кредитов",
+    price: "1 490 ₽",
+    note: "Студия · 38 изображений",
+    featured: true,
+  },
+  {
+    title: "800 кредитов",
+    price: "2 990 ₽",
+    note: "Бизнес · 80 изображений",
+    featured: false,
+  },
 ];
 
 type TransactionItem = {
@@ -40,7 +61,8 @@ export default function DashboardBilling({
             Пополнить баланс
           </h1>
           <p className="mt-5 text-base leading-8 text-[#726458] sm:text-lg">
-            Здесь пользователь пополняет кредиты и видит всю историю своих пополнений.
+            10 кредитов = 1 изображение. После регистрации пользователь получает
+            10 бесплатных кредитов, чтобы попробовать 1 генерацию без оплаты.
           </p>
         </div>
 
@@ -49,19 +71,34 @@ export default function DashboardBilling({
             <CardHeader>
               <CardTitle>Выберите пакет</CardTitle>
               <CardDescription>
-                Здесь будут реальные покупки кредитов через оплату.
+                Подберите удобный объём кредитов для генерации фотосессий.
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="grid gap-4 sm:grid-cols-3">
+            <CardContent className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {packs.map((pack) => (
                 <div
                   key={pack.title}
-                  className="rounded-[24px] border border-[#eadfd6] bg-[#fffaf6] p-5 shadow-[0_10px_30px_rgba(95,69,48,0.05)]"
+                  className={`rounded-[24px] border p-5 shadow-[0_10px_30px_rgba(95,69,48,0.05)] ${
+                    pack.featured
+                      ? "border-[#caa789] bg-[#fff7f1]"
+                      : "border-[#eadfd6] bg-[#fffaf6]"
+                  }`}
                 >
-                  <p className="text-sm text-[#a18672]">{pack.note}</p>
+                  {pack.featured ? (
+                    <span className="inline-flex rounded-full bg-[#f1e0d1] px-3 py-1 text-xs uppercase tracking-[0.18em] text-[#9a7658]">
+                      Лучший выбор
+                    </span>
+                  ) : null}
+
+                  <p className="mt-3 text-sm text-[#a18672]">{pack.note}</p>
                   <h2 className="mt-3 text-2xl text-[#3d3128]">{pack.title}</h2>
                   <p className="mt-2 text-lg text-[#3d3128]">{pack.price}</p>
+
+                  <p className="mt-4 text-sm leading-7 text-[#7e6f63]">
+                    Стандартная генерация списывает 10 кредитов за 1 изображение.
+                  </p>
+
                   <Button size="lg" className="mt-5 w-full">
                     Купить
                   </Button>
