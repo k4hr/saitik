@@ -3,23 +3,15 @@ import { redirect } from "next/navigation";
 import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
 import Container from "@/components/ui/container";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth";
-
-function getIsAdmin(email: string | undefined): boolean {
-  if (!email) {
-    return false;
-  }
-
-  const raw = process.env.ADMIN_EMAILS ?? "";
-  const adminEmails = raw
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-
-  return adminEmails.includes(email.toLowerCase());
-}
 
 export default async function AdminStylesPage() {
   const session = await getSession();
@@ -28,7 +20,7 @@ export default async function AdminStylesPage() {
     redirect("/auth/sign-in");
   }
 
-  if (!getIsAdmin(session.email)) {
+  if (session.role !== "ADMIN") {
     redirect("/dashboard");
   }
 
@@ -61,15 +53,14 @@ export default async function AdminStylesPage() {
 
             <CardContent className="space-y-5 text-sm leading-7 text-[#6f6156]">
               <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4">
-                • тип каталога: <strong>Готовые</strong> / <strong>Пользовательские</strong>
-                <br />
-                • верхняя категория: <strong>Женские</strong> / <strong>Мужские</strong> / <strong>Семейные</strong>
-                <br />
-                • подкатегория: <strong>Old Money</strong>, <strong>Business</strong>, <strong>Pinterest</strong> и т.д.
-                <br />
-                • загрузка обложки
-                <br />
-                • привязка к реальному style preset id
+                • тип каталога: <strong>Готовые</strong> /{" "}
+                <strong>Пользовательские</strong>
+                <br />• верхняя категория: <strong>Женские</strong> /{" "}
+                <strong>Мужские</strong> / <strong>Семейные</strong>
+                <br />• подкатегория: <strong>Old Money</strong>,{" "}
+                <strong>Business</strong>, <strong>Pinterest</strong> и т.д.
+                <br />• загрузка обложки
+                <br />• привязка к реальному style preset id
               </div>
 
               <div className="flex flex-wrap gap-3">
