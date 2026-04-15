@@ -19,21 +19,21 @@ const adminSections = [
   {
     title: "Готовые стили",
     description:
-      "Загрузка обложек и управление карточками готовых фотосессий.",
+      "Карточки витрины для готовых сценариев, привязанных к StylePreset.",
     href: "/dashboard/admin/styles",
     icon: ImagePlus,
   },
   {
     title: "Пользовательские фотосессии",
     description:
-      "Каталог пользовательских фотосессий, сделанных по референсам.",
+      "Карточки витрины для пользовательских фотосессий по референсам.",
     href: "/dashboard/admin/custom-styles",
     icon: ImageIcon,
   },
   {
     title: "Категории витрины",
     description:
-      "Создание новых категорий для витрины сайта.",
+      "Создание верхних категорий для страницы стилей.",
     href: "/dashboard/admin/categories",
     icon: LayoutGrid,
   },
@@ -80,8 +80,8 @@ export default async function AdminDashboardPage() {
             </div>
 
             <p className="mt-5 max-w-4xl text-base leading-8 text-[#6f6156] sm:text-lg">
-              Здесь ты управляешь загрузками карточек, категориями,
-              подкатегориями и пользовательскими фотосессиями.
+              Здесь ты управляешь категориями, подкатегориями и всеми
+              карточками витрины сайта.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
