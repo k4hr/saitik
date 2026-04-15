@@ -36,7 +36,7 @@ async function main() {
     },
   });
 
-  console.log("User promoted to admin:", updated);
+  console.log("User promoted to ADMIN:", updated);
 }
 
 main()
