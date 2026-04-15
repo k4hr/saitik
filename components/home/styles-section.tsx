@@ -13,7 +13,7 @@ export default async function StylesSection() {
   const items = stylePresets.slice(0, 8).map((item, index) => ({
     id: item.id,
     title: item.title,
-    image: item.coverImageUrl || `/demo/main/style-${(index % 8) + 1}.png`,
+    image: `/demo/main/style-${(index % 8) + 1}.png`,
   }));
 
   const loopItems = [...items, ...items];
