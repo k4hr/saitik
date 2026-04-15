@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ImagePlus, ImageIcon, LayoutGrid, Shield } from "lucide-react";
+import {
+  ImagePlus,
+  ImageIcon,
+  LayoutGrid,
+  FolderTree,
+  Shield,
+} from "lucide-react";
 
 import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
@@ -27,9 +33,16 @@ const adminSections = [
   {
     title: "Категории витрины",
     description:
-      "Создание новых категорий и подкатегорий для витрины сайта.",
+      "Создание новых категорий для витрины сайта.",
     href: "/dashboard/admin/categories",
     icon: LayoutGrid,
+  },
+  {
+    title: "Подкатегории витрины",
+    description:
+      "Создание подкатегорий внутри уже существующих категорий.",
+    href: "/dashboard/admin/subcategories",
+    icon: FolderTree,
   },
 ];
 
@@ -67,9 +80,8 @@ export default async function AdminDashboardPage() {
             </div>
 
             <p className="mt-5 max-w-4xl text-base leading-8 text-[#6f6156] sm:text-lg">
-              Здесь ты управляешь загрузками карточек, категориями и
-              пользовательскими фотосессиями. Сначала выбираешь нужный раздел,
-              потом уже работаешь внутри него.
+              Здесь ты управляешь загрузками карточек, категориями,
+              подкатегориями и пользовательскими фотосессиями.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -86,7 +98,7 @@ export default async function AdminDashboardPage() {
               </Button>
             </div>
 
-            <div className="mt-8 grid gap-4 lg:grid-cols-3">
+            <div className="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
               {adminSections.map((section) => {
                 const Icon = section.icon;
 
