@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FolderPlus, Shield, Sparkles } from "lucide-react";
+import { FolderPlus, FolderTree, Sparkles, Shield } from "lucide-react";
 
 import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
@@ -201,6 +201,13 @@ export default async function AdminCategoriesPage() {
                   )}
 
                   <div className="mt-6 flex flex-wrap gap-3">
+                    <Button asChild variant="secondary" size="lg">
+                      <Link href="/dashboard/admin/subcategories">
+                        <FolderTree className="size-4.5" />
+                        К подкатегориям
+                      </Link>
+                    </Button>
+
                     <Button asChild variant="secondary" size="lg">
                       <Link href="/dashboard/admin/styles">
                         <Sparkles className="size-4.5" />
