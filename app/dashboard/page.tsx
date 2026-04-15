@@ -6,6 +6,20 @@ import DashboardOverview from "@/components/dashboard/dashboard-overview";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+function getIsAdmin(email: string | undefined): boolean {
+  if (!email) {
+    return false;
+  }
+
+  const raw = process.env.ADMIN_EMAILS ?? "";
+  const adminEmails = raw
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+
+  return adminEmails.includes(email.toLowerCase());
+}
+
 export default async function DashboardPage() {
   const session = await getSession();
 
@@ -31,6 +45,7 @@ export default async function DashboardPage() {
       <DashboardOverview
         login={user.login}
         balance={user.creditBalance}
+        isAdmin={getIsAdmin(session.email)}
       />
       <SiteFooter />
     </main>
