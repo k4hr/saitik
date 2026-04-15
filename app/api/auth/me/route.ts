@@ -17,6 +17,7 @@ export async function GET() {
         id: true,
         email: true,
         login: true,
+        role: true,
         creditBalance: true,
         createdAt: true,
       },
@@ -32,7 +33,7 @@ export async function GET() {
 
     return NextResponse.json(
       { error: "Не удалось получить пользователя" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
