@@ -3,23 +3,15 @@ import { redirect } from "next/navigation";
 import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
 import Container from "@/components/ui/container";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth";
-
-function getIsAdmin(email: string | undefined): boolean {
-  if (!email) {
-    return false;
-  }
-
-  const raw = process.env.ADMIN_EMAILS ?? "";
-  const adminEmails = raw
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-
-  return adminEmails.includes(email.toLowerCase());
-}
 
 export default async function AdminCustomStylesPage() {
   const session = await getSession();
@@ -28,7 +20,7 @@ export default async function AdminCustomStylesPage() {
     redirect("/auth/sign-in");
   }
 
-  if (!getIsAdmin(session.email)) {
+  if (session.role !== "ADMIN") {
     redirect("/dashboard");
   }
 
