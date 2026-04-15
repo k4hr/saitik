@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 enum OrderStatus {
   DRAFT
   PENDING_PAYMENT
@@ -37,11 +42,17 @@ enum PaymentStatus {
   CANCELED
 }
 
+enum ShowcaseKind {
+  READY
+  CUSTOM
+}
+
 model User {
   id                 String              @id @default(cuid())
   email              String              @unique
   login              String              @unique
   passwordHash       String
+  role               UserRole            @default(USER)
   creditBalance      Int                 @default(0)
   isActive           Boolean             @default(true)
   createdAt          DateTime            @default(now())
@@ -50,21 +61,85 @@ model User {
   orders             Order[]
   payments           Payment[]
   creditTransactions CreditTransaction[]
+  showcaseItems      ShowcaseItem[]      @relation("ShowcaseItemCreatedBy")
 }
 
 model StylePreset {
-  id            String    @id @default(cuid())
-  slug          String    @unique
+  id            String         @id @default(cuid())
+  slug          String         @unique
   title         String
   category      String
   description   String
   coverImageUrl String?
-  isActive      Boolean   @default(true)
-  sortOrder     Int       @default(0)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  isActive      Boolean        @default(true)
+  sortOrder     Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   orders        Order[]
+  showcaseItems ShowcaseItem[]
+}
+
+model ShowcaseCategory {
+  id            String               @id @default(cuid())
+  name          String
+  slug          String               @unique
+  sortOrder     Int                  @default(0)
+  isActive      Boolean              @default(true)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  subcategories ShowcaseSubcategory[]
+  items         ShowcaseItem[]
+}
+
+model ShowcaseSubcategory {
+  id            String            @id @default(cuid())
+  categoryId    String
+  category      ShowcaseCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  name          String
+  slug          String
+  sortOrder     Int               @default(0)
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  items         ShowcaseItem[]
+
+  @@unique([categoryId, slug])
+  @@index([categoryId, sortOrder])
+}
+
+model ShowcaseItem {
+  id              String               @id @default(cuid())
+  title           String
+  slug            String               @unique
+  kind            ShowcaseKind
+  description     String?
+  coverImageUrl   String
+  sortOrder       Int                  @default(0)
+  isActive        Boolean              @default(true)
+
+  categoryId      String
+  category        ShowcaseCategory     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  subcategoryId   String?
+  subcategory     ShowcaseSubcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+
+  stylePresetId   String?
+  stylePreset     StylePreset?         @relation(fields: [stylePresetId], references: [id], onDelete: SetNull)
+
+  createdByUserId String?
+  createdByUser   User?                @relation("ShowcaseItemCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([kind, isActive, sortOrder])
+  @@index([categoryId, isActive, sortOrder])
+  @@index([subcategoryId, isActive, sortOrder])
+  @@index([stylePresetId])
 }
 
 model Order {
