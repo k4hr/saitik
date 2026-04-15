@@ -127,7 +127,12 @@ export default async function PricingSection() {
                     : "bg-[#2f241d] text-white hover:bg-[#241b16]"
                 }`}
               >
-                <Link href={primaryHref}>Купить</Link>
+                <Link
+                  href={primaryHref}
+                  className={pack.featured ? "text-[#2f241d]" : "text-white"}
+                >
+                  Купить
+                </Link>
               </Button>
             </div>
           ))}
@@ -158,7 +163,10 @@ export default async function PricingSection() {
               size="xl"
               className="min-w-[240px] rounded-[22px] border border-[#d8c0ad] bg-white text-[#2f241d] hover:bg-[#f7efe9]"
             >
-              <Link href={session ? "/create" : "/auth/sign-in"}>
+              <Link
+                href={session ? "/create" : "/auth/sign-in"}
+                className="text-[#2f241d]"
+              >
                 {session ? "Начать" : "Попробовать бесплатно"}
               </Link>
             </Button>
