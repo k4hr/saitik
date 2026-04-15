@@ -1,182 +1,220 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, SlidersHorizontal } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
-import SectionShell from "@/components/layout/section-shell";
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { getSession } from "@/lib/auth";
 
-const categories = [
-  "Все стили",
-  "Pinterest",
-  "Luxury",
-  "Business",
-  "Dating",
-  "Travel",
-  "Editorial",
-];
+type TopCategory = "Женские" | "Мужские" | "Семейные";
 
-const styles = [
+type StyleItem = {
+  title: string;
+  topCategory: TopCategory;
+  subCategory: string;
+  image: string;
+};
+
+const topCategories: TopCategory[] = ["Женские", "Мужские", "Семейные"];
+
+const styles: StyleItem[] = [
   {
     title: "Old Money Portrait",
-    category: "Luxury",
-    text: "Тихая роскошь, дорогой спокойный образ, мягкий теплый свет.",
+    topCategory: "Женские",
+    subCategory: "Old Money",
     image: "/demo/styles/old-money-portrait.png",
   },
   {
     title: "Pinterest Soft",
-    category: "Pinterest",
-    text: "Воздушная эстетика, нежные тона и ощущение идеальной съемки.",
+    topCategory: "Женские",
+    subCategory: "Pinterest",
     image: "/demo/styles/pinterest-soft.png",
   },
   {
     title: "Business Clean",
-    category: "Business",
-    text: "Деловые портреты для сайта, LinkedIn и личного бренда.",
+    topCategory: "Женские",
+    subCategory: "Business",
     image: "/demo/styles/business-clean.png",
   },
   {
-    title: "Dating Premium",
-    category: "Dating",
-    text: "Живые привлекательные кадры для дейтинга и соцсетей.",
-    image: "/demo/styles/dating-premium.png",
-  },
-  {
-    title: "Travel Luxury",
-    category: "Travel",
-    text: "Серия с дорогим отпускным вайбом и premium-настроением.",
-    image: "/demo/styles/travel-luxury.png",
-  },
-  {
     title: "Editorial Vogue",
-    category: "Editorial",
-    text: "Журнальная композиция, fashion-подача и выразительный портрет.",
+    topCategory: "Женские",
+    subCategory: "Editorial",
     image: "/demo/styles/editorial-vogue.png",
   },
   {
     title: "Studio Glow",
-    category: "Pinterest",
-    text: "Мягкий студийный свет и чистая дорогая картинка.",
+    topCategory: "Женские",
+    subCategory: "Studio",
     image: "/demo/styles/studio-glow.png",
   },
   {
     title: "Dark Masculine",
-    category: "Luxury",
-    text: "Более темный контрастный стиль с дорогим образом.",
+    topCategory: "Мужские",
+    subCategory: "Old Money",
     image: "/demo/styles/dark-masculine.png",
   },
   {
     title: "City Business",
-    category: "Business",
-    text: "Сильная городская эстетика для экспертов и личного бренда.",
+    topCategory: "Мужские",
+    subCategory: "Business",
     image: "/demo/styles/city-business-woman.png",
+  },
+  {
+    title: "Dating Premium",
+    topCategory: "Мужские",
+    subCategory: "Dating",
+    image: "/demo/styles/dating-premium.png",
+  },
+  {
+    title: "Travel Luxury",
+    topCategory: "Мужские",
+    subCategory: "Travel",
+    image: "/demo/styles/travel-luxury.png",
+  },
+  {
+    title: "Family Classic",
+    topCategory: "Семейные",
+    subCategory: "Classic",
+    image: "/demo/hero-main-2.png",
+  },
+  {
+    title: "Family Warm",
+    topCategory: "Семейные",
+    subCategory: "Warm",
+    image: "/demo/hero-main-4.png",
+  },
+  {
+    title: "Family Premium",
+    topCategory: "Семейные",
+    subCategory: "Luxury",
+    image: "/demo/hero-main-3.png",
   },
 ];
 
-export default async function StylesPage() {
-  const session = await getSession();
-  const primaryHref = session ? "/create" : "/auth/sign-in";
+export default function StylesPage() {
+  const [selectedTopCategory, setSelectedTopCategory] =
+    useState<TopCategory>("Женские");
+
+  const subCategories = useMemo(() => {
+    return Array.from(
+      new Set(
+        styles
+          .filter((item) => item.topCategory === selectedTopCategory)
+          .map((item) => item.subCategory),
+      ),
+    );
+  }, [selectedTopCategory]);
+
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>("Все");
+
+  const visibleSubCategories = useMemo(
+    () => ["Все", ...subCategories],
+    [subCategories],
+  );
+
+  const filteredStyles = useMemo(() => {
+    return styles.filter((item) => {
+      if (item.topCategory !== selectedTopCategory) {
+        return false;
+      }
+
+      if (selectedSubCategory !== "Все" && item.subCategory !== selectedSubCategory) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [selectedTopCategory, selectedSubCategory]);
+
+  function handleTopCategoryChange(category: TopCategory) {
+    setSelectedTopCategory(category);
+    setSelectedSubCategory("Все");
+  }
 
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
       <SiteHeader />
 
       <section className="border-b border-[#eadfd6] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.96),_rgba(248,242,237,1)_58%)]">
-        <Container className="py-14 sm:py-18 lg:py-24">
+        <Container className="py-14 sm:py-18 lg:py-20">
           <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
             Каталог фотосессий
           </p>
+
           <h1 className="mt-4 max-w-4xl text-4xl leading-[1.04] text-[#3d3128] sm:text-5xl lg:text-6xl">
             Готовые стили, которые можно выбрать за пару секунд
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Не нужно думать над промптом. Просто выбирай эстетику, которая
-            подходит под Instagram, дейтинг, бизнес или личный бренд.
-          </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="xl">
-              <Link href={primaryHref}>
-                Запустить генерацию
-                <ArrowRight className="size-4.5" />
-              </Link>
-            </Button>
-
-            <Button variant="secondary" size="xl">
-              <SlidersHorizontal className="size-4.5" />
-              Фильтры скоро добавим
+          <div className="mt-8">
+            <Button variant="secondary" size="xl" className="pointer-events-none">
+              Фильтры
             </Button>
           </div>
         </Container>
       </section>
 
-      <SectionShell
-        eyebrow="Подборка"
-        title="Стили под разные цели"
-        description="Сейчас это визуальная витрина. Дальше сюда легко добавим фильтры, поиск, избранное и переход к заказу."
-        centered={false}
-      >
-        <div className="mb-8 flex flex-wrap gap-2">
-          {categories.map((category, index) => (
-            <button
-              key={category}
-              className={`rounded-full px-4 py-2 text-sm transition ${
-                index === 0
-                  ? "bg-[#b79273] text-white"
-                  : "border border-[#d8c5b7] text-[#5f5248] hover:bg-[#efe4db]"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {styles.map((item) => {
-            const styleHref = session ? "/create" : "/auth/sign-in";
-
-            return (
-              <article
-                key={item.title}
-                className="group overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white shadow-[0_10px_35px_rgba(88,62,40,0.06)] transition hover:-translate-y-1"
+      <section className="py-10 sm:py-12 lg:py-14">
+        <Container>
+          <div className="mb-4 flex flex-wrap gap-3">
+            {topCategories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => handleTopCategoryChange(category)}
+                className={`rounded-full px-5 py-2.5 text-sm transition ${
+                  selectedTopCategory === category
+                    ? "bg-[#b79273] text-white"
+                    : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
+                }`}
               >
-                <div className="relative aspect-[1/1.18] overflow-hidden bg-[#eadfd6]">
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div className="mb-8 flex flex-wrap gap-3">
+            {visibleSubCategories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setSelectedSubCategory(category)}
+                className={`rounded-full px-4 py-2 text-sm transition ${
+                  selectedSubCategory === category
+                    ? "bg-[#b79273] text-white"
+                    : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {filteredStyles.map((item) => (
+              <Link
+                key={`${item.topCategory}-${item.subCategory}-${item.title}`}
+                href={`/create?style=${encodeURIComponent(item.title)}`}
+                className="group block overflow-hidden rounded-[22px] border border-[#eadfd6] bg-white shadow-[0_8px_24px_rgba(88,62,40,0.05)] transition hover:-translate-y-1"
+              >
+                <div className="relative aspect-[0.8] overflow-hidden bg-[#eadfd6]">
                   <Image
                     src={item.image}
                     alt={item.title}
                     fill
                     className="object-cover transition duration-500 group-hover:scale-[1.03]"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.08)_100%)]" />
                 </div>
-
-                <div className="p-6">
-                  <div className="inline-flex rounded-full bg-[#f3e8df] px-3 py-1 text-xs uppercase tracking-[0.16em] text-[#9d7b62]">
-                    {item.category}
-                  </div>
-
-                  <h2 className="mt-4 text-2xl text-[#3d3128]">{item.title}</h2>
-                  <p className="mt-3 text-sm leading-7 text-[#7e6f63]">{item.text}</p>
-
-                  <div className="mt-6 flex gap-3">
-                    <Button asChild size="lg">
-                      <Link href={styleHref}>Выбрать стиль</Link>
-                    </Button>
-
-                    <Button variant="secondary" size="lg">
-                      Подробнее
-                    </Button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </SectionShell>
+              </Link>
+            ))}
+          </div>
+        </Container>
+      </section>
 
       <SiteFooter />
     </main>
