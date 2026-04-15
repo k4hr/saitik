@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ImageIcon, LayoutGrid, Shield } from "lucide-react";
 
 import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
@@ -30,44 +32,76 @@ export default async function AdminCustomStylesPage() {
 
       <section className="py-12 sm:py-14 lg:py-18">
         <Container>
-          <div className="mb-10 max-w-3xl">
-            <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
-              Админ меню
+          <div className="mx-auto max-w-5xl rounded-[32px] border border-white/60 bg-white/45 p-6 shadow-[0_24px_80px_rgba(91,67,49,0.10)] backdrop-blur-xl sm:p-8 lg:p-10">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-full bg-[#bc9670] text-white shadow-[0_10px_24px_rgba(95,69,48,0.18)]">
+                <Shield className="size-5" />
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+                  Админ меню
+                </p>
+                <h1 className="mt-1 text-4xl leading-[1.06] sm:text-5xl">
+                  Пользовательские фотосессии
+                </h1>
+              </div>
+            </div>
+
+            <p className="mt-5 max-w-3xl text-base leading-8 text-[#726458] sm:text-lg">
+              Здесь будет отдельный каталог фотосессий, которые ты сам
+              добавляешь как пользовательские примеры из референсов.
             </p>
-            <h1 className="mt-4 text-4xl leading-[1.06] sm:text-5xl">
-              Пользовательские фотосессии
-            </h1>
-            <p className="mt-5 text-base leading-8 text-[#726458] sm:text-lg">
-              Здесь будет отдельный каталог фотосессий, которые ты сам добавляешь
-              как пользовательские примеры из референсов.
-            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button
+                type="button"
+                size="xl"
+                className="pointer-events-none rounded-[22px] bg-[#bc9670] text-[#2f241d]"
+              >
+                Загрузки и витрина
+              </Button>
+
+              <Button asChild variant="secondary" size="xl">
+                <Link href="/dashboard/admin">Назад в админ меню</Link>
+              </Button>
+            </div>
+
+            <Card className="mt-8 rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
+              <CardHeader>
+                <CardTitle>Управление пользовательскими карточками</CardTitle>
+                <CardDescription>
+                  Здесь будет нормальная загрузка карточек с обложкой и
+                  категорией.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-5 text-sm leading-7 text-[#6f6156]">
+                <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4">
+                  • добавление пользовательской фотосессии
+                  <br />• загрузка обложки
+                  <br />• выбор категории
+                  <br />• выбор подкатегории
+                  <br />• отдельное отображение на странице стилей во вкладке
+                  <strong> Пользовательские</strong>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Button size="lg">
+                    <ImageIcon className="size-4.5" />
+                    Добавить пользовательскую фотосессию
+                  </Button>
+
+                  <Button asChild variant="secondary" size="lg">
+                    <Link href="/dashboard/admin/categories">
+                      <LayoutGrid className="size-4.5" />
+                      Перейти к категориям
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-
-          <Card className="rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
-            <CardHeader>
-              <CardTitle>Следующий шаг</CardTitle>
-              <CardDescription>
-                Сделаем нормальную загрузку карточек с обложкой и категорией.
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-5 text-sm leading-7 text-[#6f6156]">
-              <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4">
-                • добавление пользовательской фотосессии
-                <br />
-                • загрузка обложки
-                <br />
-                • выбор категории
-                <br />
-                • отдельное отображение на странице стилей во вкладке
-                <strong> Пользовательские</strong>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button size="lg">Добавить пользовательскую фотосессию</Button>
-              </div>
-            </CardContent>
-          </Card>
         </Container>
       </section>
 
