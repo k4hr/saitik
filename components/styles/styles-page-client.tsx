@@ -2,268 +2,337 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, Sparkles } from "lucide-react";
+import { ShowcaseKind } from "@prisma/client";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { stylePresets } from "@/lib/data/style-presets";
 
-type TopCategory = "Женские" | "Мужские" | "Семейные";
+type CategoryItem = {
+  id: string;
+  name: string;
+  slug: string;
+};
 
-type StyleCardConfig = {
-  presetId: string;
-  topCategory: TopCategory;
-  subCategory: string;
-  image: string;
+type SubcategoryItem = {
+  id: string;
+  name: string;
+  slug: string;
+  categoryId: string;
+};
+
+type ShowcaseItem = {
+  id: string;
+  title: string;
+  slug: string;
+  kind: ShowcaseKind;
+  description: string | null;
+  coverImageUrl: string;
+  categoryId: string;
+  subcategoryId: string | null;
+  stylePresetId: string | null;
 };
 
 type StylesPageClientProps = {
   isAuthenticated: boolean;
+  categories: CategoryItem[];
+  subcategories: SubcategoryItem[];
+  showcaseItems: ShowcaseItem[];
 };
 
-const topCategories: TopCategory[] = ["Женские", "Мужские", "Семейные"];
-
-const styleCardConfigs: StyleCardConfig[] = [
-  {
-    presetId: "old-money-portrait",
-    topCategory: "Женские",
-    subCategory: "Old Money",
-    image: "/demo/styles/old-money-portrait.png",
-  },
-  {
-    presetId: "pinterest-soft",
-    topCategory: "Женские",
-    subCategory: "Pinterest",
-    image: "/demo/styles/pinterest-soft.png",
-  },
-  {
-    presetId: "business-clean",
-    topCategory: "Женские",
-    subCategory: "Business",
-    image: "/demo/styles/business-clean.png",
-  },
-  {
-    presetId: "editorial-vogue",
-    topCategory: "Женские",
-    subCategory: "Editorial",
-    image: "/demo/styles/editorial-vogue.png",
-  },
-  {
-    presetId: "studio-glow",
-    topCategory: "Женские",
-    subCategory: "Studio",
-    image: "/demo/styles/studio-glow.png",
-  },
-  {
-    presetId: "dark-masculine",
-    topCategory: "Мужские",
-    subCategory: "Old Money",
-    image: "/demo/styles/dark-masculine.png",
-  },
-  {
-    presetId: "city-business",
-    topCategory: "Мужские",
-    subCategory: "Business",
-    image: "/demo/styles/city-business-woman.png",
-  },
-  {
-    presetId: "dating-premium",
-    topCategory: "Мужские",
-    subCategory: "Dating",
-    image: "/demo/styles/dating-premium.png",
-  },
-  {
-    presetId: "travel-luxury",
-    topCategory: "Мужские",
-    subCategory: "Travel",
-    image: "/demo/styles/travel-luxury.png",
-  },
-  {
-    presetId: "family-classic",
-    topCategory: "Семейные",
-    subCategory: "Classic",
-    image: "/demo/hero-main-2.png",
-  },
-  {
-    presetId: "family-warm",
-    topCategory: "Семейные",
-    subCategory: "Warm",
-    image: "/demo/hero-main-4.png",
-  },
-  {
-    presetId: "family-premium",
-    topCategory: "Семейные",
-    subCategory: "Luxury",
-    image: "/demo/hero-main-3.png",
-  },
-];
+type KindTab = "READY" | "CUSTOM";
 
 export default function StylesPageClient({
   isAuthenticated,
+  categories,
+  subcategories,
+  showcaseItems,
 }: StylesPageClientProps) {
-  const [selectedTopCategory, setSelectedTopCategory] =
-    useState<TopCategory>("Женские");
-  const [selectedSubCategory, setSelectedSubCategory] = useState("Все");
+  const [selectedKind, setSelectedKind] = useState<KindTab>("READY");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>("all");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const primaryHref = isAuthenticated ? "/create" : "/auth/sign-in";
 
-  const styles = useMemo(() => {
-    return styleCardConfigs
-      .map((config) => {
-        const preset = stylePresets.find((item) => item.id === config.presetId);
-
-        if (!preset) {
-          return null;
-        }
-
-        return {
-          id: preset.id,
-          title: preset.title,
-          topCategory: config.topCategory,
-          subCategory: config.subCategory,
-          image: config.image,
-        };
-      })
-      .filter(
-        (
-          item,
-        ): item is {
-          id: string;
-          title: string;
-          topCategory: TopCategory;
-          subCategory: string;
-          image: string;
-        } => item !== null,
-      );
-  }, []);
-
-  const subCategories = useMemo(() => {
-    return Array.from(
-      new Set(
-        styles
-          .filter((item) => item.topCategory === selectedTopCategory)
-          .map((item) => item.subCategory),
-      ),
+  const availableCategories = useMemo(() => {
+    const currentKind = selectedKind === "READY" ? ShowcaseKind.READY : ShowcaseKind.CUSTOM;
+    const usedCategoryIds = new Set(
+      showcaseItems
+        .filter((item) => item.kind === currentKind)
+        .map((item) => item.categoryId),
     );
-  }, [selectedTopCategory, styles]);
 
-  const visibleSubCategories = useMemo(
-    () => ["Все", ...subCategories],
-    [subCategories],
-  );
+    return categories.filter((category) => usedCategoryIds.has(category.id));
+  }, [categories, showcaseItems, selectedKind]);
 
-  const filteredStyles = useMemo(() => {
-    return styles.filter((item) => {
-      if (item.topCategory !== selectedTopCategory) {
+  useEffect(() => {
+    if (
+      selectedCategoryId !== "all" &&
+      !availableCategories.some((item) => item.id === selectedCategoryId)
+    ) {
+      setSelectedCategoryId("all");
+      setSelectedSubcategoryId("all");
+    }
+  }, [availableCategories, selectedCategoryId]);
+
+  const visibleSubcategories = useMemo(() => {
+    const currentKind = selectedKind === "READY" ? ShowcaseKind.READY : ShowcaseKind.CUSTOM;
+
+    const filteredItems = showcaseItems.filter((item) => {
+      if (item.kind !== currentKind) {
+        return false;
+      }
+
+      if (selectedCategoryId !== "all" && item.categoryId !== selectedCategoryId) {
+        return false;
+      }
+
+      return Boolean(item.subcategoryId);
+    });
+
+    const usedSubcategoryIds = new Set(
+      filteredItems
+        .map((item) => item.subcategoryId)
+        .filter((value): value is string => Boolean(value)),
+    );
+
+    return subcategories.filter((subcategory) => {
+      if (selectedCategoryId !== "all" && subcategory.categoryId !== selectedCategoryId) {
+        return false;
+      }
+
+      return usedSubcategoryIds.has(subcategory.id);
+    });
+  }, [showcaseItems, subcategories, selectedKind, selectedCategoryId]);
+
+  useEffect(() => {
+    if (
+      selectedSubcategoryId !== "all" &&
+      !visibleSubcategories.some((item) => item.id === selectedSubcategoryId)
+    ) {
+      setSelectedSubcategoryId("all");
+    }
+  }, [visibleSubcategories, selectedSubcategoryId]);
+
+  const filteredItems = useMemo(() => {
+    const currentKind = selectedKind === "READY" ? ShowcaseKind.READY : ShowcaseKind.CUSTOM;
+
+    return showcaseItems.filter((item) => {
+      if (item.kind !== currentKind) {
+        return false;
+      }
+
+      if (selectedCategoryId !== "all" && item.categoryId !== selectedCategoryId) {
         return false;
       }
 
       if (
-        selectedSubCategory !== "Все" &&
-        item.subCategory !== selectedSubCategory
+        selectedSubcategoryId !== "all" &&
+        item.subcategoryId !== selectedSubcategoryId
       ) {
         return false;
       }
 
       return true;
     });
-  }, [selectedTopCategory, selectedSubCategory, styles]);
+  }, [showcaseItems, selectedKind, selectedCategoryId, selectedSubcategoryId]);
 
-  function handleTopCategoryChange(category: TopCategory) {
-    setSelectedTopCategory(category);
-    setSelectedSubCategory("Все");
+  function getItemHref(item: ShowcaseItem): string {
+    if (!isAuthenticated) {
+      return "/auth/sign-in";
+    }
+
+    if (item.kind === ShowcaseKind.READY && item.stylePresetId) {
+      return `/create?style=${encodeURIComponent(item.stylePresetId)}`;
+    }
+
+    return `/create?showcase=${encodeURIComponent(item.id)}`;
   }
 
   return (
-    <>
-      <section className="border-b border-[#eadfd6] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.96),_rgba(248,242,237,1)_58%)]">
-        <Container className="py-14 sm:py-18 lg:py-20">
+    <section className="bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.96),_rgba(248,242,237,1)_58%)] py-12 sm:py-14 lg:py-18">
+      <Container>
+        <div className="mx-auto max-w-7xl rounded-[34px] border border-white/60 bg-white/45 p-6 shadow-[0_24px_80px_rgba(91,67,49,0.10)] backdrop-blur-xl sm:p-8 lg:p-10">
           <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
             Каталог фотосессий
           </p>
 
           <h1 className="mt-4 max-w-4xl text-4xl leading-[1.04] text-[#3d3128] sm:text-5xl lg:text-6xl">
-            Готовые стили, которые можно выбрать за пару секунд
+            Выберите стиль будущей фотосессии
           </h1>
 
-          <div className="mt-8">
-            <Button variant="secondary" size="xl" className="pointer-events-none">
+          <p className="mt-5 max-w-3xl text-base leading-8 text-[#726458] sm:text-lg">
+            Сначала выбери тип витрины, затем при необходимости открой фильтры
+            по категориям и подкатегориям.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button
+              type="button"
+              size="xl"
+              onClick={() => setSelectedKind("READY")}
+              className={
+                selectedKind === "READY"
+                  ? "rounded-[22px] bg-[#bc9670] text-[#2f241d]"
+                  : "rounded-[22px]"
+              }
+              variant={selectedKind === "READY" ? "default" : "secondary"}
+            >
+              Готовые
+            </Button>
+
+            <Button
+              type="button"
+              size="xl"
+              onClick={() => setSelectedKind("CUSTOM")}
+              className={
+                selectedKind === "CUSTOM"
+                  ? "rounded-[22px] bg-[#bc9670] text-[#2f241d]"
+                  : "rounded-[22px]"
+              }
+              variant={selectedKind === "CUSTOM" ? "default" : "secondary"}
+            >
+              Пользовательские
+            </Button>
+
+            <Button
+              type="button"
+              variant="secondary"
+              size="xl"
+              className="rounded-[22px]"
+              onClick={() => setFiltersOpen((prev) => !prev)}
+            >
               Фильтры
+              <ChevronDown
+                className={`size-4.5 transition-transform duration-300 ${
+                  filtersOpen ? "rotate-180" : ""
+                }`}
+              />
             </Button>
           </div>
-        </Container>
-      </section>
 
-      <section className="py-10 sm:py-12 lg:py-14">
-        <Container>
-          <div className="mb-4 flex flex-wrap gap-3">
-            {topCategories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => handleTopCategoryChange(category)}
-                className={`rounded-full px-5 py-2.5 text-sm transition ${
-                  selectedTopCategory === category
-                    ? "bg-[#b79273] text-white"
-                    : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+          {filtersOpen ? (
+            <div className="mt-6 rounded-[28px] border border-[#eadfd6] bg-white/80 p-5 shadow-[0_12px_34px_rgba(95,69,48,0.06)]">
+              <div>
+                <p className="text-sm font-medium text-[#6f6156]">Категории</p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategoryId("all");
+                      setSelectedSubcategoryId("all");
+                    }}
+                    className={`rounded-full px-5 py-2.5 text-sm transition ${
+                      selectedCategoryId === "all"
+                        ? "bg-[#b79273] text-white"
+                        : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
+                    }`}
+                  >
+                    Все
+                  </button>
 
-          <div className="mb-8 flex flex-wrap gap-3">
-            {visibleSubCategories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => setSelectedSubCategory(category)}
-                className={`rounded-full px-4 py-2 text-sm transition ${
-                  selectedSubCategory === category
-                    ? "bg-[#b79273] text-white"
-                    : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {filteredStyles.map((item) => (
-              <Link
-                key={item.id}
-                href={
-                  isAuthenticated
-                    ? `/create?style=${encodeURIComponent(item.id)}`
-                    : "/auth/sign-in"
-                }
-                className="group block overflow-hidden rounded-[22px] border border-[#eadfd6] bg-white shadow-[0_8px_24px_rgba(88,62,40,0.05)] transition hover:-translate-y-1"
-              >
-                <div className="relative aspect-[0.8] overflow-hidden bg-[#eadfd6]">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover transition duration-500 group-hover:scale-[1.03]"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.08)_100%)]" />
+                  {availableCategories.map((category) => (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategoryId(category.id);
+                        setSelectedSubcategoryId("all");
+                      }}
+                      className={`rounded-full px-5 py-2.5 text-sm transition ${
+                        selectedCategoryId === category.id
+                          ? "bg-[#b79273] text-white"
+                          : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
+                      }`}
+                    >
+                      {category.name}
+                    </button>
+                  ))}
                 </div>
-              </Link>
-            ))}
+              </div>
+
+              <div className="mt-5">
+                <p className="text-sm font-medium text-[#6f6156]">Стили</p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSubcategoryId("all")}
+                    className={`rounded-full px-4 py-2 text-sm transition ${
+                      selectedSubcategoryId === "all"
+                        ? "bg-[#b79273] text-white"
+                        : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
+                    }`}
+                  >
+                    Все
+                  </button>
+
+                  {visibleSubcategories.map((subcategory) => (
+                    <button
+                      key={subcategory.id}
+                      type="button"
+                      onClick={() => setSelectedSubcategoryId(subcategory.id)}
+                      className={`rounded-full px-4 py-2 text-sm transition ${
+                        selectedSubcategoryId === subcategory.id
+                          ? "bg-[#b79273] text-white"
+                          : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
+                      }`}
+                    >
+                      {subcategory.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="mt-8">
+            {filteredItems.length === 0 ? (
+              <div className="rounded-[28px] border border-[#eadfd6] bg-white/80 p-8 text-center shadow-[0_12px_34px_rgba(95,69,48,0.06)]">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#f3e4d6] text-[#9f7f67]">
+                  <Sparkles className="size-6" />
+                </div>
+                <h2 className="mt-5 text-2xl text-[#3d3128]">
+                  Пока здесь пусто
+                </h2>
+                <p className="mt-3 text-sm leading-7 text-[#6f6156]">
+                  Для выбранных фильтров пока нет карточек витрины.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                {filteredItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={getItemHref(item)}
+                    className="group block overflow-hidden rounded-[22px] border border-[#eadfd6] bg-white shadow-[0_8px_24px_rgba(88,62,40,0.05)] transition hover:-translate-y-1"
+                  >
+                    <div className="relative aspect-[0.8] overflow-hidden bg-[#eadfd6]">
+                      <Image
+                        src={item.coverImageUrl}
+                        alt={item.title}
+                        fill
+                        className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                      />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.08)_100%)]" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="mt-10 flex justify-center">
-            <Button asChild size="xl">
+            <Button asChild size="xl" className="min-w-[220px] rounded-[22px]">
               <Link href={primaryHref}>
                 {isAuthenticated ? "Начать" : "Войти / Регистрация"}
               </Link>
             </Button>
           </div>
-        </Container>
-      </section>
-    </>
+        </div>
+      </Container>
+    </section>
   );
 }
