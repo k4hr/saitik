@@ -66,10 +66,6 @@ export default async function StylesSection() {
           will-change: transform;
         }
 
-        .styles-marquee:hover {
-          animation-play-state: paused;
-        }
-
         @keyframes styles-marquee {
           0% {
             transform: translate3d(0, 0, 0);
