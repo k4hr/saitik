@@ -9,7 +9,11 @@
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy"
+    "prisma:deploy": "prisma migrate deploy",
+    "make:admin": "tsx scripts/make-admin.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",
@@ -37,6 +41,7 @@
     "postcss": "^8.5.6",
     "prisma": "^6.6.0",
     "tailwindcss": "^4.1.13",
+    "tsx": "^4.20.3",
     "typescript": "^5.9.2"
   }
 }
