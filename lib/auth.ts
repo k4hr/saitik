@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
+import type { UserRole } from "@prisma/client";
 
 const COOKIE_NAME = "atelia_session";
 const SESSION_DAYS = 30;
@@ -9,6 +10,7 @@ type SessionPayload = {
   userId: string;
   email: string;
   login: string;
+  role: UserRole;
 };
 
 function getJwtSecret(): Uint8Array {
@@ -27,12 +29,14 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(
   password: string,
-  passwordHash: string
+  passwordHash: string,
 ): Promise<boolean> {
   return bcrypt.compare(password, passwordHash);
 }
 
-export async function createSessionToken(payload: SessionPayload): Promise<string> {
+export async function createSessionToken(
+  payload: SessionPayload,
+): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -40,14 +44,17 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
     .sign(getJwtSecret());
 }
 
-export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
+export async function verifySessionToken(
+  token: string,
+): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getJwtSecret());
 
     if (
       typeof payload.userId !== "string" ||
       typeof payload.email !== "string" ||
-      typeof payload.login !== "string"
+      typeof payload.login !== "string" ||
+      (payload.role !== "USER" && payload.role !== "ADMIN")
     ) {
       return null;
     }
@@ -56,6 +63,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
       userId: payload.userId,
       email: payload.email,
       login: payload.login,
+      role: payload.role,
     };
   } catch {
     return null;
