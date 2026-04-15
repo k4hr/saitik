@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import { createSessionToken, setSessionCookie, verifyPassword } from "@/lib/auth";
+import {
+  createSessionToken,
+  setSessionCookie,
+  verifyPassword,
+} from "@/lib/auth";
 
 type LoginBody = {
   identifier?: string;
@@ -22,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (!identifier || !password) {
       return NextResponse.json(
         { error: "identifier и password обязательны" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,6 +38,7 @@ export async function POST(req: NextRequest) {
         id: true,
         email: true,
         login: true,
+        role: true,
         passwordHash: true,
         creditBalance: true,
         isActive: true,
@@ -43,14 +48,14 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "Неверный логин/email или пароль" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     if (!user.isActive) {
       return NextResponse.json(
         { error: "Аккаунт отключен" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -59,7 +64,7 @@ export async function POST(req: NextRequest) {
     if (!isValidPassword) {
       return NextResponse.json(
         { error: "Неверный логин/email или пароль" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -67,6 +72,7 @@ export async function POST(req: NextRequest) {
       userId: user.id,
       email: user.email,
       login: user.login,
+      role: user.role,
     });
 
     await setSessionCookie(token);
@@ -77,6 +83,7 @@ export async function POST(req: NextRequest) {
         id: user.id,
         email: user.email,
         login: user.login,
+        role: user.role,
         creditBalance: user.creditBalance,
       },
     });
@@ -85,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       { error: "Не удалось выполнить вход" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
