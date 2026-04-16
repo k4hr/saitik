@@ -4,10 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Sparkles } from "lucide-react";
-import { ShowcaseKind } from "@prisma/client";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
+import { SHOWCASE_KIND, type ShowcaseKindValue } from "@/lib/showcase";
 
 type CategoryItem = {
   id: string;
@@ -26,7 +26,7 @@ type ShowcaseItem = {
   id: string;
   title: string;
   slug: string;
-  kind: ShowcaseKind;
+  kind: ShowcaseKindValue;
   description: string | null;
   coverImageUrl: string;
   categoryId: string;
@@ -57,7 +57,9 @@ export default function StylesPageClient({
   const primaryHref = isAuthenticated ? "/create" : "/auth/sign-in";
 
   const availableCategories = useMemo(() => {
-    const currentKind = selectedKind === "READY" ? ShowcaseKind.READY : ShowcaseKind.CUSTOM;
+    const currentKind =
+      selectedKind === "READY" ? SHOWCASE_KIND.READY : SHOWCASE_KIND.CUSTOM;
+
     const usedCategoryIds = new Set(
       showcaseItems
         .filter((item) => item.kind === currentKind)
@@ -78,7 +80,8 @@ export default function StylesPageClient({
   }, [availableCategories, selectedCategoryId]);
 
   const visibleSubcategories = useMemo(() => {
-    const currentKind = selectedKind === "READY" ? ShowcaseKind.READY : ShowcaseKind.CUSTOM;
+    const currentKind =
+      selectedKind === "READY" ? SHOWCASE_KIND.READY : SHOWCASE_KIND.CUSTOM;
 
     const filteredItems = showcaseItems.filter((item) => {
       if (item.kind !== currentKind) {
@@ -117,7 +120,8 @@ export default function StylesPageClient({
   }, [visibleSubcategories, selectedSubcategoryId]);
 
   const filteredItems = useMemo(() => {
-    const currentKind = selectedKind === "READY" ? ShowcaseKind.READY : ShowcaseKind.CUSTOM;
+    const currentKind =
+      selectedKind === "READY" ? SHOWCASE_KIND.READY : SHOWCASE_KIND.CUSTOM;
 
     return showcaseItems.filter((item) => {
       if (item.kind !== currentKind) {
@@ -144,7 +148,7 @@ export default function StylesPageClient({
       return "/auth/sign-in";
     }
 
-    if (item.kind === ShowcaseKind.READY && item.stylePresetId) {
+    if (item.kind === SHOWCASE_KIND.READY && item.stylePresetId) {
       return `/create?style=${encodeURIComponent(item.stylePresetId)}`;
     }
 
