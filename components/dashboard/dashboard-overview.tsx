@@ -4,7 +4,10 @@ import {
   ImageIcon,
   Settings,
   Shield,
+  Sparkles,
   Wallet,
+  ImagePlus,
+  LayoutGrid,
 } from "lucide-react";
 
 import Container from "@/components/ui/container";
@@ -37,6 +40,34 @@ const actions = [
     title: "Настройки",
     href: "/dashboard/settings",
     icon: Settings,
+  },
+];
+
+const adminActions = [
+  {
+    title: "Style Preset",
+    href: "/dashboard/admin/presets",
+    icon: Sparkles,
+  },
+  {
+    title: "Готовые стили",
+    href: "/dashboard/admin/styles",
+    icon: ImagePlus,
+  },
+  {
+    title: "Пользовательские фотосессии",
+    href: "/dashboard/admin/custom-styles",
+    icon: ImageIcon,
+  },
+  {
+    title: "Категории витрины",
+    href: "/dashboard/admin/categories",
+    icon: LayoutGrid,
+  },
+  {
+    title: "Подкатегории витрины",
+    href: "/dashboard/admin/subcategories",
+    icon: Shield,
   },
 ];
 
@@ -105,19 +136,55 @@ export default function DashboardOverview({
           </div>
 
           {isAdmin ? (
-            <div className="mt-8">
-              <Button
-                asChild
-                size="xl"
-                className="h-auto rounded-[24px] bg-[#bc9670] px-6 py-5 text-[#2f241d] shadow-[0_16px_40px_rgba(95,69,48,0.16)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#b38b64] hover:shadow-[0_22px_52px_rgba(95,69,48,0.22)]"
-              >
-                <Link href="/dashboard/admin" className="flex items-center gap-3">
+            <div className="mt-10 rounded-[30px] border border-[#d8c5b7] bg-[linear-gradient(180deg,#fffaf6_0%,#f7ede4_100%)] p-6 shadow-[0_16px_40px_rgba(95,69,48,0.08)]">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-full bg-[#bc9670] text-white shadow-[0_10px_24px_rgba(95,69,48,0.18)]">
                   <Shield className="size-5" />
-                  <span className="text-base font-medium sm:text-lg">
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
                     Админ меню
-                  </span>
-                </Link>
-              </Button>
+                  </p>
+                  <h2 className="mt-1 text-2xl text-[#3d3128]">
+                    Управление витриной сайта
+                  </h2>
+                </div>
+              </div>
+
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6f6156]">
+                Здесь можно управлять готовыми стилями системы, категориями,
+                подкатегориями и карточками витрины сайта без правок кода.
+              </p>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {adminActions.map((action) => {
+                  const Icon = action.icon;
+
+                  return (
+                    <Button
+                      key={action.title}
+                      asChild
+                      size="xl"
+                      className="group h-auto w-full justify-between rounded-[24px] bg-[#bc9670] px-6 py-6 text-left text-[#2f241d] shadow-[0_16px_40px_rgba(95,69,48,0.16)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#b38b64] hover:shadow-[0_22px_52px_rgba(95,69,48,0.22)]"
+                    >
+                      <Link
+                        href={action.href}
+                        className="flex w-full items-center justify-between gap-4"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex size-11 items-center justify-center rounded-full bg-white/20">
+                            <Icon className="size-5 text-[#2f241d]" />
+                          </div>
+                          <span className="text-base font-medium sm:text-lg">
+                            {action.title}
+                          </span>
+                        </div>
+                      </Link>
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
           ) : null}
         </div>
