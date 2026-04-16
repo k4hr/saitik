@@ -86,8 +86,8 @@ export default async function AdminPresetsPage() {
             </div>
 
             <p className="mt-5 max-w-3xl text-base leading-8 text-[#726458] sm:text-lg">
-              Здесь создаются готовые стили системы. Потом их можно будет
-              выбирать при создании карточек витрины для готовых фотосессий.
+              Здесь создаются готовые стили системы. Потом их можно выбирать
+              при создании карточек витрины для готовых фотосессий.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -102,6 +102,10 @@ export default async function AdminPresetsPage() {
               <Button asChild variant="secondary" size="xl">
                 <Link href="/dashboard/admin">Назад в админ меню</Link>
               </Button>
+
+              <Button asChild variant="secondary" size="xl">
+                <Link href="/dashboard/admin/styles">К карточкам витрины</Link>
+              </Button>
             </div>
 
             <div className="mt-8 grid gap-6 xl:grid-cols-[430px_1fr]">
@@ -114,9 +118,7 @@ export default async function AdminPresetsPage() {
                 </CardHeader>
 
                 <CardContent>
-                  <StylePresetCreateForm
-                    suggestedSortOrder={suggestedSortOrder}
-                  />
+                  <StylePresetCreateForm suggestedSortOrder={suggestedSortOrder} />
                 </CardContent>
               </Card>
 
@@ -230,15 +232,6 @@ export default async function AdminPresetsPage() {
                       ))}
                     </div>
                   )}
-
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <Button asChild variant="secondary" size="lg">
-                      <Link href="/dashboard/admin/styles">
-                        <Sparkles className="size-4.5" />
-                        К готовым карточкам витрины
-                      </Link>
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             </div>
