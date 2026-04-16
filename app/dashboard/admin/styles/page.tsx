@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { ImagePlus, LayoutGrid, Shield } from "lucide-react";
+import { ShowcaseKind } from "@prisma/client";
 
 import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
@@ -13,6 +15,17 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import ShowcaseItemCreateForm from "@/components/admin/showcase-item-create-form";
+import EntityVisibilityToggle from "@/components/admin/entity-visibility-toggle";
+
+function formatDate(value: Date): string {
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(value);
+}
 
 export default async function AdminStylesPage() {
   const session = await getSession();
@@ -25,54 +38,293 @@ export default async function AdminStylesPage() {
     redirect("/dashboard");
   }
 
+  const [categories, subcategories, stylePresets, items] = await Promise.all([
+    prisma.showcaseCategory.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    }),
+    prisma.showcaseSubcategory.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        categoryId: true,
+      },
+    }),
+    prisma.stylePreset.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        category: true,
+      },
+    }),
+    prisma.showcaseItem.findMany({
+      where: { kind: ShowcaseKind.READY },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        coverImageUrl: true,
+        isActive: true,
+        sortOrder: true,
+        createdAt: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        subcategory: {
+          select: {
+            name: true,
+          },
+        },
+        stylePreset: {
+          select: {
+            title: true,
+            slug: true,
+            category: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  const suggestedSortOrder =
+    items.length > 0 ? Math.max(...items.map((item) => item.sortOrder)) + 10 : 10;
+
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
       <SiteHeader />
 
       <section className="py-12 sm:py-14 lg:py-18">
         <Container>
-          <div className="mb-10 max-w-3xl">
-            <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
-              Админ меню
+          <div className="mx-auto max-w-6xl rounded-[32px] border border-white/60 bg-white/45 p-6 shadow-[0_24px_80px_rgba(91,67,49,0.10)] backdrop-blur-xl sm:p-8 lg:p-10">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-full bg-[#bc9670] text-white shadow-[0_10px_24px_rgba(95,69,48,0.18)]">
+                <Shield className="size-5" />
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+                  Админ меню
+                </p>
+                <h1 className="mt-1 text-4xl leading-[1.06] sm:text-5xl">
+                  Готовые стили
+                </h1>
+              </div>
+            </div>
+
+            <p className="mt-5 max-w-3xl text-base leading-8 text-[#726458] sm:text-lg">
+              Здесь создаются карточки витрины для готовых фотосессий. Каждая
+              карточка привязывается к существующему StylePreset.
             </p>
-            <h1 className="mt-4 text-4xl leading-[1.06] sm:text-5xl">
-              Готовые стили
-            </h1>
-            <p className="mt-5 text-base leading-8 text-[#726458] sm:text-lg">
-              Здесь будут карточки витрины для готовых фотосессий. Сначала
-              создаётся сам <strong>Style Preset</strong>, а потом к нему
-              привязывается карточка витрины.
-            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button
+                type="button"
+                size="xl"
+                className="pointer-events-none rounded-[22px] bg-[#bc9670] text-[#2f241d]"
+              >
+                Загрузки и витрина
+              </Button>
+
+              <Button asChild variant="secondary" size="xl">
+                <Link href="/dashboard/admin">Назад в админ меню</Link>
+              </Button>
+
+              <Button asChild variant="secondary" size="xl">
+                <Link href="/dashboard/admin/presets">К StylePreset</Link>
+              </Button>
+            </div>
+
+            <div className="mt-8 grid gap-6 xl:grid-cols-[430px_1fr]">
+              <Card className="rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
+                <CardHeader>
+                  <CardTitle>Добавить карточку готового стиля</CardTitle>
+                  <CardDescription>
+                    Выбери StylePreset из базы и создай карточку витрины.
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent>
+                  {categories.length === 0 ? (
+                    <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4 text-sm leading-7 text-[#6f6156]">
+                      Сначала создай хотя бы одну категорию.
+                      <div className="mt-4">
+                        <Button asChild size="lg">
+                          <Link href="/dashboard/admin/categories">
+                            <LayoutGrid className="size-4.5" />
+                            Перейти к категориям
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : stylePresets.length === 0 ? (
+                    <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4 text-sm leading-7 text-[#6f6156]">
+                      Сначала создай хотя бы один StylePreset.
+                      <div className="mt-4">
+                        <Button asChild size="lg">
+                          <Link href="/dashboard/admin/presets">
+                            <ImagePlus className="size-4.5" />
+                            Перейти к StylePreset
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <ShowcaseItemCreateForm
+                      kind={ShowcaseKind.READY}
+                      categories={categories}
+                      subcategories={subcategories}
+                      stylePresets={stylePresets}
+                      suggestedSortOrder={suggestedSortOrder}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
+                <CardHeader>
+                  <CardTitle>Текущие карточки готовых стилей</CardTitle>
+                  <CardDescription>
+                    Карточки витрины, уже привязанные к StylePreset.
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent>
+                  {items.length === 0 ? (
+                    <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4 text-sm leading-7 text-[#6f6156]">
+                      Пока нет ни одной карточки готового стиля.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="rounded-[22px] border border-[#eadfd6] bg-[#fffaf6] p-5 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
+                        >
+                          <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h3 className="text-xl text-[#3d3128]">
+                                    {item.title}
+                                  </h3>
+
+                                  <span
+                                    className={`inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-[0.14em] ${
+                                      item.isActive
+                                        ? "bg-[#eef3ea] text-[#667257]"
+                                        : "bg-[#f5ede8] text-[#9b8575]"
+                                    }`}
+                                  >
+                                    {item.isActive ? "Активна" : "Скрыта"}
+                                  </span>
+                                </div>
+
+                                <p className="mt-2 text-sm text-[#7e6f63]">
+                                  slug:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {item.slug}
+                                  </span>
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  Категория витрины:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {item.category.name}
+                                  </span>
+                                  {item.subcategory ? ` / ${item.subcategory.name}` : ""}
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  StylePreset:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {item.stylePreset?.title ?? "—"}
+                                  </span>
+                                  {item.stylePreset?.slug
+                                    ? ` (${item.stylePreset.slug})`
+                                    : ""}
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  Категория preset:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {item.stylePreset?.category ?? "—"}
+                                  </span>
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  Создана: {formatDate(item.createdAt)}
+                                </p>
+                              </div>
+
+                              <div className="grid shrink-0 grid-cols-2 gap-3 text-center">
+                                <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
+                                  <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
+                                    Порядок
+                                  </p>
+                                  <p className="mt-2 text-lg text-[#3d3128]">
+                                    {item.sortOrder}
+                                  </p>
+                                </div>
+
+                                <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
+                                  <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
+                                    Обложка
+                                  </p>
+                                  <a
+                                    href={item.coverImageUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="mt-2 block text-sm font-medium text-[#3d3128] underline underline-offset-4"
+                                  >
+                                    открыть
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-3">
+                              <EntityVisibilityToggle
+                                apiPath={`/api/admin/showcase-items/${item.id}`}
+                                isActive={item.isActive}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <Button asChild variant="secondary" size="lg">
+                      <Link href="/dashboard/admin/categories">
+                        <LayoutGrid className="size-4.5" />
+                        К категориям
+                      </Link>
+                    </Button>
+
+                    <Button asChild variant="secondary" size="lg">
+                      <Link href="/dashboard/admin/presets">
+                        <ImagePlus className="size-4.5" />
+                        К StylePreset
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-
-          <Card className="rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
-            <CardHeader>
-              <CardTitle>Что уже нужно для этого раздела</CardTitle>
-              <CardDescription>
-                Сначала создаются готовые стили системы, потом карточки витрины.
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-5 text-sm leading-7 text-[#6f6156]">
-              <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4">
-                • сначала создаёшь <strong>Style Preset</strong>
-                <br />• потом загружаешь карточку витрины
-                <br />• карточку привязываешь к нужному style preset
-                <br />• после этого пользователь нажимает на карточку и попадает
-                на уже выбранный стиль создания фотосессии
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg">
-                  <Link href="/dashboard/admin/presets">Создать Style Preset</Link>
-                </Button>
-
-                <Button variant="secondary" size="lg">
-                  Добавить карточку витрины
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </Container>
       </section>
 
