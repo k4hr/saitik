@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { ImagePlus } from "lucide-react";
+import { ShowcaseKind } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/slugify";
-import { SHOWCASE_KIND, type ShowcaseKindValue } from "@/lib/showcase";
 
 type CategoryOption = {
   id: string;
@@ -26,10 +26,12 @@ type SubcategoryOption = {
 type StylePresetOption = {
   id: string;
   title: string;
+  slug: string;
+  category: string;
 };
 
 type ShowcaseItemCreateFormProps = {
-  kind: ShowcaseKindValue;
+  kind: ShowcaseKind;
   categories: CategoryOption[];
   subcategories: SubcategoryOption[];
   stylePresets: StylePresetOption[];
@@ -89,7 +91,7 @@ export default function ShowcaseItemCreateForm({
           categoryId,
           subcategoryId: subcategoryId || null,
           stylePresetId:
-            kind === SHOWCASE_KIND.READY ? stylePresetId || null : null,
+            kind === ShowcaseKind.READY ? stylePresetId || null : null,
           sortOrder,
           isActive,
         }),
@@ -138,8 +140,8 @@ export default function ShowcaseItemCreateForm({
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           placeholder={
-            kind === SHOWCASE_KIND.READY
-              ? "Например: Old Money Portrait"
+            kind === ShowcaseKind.READY
+              ? "Например: Old Money Men 1"
               : "Например: Luxury Couple"
           }
           autoComplete="off"
@@ -160,7 +162,7 @@ export default function ShowcaseItemCreateForm({
             setSlugTouched(true);
             setSlug(event.target.value);
           }}
-          placeholder="old-money-portrait"
+          placeholder="old-money-men-1"
           autoComplete="off"
         />
       </div>
@@ -176,7 +178,7 @@ export default function ShowcaseItemCreateForm({
           id="showcase-cover"
           value={coverImageUrl}
           onChange={(event) => setCoverImageUrl(event.target.value)}
-          placeholder="/demo/styles/old-money-portrait.png"
+          placeholder="/demo/styles/old-money-men-1.png"
           autoComplete="off"
         />
       </div>
@@ -192,7 +194,7 @@ export default function ShowcaseItemCreateForm({
           id="showcase-description"
           value={description}
           onChange={(event) => setDescription(event.target.value)}
-          placeholder="Короткое описание карточки."
+          placeholder="Короткое описание карточки витрины."
         />
       </div>
 
@@ -202,7 +204,7 @@ export default function ShowcaseItemCreateForm({
             htmlFor="showcase-category"
             className="mb-2 block text-sm font-medium text-[#6f6156]"
           >
-            Категория
+            Категория витрины
           </label>
           <select
             id="showcase-category"
@@ -226,7 +228,7 @@ export default function ShowcaseItemCreateForm({
             htmlFor="showcase-subcategory"
             className="mb-2 block text-sm font-medium text-[#6f6156]"
           >
-            Подкатегория
+            Подкатегория витрины
           </label>
           <select
             id="showcase-subcategory"
@@ -244,7 +246,7 @@ export default function ShowcaseItemCreateForm({
         </div>
       </div>
 
-      {kind === SHOWCASE_KIND.READY ? (
+      {kind === ShowcaseKind.READY ? (
         <div>
           <label
             htmlFor="showcase-style-preset"
@@ -261,10 +263,15 @@ export default function ShowcaseItemCreateForm({
             <option value="">Выбери style preset</option>
             {stylePresets.map((preset) => (
               <option key={preset.id} value={preset.id}>
-                {preset.title}
+                {preset.title} — {preset.category} ({preset.slug})
               </option>
             ))}
           </select>
+
+          <p className="mt-2 text-xs leading-6 text-[#9a8b80]">
+            Это готовый стиль системы, который откроется пользователю после
+            клика по карточке.
+          </p>
         </div>
       ) : null}
 
