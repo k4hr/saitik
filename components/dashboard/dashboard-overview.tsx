@@ -111,7 +111,7 @@ export default function DashboardOverview({
                 size="xl"
                 className="w-full rounded-[26px] bg-[#bc9670] px-6 py-6 text-[#2f241d] shadow-[0_16px_40px_rgba(95,69,48,0.16)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#b38b64] hover:shadow-[0_22px_52px_rgba(95,69,48,0.22)] sm:w-auto"
               >
-                <Link href="/admin" className="flex items-center gap-3">
+                <Link href="/dashboard/admin" className="flex items-center gap-3">
                   <Shield className="size-5" />
                   <span>Админ меню</span>
                 </Link>
