@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import CategoryCreateForm from "@/components/admin/category-create-form";
+import EntityVisibilityToggle from "@/components/admin/entity-visibility-toggle";
 
 function formatDate(value: Date): string {
   return new Intl.DateTimeFormat("ru-RU", {
@@ -110,9 +111,7 @@ export default async function AdminCategoriesPage() {
                 </CardHeader>
 
                 <CardContent>
-                  <CategoryCreateForm
-                    suggestedSortOrder={suggestedSortOrder}
-                  />
+                  <CategoryCreateForm suggestedSortOrder={suggestedSortOrder} />
                 </CardContent>
               </Card>
 
@@ -136,63 +135,72 @@ export default async function AdminCategoriesPage() {
                           key={category.id}
                           className="rounded-[22px] border border-[#eadfd6] bg-[#fffaf6] p-5 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
                         >
-                          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="text-xl text-[#3d3128]">
-                                  {category.name}
-                                </h3>
+                          <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                              <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h3 className="text-xl text-[#3d3128]">
+                                    {category.name}
+                                  </h3>
 
-                                <span
-                                  className={`inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-[0.14em] ${
-                                    category.isActive
-                                      ? "bg-[#eef3ea] text-[#667257]"
-                                      : "bg-[#f5ede8] text-[#9b8575]"
-                                  }`}
-                                >
-                                  {category.isActive ? "Активна" : "Скрыта"}
-                                </span>
+                                  <span
+                                    className={`inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-[0.14em] ${
+                                      category.isActive
+                                        ? "bg-[#eef3ea] text-[#667257]"
+                                        : "bg-[#f5ede8] text-[#9b8575]"
+                                    }`}
+                                  >
+                                    {category.isActive ? "Активна" : "Скрыта"}
+                                  </span>
+                                </div>
+
+                                <p className="mt-2 text-sm text-[#7e6f63]">
+                                  slug:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {category.slug}
+                                  </span>
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  Создана: {formatDate(category.createdAt)}
+                                </p>
                               </div>
 
-                              <p className="mt-2 text-sm text-[#7e6f63]">
-                                slug:{" "}
-                                <span className="font-medium text-[#3d3128]">
-                                  {category.slug}
-                                </span>
-                              </p>
+                              <div className="grid shrink-0 grid-cols-3 gap-3 text-center">
+                                <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
+                                  <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
+                                    Порядок
+                                  </p>
+                                  <p className="mt-2 text-lg text-[#3d3128]">
+                                    {category.sortOrder}
+                                  </p>
+                                </div>
 
-                              <p className="mt-1 text-sm text-[#7e6f63]">
-                                Создана: {formatDate(category.createdAt)}
-                              </p>
+                                <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
+                                  <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
+                                    Подкатегории
+                                  </p>
+                                  <p className="mt-2 text-lg text-[#3d3128]">
+                                    {category._count.subcategories}
+                                  </p>
+                                </div>
+
+                                <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
+                                  <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
+                                    Карточки
+                                  </p>
+                                  <p className="mt-2 text-lg text-[#3d3128]">
+                                    {category._count.items}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
 
-                            <div className="grid shrink-0 grid-cols-3 gap-3 text-center">
-                              <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
-                                <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
-                                  Порядок
-                                </p>
-                                <p className="mt-2 text-lg text-[#3d3128]">
-                                  {category.sortOrder}
-                                </p>
-                              </div>
-
-                              <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
-                                <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
-                                  Подкатегории
-                                </p>
-                                <p className="mt-2 text-lg text-[#3d3128]">
-                                  {category._count.subcategories}
-                                </p>
-                              </div>
-
-                              <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
-                                <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
-                                  Карточки
-                                </p>
-                                <p className="mt-2 text-lg text-[#3d3128]">
-                                  {category._count.items}
-                                </p>
-                              </div>
+                            <div className="flex flex-wrap gap-3">
+                              <EntityVisibilityToggle
+                                apiPath={`/api/admin/categories/${category.id}`}
+                                isActive={category.isActive}
+                              />
                             </div>
                           </div>
                         </div>
