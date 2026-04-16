@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import ShowcaseItemCreateForm from "@/components/admin/showcase-item-create-form";
+import EntityVisibilityToggle from "@/components/admin/entity-visibility-toggle";
+import { SHOWCASE_KIND } from "@/lib/showcase";
 
 function formatDate(value: Date): string {
   return new Intl.DateTimeFormat("ru-RU", {
@@ -162,7 +164,7 @@ export default async function AdminStylesPage() {
                     </div>
                   ) : (
                     <ShowcaseItemCreateForm
-                      kind={ShowcaseKind.READY}
+                      kind={SHOWCASE_KIND.READY}
                       categories={categories}
                       subcategories={subcategories}
                       stylePresets={stylePresets}
@@ -192,74 +194,83 @@ export default async function AdminStylesPage() {
                           key={item.id}
                           className="rounded-[22px] border border-[#eadfd6] bg-[#fffaf6] p-5 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
                         >
-                          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="text-xl text-[#3d3128]">
-                                  {item.title}
-                                </h3>
+                          <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h3 className="text-xl text-[#3d3128]">
+                                    {item.title}
+                                  </h3>
 
-                                <span
-                                  className={`inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-[0.14em] ${
-                                    item.isActive
-                                      ? "bg-[#eef3ea] text-[#667257]"
-                                      : "bg-[#f5ede8] text-[#9b8575]"
-                                  }`}
-                                >
-                                  {item.isActive ? "Активна" : "Скрыта"}
-                                </span>
+                                  <span
+                                    className={`inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-[0.14em] ${
+                                      item.isActive
+                                        ? "bg-[#eef3ea] text-[#667257]"
+                                        : "bg-[#f5ede8] text-[#9b8575]"
+                                    }`}
+                                  >
+                                    {item.isActive ? "Активна" : "Скрыта"}
+                                  </span>
+                                </div>
+
+                                <p className="mt-2 text-sm text-[#7e6f63]">
+                                  slug:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {item.slug}
+                                  </span>
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  Категория:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {item.category.name}
+                                  </span>
+                                  {item.subcategory ? ` / ${item.subcategory.name}` : ""}
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  StylePreset:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {item.stylePreset?.title ?? "—"}
+                                  </span>
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  Создан: {formatDate(item.createdAt)}
+                                </p>
                               </div>
 
-                              <p className="mt-2 text-sm text-[#7e6f63]">
-                                slug:{" "}
-                                <span className="font-medium text-[#3d3128]">
-                                  {item.slug}
-                                </span>
-                              </p>
+                              <div className="grid shrink-0 grid-cols-2 gap-3 text-center">
+                                <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
+                                  <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
+                                    Порядок
+                                  </p>
+                                  <p className="mt-2 text-lg text-[#3d3128]">
+                                    {item.sortOrder}
+                                  </p>
+                                </div>
 
-                              <p className="mt-1 text-sm text-[#7e6f63]">
-                                Категория:{" "}
-                                <span className="font-medium text-[#3d3128]">
-                                  {item.category.name}
-                                </span>
-                                {item.subcategory ? ` / ${item.subcategory.name}` : ""}
-                              </p>
-
-                              <p className="mt-1 text-sm text-[#7e6f63]">
-                                StylePreset:{" "}
-                                <span className="font-medium text-[#3d3128]">
-                                  {item.stylePreset?.title ?? "—"}
-                                </span>
-                              </p>
-
-                              <p className="mt-1 text-sm text-[#7e6f63]">
-                                Создан: {formatDate(item.createdAt)}
-                              </p>
+                                <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
+                                  <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
+                                    Обложка
+                                  </p>
+                                  <a
+                                    href={item.coverImageUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="mt-2 block text-sm font-medium text-[#3d3128] underline underline-offset-4"
+                                  >
+                                    открыть
+                                  </a>
+                                </div>
+                              </div>
                             </div>
 
-                            <div className="grid shrink-0 grid-cols-2 gap-3 text-center">
-                              <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
-                                <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
-                                  Порядок
-                                </p>
-                                <p className="mt-2 text-lg text-[#3d3128]">
-                                  {item.sortOrder}
-                                </p>
-                              </div>
-
-                              <div className="rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3">
-                                <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
-                                  Обложка
-                                </p>
-                                <a
-                                  href={item.coverImageUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="mt-2 block text-sm font-medium text-[#3d3128] underline underline-offset-4"
-                                >
-                                  открыть
-                                </a>
-                              </div>
+                            <div className="flex flex-wrap gap-3">
+                              <EntityVisibilityToggle
+                                apiPath={`/api/admin/showcase-items/${item.id}`}
+                                isActive={item.isActive}
+                              />
                             </div>
                           </div>
                         </div>
