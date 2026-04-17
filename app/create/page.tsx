@@ -6,7 +6,15 @@ import CreateEntryShell from "@/components/create/create-entry-shell";
 import ReadyStyleCreateShell from "@/components/create/ready-style-create-shell";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import type { StyleOption } from "@/lib/data/style-presets";
+
+type SelectedReadyStyle = {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  promptTemplate?: string | null;
+  coverImageUrl?: string | null;
+};
 
 type CreatePageProps = {
   searchParams?: Promise<{
@@ -26,29 +34,34 @@ export default async function CreatePage({ searchParams }: CreatePageProps) {
   const styleId = resolvedSearchParams?.style?.trim();
   const showcaseId = resolvedSearchParams?.showcase?.trim();
 
-  let selectedStyle: StyleOption | null = null;
+  let selectedStyle: SelectedReadyStyle | null = null;
 
   if (styleId) {
-    const preset = await prisma.stylePreset.findUnique({
+    const readyItem = await prisma.showcaseItem.findUnique({
       where: { id: styleId },
       select: {
         id: true,
+        kind: true,
         title: true,
-        category: true,
         description: true,
         promptTemplate: true,
         coverImageUrl: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
-    if (preset) {
+    if (readyItem && readyItem.kind === "READY") {
       selectedStyle = {
-        id: preset.id,
-        title: preset.title,
-        category: preset.category,
-        description: preset.description,
-        promptTemplate: preset.promptTemplate,
-        coverImageUrl: preset.coverImageUrl,
+        id: readyItem.id,
+        title: readyItem.title,
+        category: readyItem.category.name,
+        description: readyItem.description || "",
+        promptTemplate: readyItem.promptTemplate,
+        coverImageUrl: readyItem.coverImageUrl,
       };
     }
   }
@@ -62,16 +75,6 @@ export default async function CreatePage({ searchParams }: CreatePageProps) {
         description: true,
         kind: true,
         coverImageUrl: true,
-        stylePreset: {
-          select: {
-            id: true,
-            title: true,
-            category: true,
-            description: true,
-            promptTemplate: true,
-            coverImageUrl: true,
-          },
-        },
         category: {
           select: {
             name: true,
@@ -80,27 +83,15 @@ export default async function CreatePage({ searchParams }: CreatePageProps) {
       },
     });
 
-    if (showcase) {
-      if (showcase.stylePreset) {
-        selectedStyle = {
-          id: showcase.stylePreset.id,
-          title: showcase.stylePreset.title,
-          category: showcase.stylePreset.category,
-          description: showcase.stylePreset.description,
-          promptTemplate: showcase.stylePreset.promptTemplate,
-          coverImageUrl: showcase.stylePreset.coverImageUrl,
-        };
-      } else {
-        selectedStyle = {
-          id: showcase.id,
-          title: showcase.title,
-          category: showcase.category.name,
-          description:
-            showcase.description ??
-            "Пользовательская фотосессия из витрины.",
-          coverImageUrl: showcase.coverImageUrl,
-        };
-      }
+    if (showcase && showcase.kind === "READY") {
+      selectedStyle = {
+        id: showcase.id,
+        title: showcase.title,
+        category: showcase.category.name,
+        description:
+          showcase.description ?? "Готовый образ из витрины.",
+        coverImageUrl: showcase.coverImageUrl,
+      };
     }
   }
 
