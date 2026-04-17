@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ImagePlus, LayoutGrid, Shield } from "lucide-react";
+import { LayoutGrid, Shield } from "lucide-react";
 import { ShowcaseKind } from "@prisma/client";
 
 import SiteHeader from "@/components/layout/site-header";
@@ -38,7 +38,7 @@ export default async function AdminStylesPage() {
     redirect("/dashboard");
   }
 
-  const [categories, subcategories, stylePresets, items] = await Promise.all([
+  const [categories, subcategories, items] = await Promise.all([
     prisma.showcaseCategory.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
       select: {
@@ -56,16 +56,6 @@ export default async function AdminStylesPage() {
         categoryId: true,
       },
     }),
-    prisma.stylePreset.findMany({
-      where: { isActive: true },
-      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        category: true,
-      },
-    }),
     prisma.showcaseItem.findMany({
       where: { kind: ShowcaseKind.READY },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
@@ -73,6 +63,8 @@ export default async function AdminStylesPage() {
         id: true,
         title: true,
         slug: true,
+        description: true,
+        promptTemplate: true,
         coverImageUrl: true,
         isActive: true,
         sortOrder: true,
@@ -85,13 +77,6 @@ export default async function AdminStylesPage() {
         subcategory: {
           select: {
             name: true,
-          },
-        },
-        stylePreset: {
-          select: {
-            title: true,
-            slug: true,
-            category: true,
           },
         },
       },
@@ -124,8 +109,8 @@ export default async function AdminStylesPage() {
             </div>
 
             <p className="mt-5 max-w-3xl text-base leading-8 text-[#726458] sm:text-lg">
-              Здесь создаются карточки витрины для готовых фотосессий. Каждая
-              карточка привязывается к существующему StylePreset.
+              Здесь создаются готовые карточки витрины. У каждой карточки сразу
+              есть своя обложка, категория, подкатегория и изначальный промпт.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -140,18 +125,15 @@ export default async function AdminStylesPage() {
               <Button asChild variant="secondary" size="xl">
                 <Link href="/dashboard/admin">Назад в админ меню</Link>
               </Button>
-
-              <Button asChild variant="secondary" size="xl">
-                <Link href="/dashboard/admin/presets">К StylePreset</Link>
-              </Button>
             </div>
 
             <div className="mt-8 grid gap-6 xl:grid-cols-[430px_1fr]">
               <Card className="rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
                 <CardHeader>
-                  <CardTitle>Добавить карточку готового стиля</CardTitle>
+                  <CardTitle>Добавить готовый стиль</CardTitle>
                   <CardDescription>
-                    Выбери StylePreset из базы и создай карточку витрины.
+                    Загрузи карточку готового образа и сразу укажи промпт, по
+                    которому потом будет генерироваться изображение пользователя.
                   </CardDescription>
                 </CardHeader>
 
@@ -168,24 +150,11 @@ export default async function AdminStylesPage() {
                         </Button>
                       </div>
                     </div>
-                  ) : stylePresets.length === 0 ? (
-                    <div className="rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] p-4 text-sm leading-7 text-[#6f6156]">
-                      Сначала создай хотя бы один StylePreset.
-                      <div className="mt-4">
-                        <Button asChild size="lg">
-                          <Link href="/dashboard/admin/presets">
-                            <ImagePlus className="size-4.5" />
-                            Перейти к StylePreset
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
                   ) : (
                     <ShowcaseItemCreateForm
                       kind={ShowcaseKind.READY}
                       categories={categories}
                       subcategories={subcategories}
-                      stylePresets={stylePresets}
                       suggestedSortOrder={suggestedSortOrder}
                     />
                   )}
@@ -194,9 +163,9 @@ export default async function AdminStylesPage() {
 
               <Card className="rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
                 <CardHeader>
-                  <CardTitle>Текущие карточки готовых стилей</CardTitle>
+                  <CardTitle>Текущие готовые стили</CardTitle>
                   <CardDescription>
-                    Карточки витрины, уже привязанные к StylePreset.
+                    Карточки витрины, которые уже созданы и готовы к генерации.
                   </CardDescription>
                 </CardHeader>
 
@@ -239,7 +208,7 @@ export default async function AdminStylesPage() {
                                 </p>
 
                                 <p className="mt-1 text-sm text-[#7e6f63]">
-                                  Категория витрины:{" "}
+                                  Категория:{" "}
                                   <span className="font-medium text-[#3d3128]">
                                     {item.category.name}
                                   </span>
@@ -247,25 +216,25 @@ export default async function AdminStylesPage() {
                                 </p>
 
                                 <p className="mt-1 text-sm text-[#7e6f63]">
-                                  StylePreset:{" "}
-                                  <span className="font-medium text-[#3d3128]">
-                                    {item.stylePreset?.title ?? "—"}
-                                  </span>
-                                  {item.stylePreset?.slug
-                                    ? ` (${item.stylePreset.slug})`
-                                    : ""}
+                                  Создан: {formatDate(item.createdAt)}
                                 </p>
 
-                                <p className="mt-1 text-sm text-[#7e6f63]">
-                                  Категория preset:{" "}
-                                  <span className="font-medium text-[#3d3128]">
-                                    {item.stylePreset?.category ?? "—"}
-                                  </span>
-                                </p>
+                                {item.description ? (
+                                  <p className="mt-3 text-sm leading-7 text-[#6f6156]">
+                                    {item.description}
+                                  </p>
+                                ) : null}
 
-                                <p className="mt-1 text-sm text-[#7e6f63]">
-                                  Создана: {formatDate(item.createdAt)}
-                                </p>
+                                {item.promptTemplate ? (
+                                  <div className="mt-3 rounded-[16px] border border-[#eadfd6] bg-white p-4">
+                                    <p className="text-xs uppercase tracking-[0.14em] text-[#a18672]">
+                                      Промпт
+                                    </p>
+                                    <p className="mt-2 text-sm leading-7 text-[#5f5248] line-clamp-5">
+                                      {item.promptTemplate}
+                                    </p>
+                                  </div>
+                                ) : null}
                               </div>
 
                               <div className="grid shrink-0 grid-cols-2 gap-3 text-center">
@@ -286,18 +255,19 @@ export default async function AdminStylesPage() {
                                     href={item.coverImageUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="mt-2 block text-sm font-medium text-[#3d3128] underline underline-offset-4"
+                                    className="mt-2 inline-block text-sm text-[#8b6b53] underline decoration-[#ccb29d] underline-offset-4"
                                   >
-                                    открыть
+                                    Открыть
                                   </a>
                                 </div>
                               </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex items-center justify-end">
                               <EntityVisibilityToggle
-                                apiPath={`/api/admin/showcase-items/${item.id}`}
-                                isActive={item.isActive}
+                                id={item.id}
+                                endpoint="/api/admin/showcase-items"
+                                initialIsActive={item.isActive}
                               />
                             </div>
                           </div>
@@ -305,22 +275,6 @@ export default async function AdminStylesPage() {
                       ))}
                     </div>
                   )}
-
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <Button asChild variant="secondary" size="lg">
-                      <Link href="/dashboard/admin/categories">
-                        <LayoutGrid className="size-4.5" />
-                        К категориям
-                      </Link>
-                    </Button>
-
-                    <Button asChild variant="secondary" size="lg">
-                      <Link href="/dashboard/admin/presets">
-                        <ImagePlus className="size-4.5" />
-                        К StylePreset
-                      </Link>
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             </div>
