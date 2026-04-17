@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ImagePlus } from "lucide-react";
 import { ShowcaseKind } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
@@ -23,18 +22,10 @@ type SubcategoryOption = {
   categoryId: string;
 };
 
-type StylePresetOption = {
-  id: string;
-  title: string;
-  slug: string;
-  category: string;
-};
-
 type ShowcaseItemCreateFormProps = {
   kind: ShowcaseKind;
   categories: CategoryOption[];
   subcategories: SubcategoryOption[];
-  stylePresets: StylePresetOption[];
   suggestedSortOrder: number;
 };
 
@@ -42,7 +33,6 @@ export default function ShowcaseItemCreateForm({
   kind,
   categories,
   subcategories,
-  stylePresets,
   suggestedSortOrder,
 }: ShowcaseItemCreateFormProps) {
   const router = useRouter();
@@ -51,10 +41,10 @@ export default function ShowcaseItemCreateForm({
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [description, setDescription] = useState("");
+  const [promptTemplate, setPromptTemplate] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
   const [subcategoryId, setSubcategoryId] = useState("");
-  const [stylePresetId, setStylePresetId] = useState("");
   const [sortOrder, setSortOrder] = useState(String(suggestedSortOrder));
   const [isActive, setIsActive] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,6 +58,8 @@ export default function ShowcaseItemCreateForm({
   const visibleSubcategories = useMemo(() => {
     return subcategories.filter((item) => item.categoryId === categoryId);
   }, [subcategories, categoryId]);
+
+  const isReady = kind === ShowcaseKind.READY;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -87,11 +79,10 @@ export default function ShowcaseItemCreateForm({
           slug: slugTouched ? slug : title,
           kind,
           description,
+          promptTemplate: isReady ? promptTemplate : null,
           coverImageUrl,
           categoryId,
           subcategoryId: subcategoryId || null,
-          stylePresetId:
-            kind === ShowcaseKind.READY ? stylePresetId || null : null,
           sortOrder,
           isActive,
         }),
@@ -113,9 +104,9 @@ export default function ShowcaseItemCreateForm({
       setSlug("");
       setSlugTouched(false);
       setDescription("");
+      setPromptTemplate("");
       setCoverImageUrl("");
       setSubcategoryId("");
-      setStylePresetId("");
       setSortOrder(String(Number(sortOrder || 0) + 10));
       setIsActive(true);
       router.refresh();
@@ -140,9 +131,9 @@ export default function ShowcaseItemCreateForm({
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           placeholder={
-            kind === ShowcaseKind.READY
+            isReady
               ? "Например: Old Money Men 1"
-              : "Например: Luxury Couple"
+              : "Например: Pinterest Reference Set"
           }
           autoComplete="off"
         />
@@ -169,22 +160,6 @@ export default function ShowcaseItemCreateForm({
 
       <div>
         <label
-          htmlFor="showcase-cover"
-          className="mb-2 block text-sm font-medium text-[#6f6156]"
-        >
-          URL обложки
-        </label>
-        <Input
-          id="showcase-cover"
-          value={coverImageUrl}
-          onChange={(event) => setCoverImageUrl(event.target.value)}
-          placeholder="/demo/styles/old-money-men-1.png"
-          autoComplete="off"
-        />
-      </div>
-
-      <div>
-        <label
           htmlFor="showcase-description"
           className="mb-2 block text-sm font-medium text-[#6f6156]"
         >
@@ -198,82 +173,85 @@ export default function ShowcaseItemCreateForm({
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {isReady ? (
         <div>
           <label
-            htmlFor="showcase-category"
+            htmlFor="showcase-prompt"
             className="mb-2 block text-sm font-medium text-[#6f6156]"
           >
-            Категория витрины
+            Изначальный промпт
           </label>
-          <select
-            id="showcase-category"
-            value={categoryId}
-            onChange={(event) => {
-              setCategoryId(event.target.value);
-              setSubcategoryId("");
-            }}
-            className="h-12 w-full rounded-2xl border border-[#dfd1c4] bg-white px-4 text-sm text-[#3d3128] shadow-[0_2px_10px_rgba(88,62,40,0.03)] outline-none transition focus:border-[#caa789]"
-          >
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name} ({category.slug})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label
-            htmlFor="showcase-subcategory"
-            className="mb-2 block text-sm font-medium text-[#6f6156]"
-          >
-            Подкатегория витрины
-          </label>
-          <select
-            id="showcase-subcategory"
-            value={subcategoryId}
-            onChange={(event) => setSubcategoryId(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-[#dfd1c4] bg-white px-4 text-sm text-[#3d3128] shadow-[0_2px_10px_rgba(88,62,40,0.03)] outline-none transition focus:border-[#caa789]"
-          >
-            <option value="">Без подкатегории</option>
-            {visibleSubcategories.map((subcategory) => (
-              <option key={subcategory.id} value={subcategory.id}>
-                {subcategory.name} ({subcategory.slug})
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {kind === ShowcaseKind.READY ? (
-        <div>
-          <label
-            htmlFor="showcase-style-preset"
-            className="mb-2 block text-sm font-medium text-[#6f6156]"
-          >
-            StylePreset
-          </label>
-          <select
-            id="showcase-style-preset"
-            value={stylePresetId}
-            onChange={(event) => setStylePresetId(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-[#dfd1c4] bg-white px-4 text-sm text-[#3d3128] shadow-[0_2px_10px_rgba(88,62,40,0.03)] outline-none transition focus:border-[#caa789]"
-          >
-            <option value="">Выбери style preset</option>
-            {stylePresets.map((preset) => (
-              <option key={preset.id} value={preset.id}>
-                {preset.title} — {preset.category} ({preset.slug})
-              </option>
-            ))}
-          </select>
-
-          <p className="mt-2 text-xs leading-6 text-[#9a8b80]">
-            Это готовый стиль системы, который откроется пользователю после
-            клика по карточке.
-          </p>
+          <Textarea
+            id="showcase-prompt"
+            value={promptTemplate}
+            onChange={(event) => setPromptTemplate(event.target.value)}
+            placeholder="Именно по этому промпту потом будет генерироваться изображение пользователя."
+            className="min-h-[220px]"
+          />
         </div>
       ) : null}
+
+      <div>
+        <label
+          htmlFor="showcase-cover"
+          className="mb-2 block text-sm font-medium text-[#6f6156]"
+        >
+          URL обложки
+        </label>
+        <Input
+          id="showcase-cover"
+          value={coverImageUrl}
+          onChange={(event) => setCoverImageUrl(event.target.value)}
+          placeholder="/demo/styles/old-money-portrait.png"
+          autoComplete="off"
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="showcase-category"
+          className="mb-2 block text-sm font-medium text-[#6f6156]"
+        >
+          Категория
+        </label>
+        <select
+          id="showcase-category"
+          value={categoryId}
+          onChange={(event) => {
+            setCategoryId(event.target.value);
+            setSubcategoryId("");
+          }}
+          className="h-12 w-full rounded-2xl border border-[#dfd1c4] bg-white px-4 text-sm text-[#3d3128] outline-none"
+        >
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label
+          htmlFor="showcase-subcategory"
+          className="mb-2 block text-sm font-medium text-[#6f6156]"
+        >
+          Подкатегория
+        </label>
+        <select
+          id="showcase-subcategory"
+          value={subcategoryId}
+          onChange={(event) => setSubcategoryId(event.target.value)}
+          className="h-12 w-full rounded-2xl border border-[#dfd1c4] bg-white px-4 text-sm text-[#3d3128] outline-none"
+        >
+          <option value="">Без подкатегории</option>
+          {visibleSubcategories.map((subcategory) => (
+            <option key={subcategory.id} value={subcategory.id}>
+              {subcategory.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
         <div>
@@ -301,7 +279,7 @@ export default function ShowcaseItemCreateForm({
               onChange={(event) => setIsActive(event.target.checked)}
               className="size-4 rounded border-[#ccb6a3] accent-[#bc9670]"
             />
-            Показывать карточку на сайте
+            Показывать карточку
           </label>
         </div>
       </div>
@@ -326,12 +304,7 @@ export default function ShowcaseItemCreateForm({
       ) : null}
 
       <div className="flex flex-wrap gap-3">
-        <Button
-          type="submit"
-          size="lg"
-          disabled={isSubmitting || categories.length === 0}
-        >
-          <ImagePlus className="size-4.5" />
+        <Button type="submit" size="lg" disabled={isSubmitting}>
           {isSubmitting ? "Создаём..." : "Добавить карточку"}
         </Button>
       </div>
