@@ -18,6 +18,7 @@ import R2UploadInput, {
   type UploadedClientAsset,
 } from "@/components/create/r2-upload-input";
 import GeneratedResultCard from "@/components/create/generated-result-card";
+import ImageOrientationPicker from "@/components/create/image-orientation-picker";
 
 type GenerateResponse = {
   ok?: boolean;
@@ -27,10 +28,14 @@ type GenerateResponse = {
   sharePath?: string;
 };
 
+type ImageOrientation = "portrait" | "landscape" | "square";
+
 export default function FreeEditShell() {
   const [sourceAssets, setSourceAssets] = useState<UploadedClientAsset[]>([]);
   const [title, setTitle] = useState("");
   const [prompt, setPrompt] = useState("");
+  const [imageOrientation, setImageOrientation] =
+    useState<ImageOrientation>("portrait");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [result, setResult] = useState<{
@@ -63,6 +68,7 @@ export default function FreeEditShell() {
           mode: "EDIT",
           title,
           prompt,
+          imageOrientation,
           sourceAsset: {
             storageKey: sourceAssets[0].storageKey,
             fileName: sourceAssets[0].fileName,
@@ -74,7 +80,12 @@ export default function FreeEditShell() {
 
       const data = (await response.json()) as GenerateResponse;
 
-      if (!response.ok || !data.imagePath || !data.downloadPath || !data.sharePath) {
+      if (
+        !response.ok ||
+        !data.imagePath ||
+        !data.downloadPath ||
+        !data.sharePath
+      ) {
         throw new Error(data.error || "Не удалось отредактировать изображение");
       }
 
@@ -103,12 +114,18 @@ export default function FreeEditShell() {
             Свободное редактирование
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Пользователь сам загружает исходное изображение и сам пишет промпт.
+            Пользователь сам загружает исходное изображение, сам пишет промпт и
+            выбирает ориентацию финальной картинки.
           </p>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
           <div className="space-y-6">
+            <ImageOrientationPicker
+              value={imageOrientation}
+              onChange={setImageOrientation}
+            />
+
             <R2UploadInput
               title="Исходное изображение"
               description="Загрузи фото или картинку, которую хочешь изменить."
@@ -153,7 +170,8 @@ export default function FreeEditShell() {
                         Полностью свободный режим
                       </p>
                       <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                        Что написал пользователь, то и идёт в OpenAI edit pipeline.
+                        Что написал пользователь, то и идёт в OpenAI edit
+                        pipeline.
                       </p>
                     </div>
                   </div>
@@ -208,7 +226,9 @@ export default function FreeEditShell() {
                   size="xl"
                   className="w-full"
                   onClick={handleGenerate}
-                  disabled={isSubmitting || sourceAssets.length === 0 || !prompt.trim()}
+                  disabled={
+                    isSubmitting || sourceAssets.length === 0 || !prompt.trim()
+                  }
                 >
                   {isSubmitting ? "Обрабатываем..." : "Запустить редактирование"}
                 </Button>
