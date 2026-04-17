@@ -72,23 +72,6 @@ model User {
   showcaseItems      ShowcaseItem[]      @relation("ShowcaseItemCreatedBy")
 }
 
-model StylePreset {
-  id             String         @id @default(cuid())
-  slug           String         @unique
-  title          String
-  category       String
-  description    String
-  promptTemplate String?
-  coverImageUrl  String?
-  isActive       Boolean        @default(true)
-  sortOrder      Int            @default(0)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-
-  orders         Order[]
-  showcaseItems  ShowcaseItem[]
-}
-
 model ShowcaseCategory {
   id            String               @id @default(cuid())
   name          String
@@ -126,6 +109,7 @@ model ShowcaseItem {
   slug            String               @unique
   kind            ShowcaseKind
   description     String?
+  promptTemplate  String?
   coverImageUrl   String
   sortOrder       Int                  @default(0)
   isActive        Boolean              @default(true)
@@ -136,33 +120,31 @@ model ShowcaseItem {
   subcategoryId   String?
   subcategory     ShowcaseSubcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
 
-  stylePresetId   String?
-  stylePreset     StylePreset?         @relation(fields: [stylePresetId], references: [id], onDelete: SetNull)
-
   createdByUserId String?
   createdByUser   User?                @relation("ShowcaseItemCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
 
+  orders          Order[]
+
   @@index([kind, isActive, sortOrder])
   @@index([categoryId, isActive, sortOrder])
   @@index([subcategoryId, isActive, sortOrder])
-  @@index([stylePresetId])
 }
 
 model Order {
-  id                 String           @id @default(cuid())
+  id                 String               @id @default(cuid())
   userId             String
-  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  stylePresetId      String?
-  stylePreset        StylePreset?     @relation(fields: [stylePresetId], references: [id], onDelete: SetNull)
+  showcaseItemId     String?
+  showcaseItem       ShowcaseItem?        @relation(fields: [showcaseItemId], references: [id], onDelete: SetNull)
 
-  mode               GenerationMode   @default(READY)
+  mode               GenerationMode       @default(READY)
   title              String?
   goal               String?
-  status             OrderStatus      @default(DRAFT)
+  status             OrderStatus          @default(DRAFT)
 
   selectedFormat     String?
   selectedMood       String?
@@ -171,18 +153,18 @@ model Order {
   promptInput        String?
   promptFinal        String?
   errorMessage       String?
-  shareId            String?          @unique @default(cuid())
+  shareId            String?              @unique @default(cuid())
 
-  creditsSpent       Int              @default(0)
+  creditsSpent       Int                  @default(0)
   priceRub           Int?
-  currency           String           @default("RUB")
+  currency           String               @default("RUB")
 
   paidAt             DateTime?
   startedAt          DateTime?
   finishedAt         DateTime?
 
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
 
   assets             OrderAsset[]
   payments           Payment[]
