@@ -41,6 +41,7 @@ type GenerateBody = {
   selectedMood?: string;
   notes?: string;
   prompt?: string;
+  imageOrientation?: "portrait" | "landscape" | "square";
   faceAssets?: UploadedAssetInput[];
   referenceAsset?: UploadedAssetInput | null;
   sourceAsset?: UploadedAssetInput | null;
@@ -60,6 +61,20 @@ function buildAssetCreate(
     fileSize: item.fileSize || null,
     sortOrder,
   };
+}
+
+function resolveImageSize(
+  orientation?: "portrait" | "landscape" | "square",
+): "1024x1536" | "1536x1024" | "1024x1024" {
+  if (orientation === "landscape") {
+    return "1536x1024";
+  }
+
+  if (orientation === "square") {
+    return "1024x1024";
+  }
+
+  return "1024x1536";
 }
 
 export async function POST(req: NextRequest) {
@@ -231,6 +246,7 @@ export async function POST(req: NextRequest) {
       sourceImageBytes: sourceObject.bytes,
       sourceMimeType: sourceObject.contentType,
       sourceFileName: "source.png",
+      size: resolveImageSize(body.imageOrientation),
     });
 
     const resultKey = buildR2Key({
