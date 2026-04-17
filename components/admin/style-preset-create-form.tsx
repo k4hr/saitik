@@ -96,7 +96,7 @@ export default function StylePresetCreateForm({
           htmlFor="preset-title"
           className="mb-2 block text-sm font-medium text-[#6f6156]"
         >
-          Название стиля
+          Название образа
         </label>
         <Input
           id="preset-title"
@@ -131,7 +131,7 @@ export default function StylePresetCreateForm({
           htmlFor="preset-category"
           className="mb-2 block text-sm font-medium text-[#6f6156]"
         >
-          Категория style preset
+          Категория образа
         </label>
         <Input
           id="preset-category"
@@ -153,7 +153,7 @@ export default function StylePresetCreateForm({
           id="preset-description"
           value={description}
           onChange={(event) => setDescription(event.target.value)}
-          placeholder="Короткое описание готового стиля."
+          placeholder="Короткое описание готового образа."
         />
       </div>
 
@@ -162,15 +162,18 @@ export default function StylePresetCreateForm({
           htmlFor="preset-prompt"
           className="mb-2 block text-sm font-medium text-[#6f6156]"
         >
-          Prompt template
+          Изначальный промпт образа
         </label>
         <Textarea
           id="preset-prompt"
           value={promptTemplate}
           onChange={(event) => setPromptTemplate(event.target.value)}
-          placeholder="Например: luxury old money portrait, premium styling, elegant soft light, quiet luxury interior..."
-          className="min-h-[180px]"
+          placeholder="Именно по этому промпту потом будет генерироваться фото пользователя в выбранном образе."
+          className="min-h-[220px]"
         />
+        <p className="mt-2 text-xs leading-6 text-[#8a7a6d]">
+          Один готовый образ = один StylePreset = один promptTemplate.
+        </p>
       </div>
 
       <div>
