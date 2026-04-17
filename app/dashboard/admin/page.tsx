@@ -6,7 +6,6 @@ import {
   LayoutGrid,
   FolderTree,
   Shield,
-  Sparkles,
 } from "lucide-react";
 
 import SiteHeader from "@/components/layout/site-header";
@@ -18,16 +17,9 @@ import { getSession } from "@/lib/auth";
 
 const adminSections = [
   {
-    title: "Style Preset",
-    description:
-      "Создание готовых стилей системы, к которым потом привязываются карточки витрины.",
-    href: "/dashboard/admin/presets",
-    icon: Sparkles,
-  },
-  {
     title: "Готовые стили",
     description:
-      "Карточки витрины для готовых сценариев, привязанных к StylePreset.",
+      "Карточки витрины для готовых образов. Здесь же у каждой карточки хранится её исходный промпт.",
     href: "/dashboard/admin/styles",
     icon: ImagePlus,
   },
@@ -40,8 +32,7 @@ const adminSections = [
   },
   {
     title: "Категории витрины",
-    description:
-      "Создание верхних категорий для страницы стилей.",
+    description: "Создание верхних категорий для страницы стилей.",
     href: "/dashboard/admin/categories",
     icon: LayoutGrid,
   },
@@ -88,8 +79,8 @@ export default async function AdminDashboardPage() {
             </div>
 
             <p className="mt-5 max-w-4xl text-base leading-8 text-[#6f6156] sm:text-lg">
-              Здесь ты управляешь готовыми стилями системы, категориями,
-              подкатегориями и всеми карточками витрины сайта.
+              Здесь ты управляешь готовыми стилями, пользовательскими
+              карточками, категориями и подкатегориями витрины.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -106,7 +97,7 @@ export default async function AdminDashboardPage() {
               </Button>
             </div>
 
-            <div className="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
+            <div className="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
               {adminSections.map((section) => {
                 const Icon = section.icon;
 
