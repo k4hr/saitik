@@ -106,7 +106,12 @@ export async function editImageWithOpenAi(params: {
   const size = process.env.OPENAI_IMAGE_SIZE || "1024x1536";
 
   const formData = new FormData();
-  const blob = new Blob([params.sourceImageBytes], {
+  const arrayBuffer = params.sourceImageBytes.buffer.slice(
+    params.sourceImageBytes.byteOffset,
+    params.sourceImageBytes.byteOffset + params.sourceImageBytes.byteLength,
+  ) as ArrayBuffer;
+
+  const blob = new Blob([arrayBuffer], {
     type: params.sourceMimeType || "image/png",
   });
 
