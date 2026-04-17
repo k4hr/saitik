@@ -67,7 +67,7 @@ export default async function DashboardOrdersPage() {
       creditsSpent: true,
       createdAt: true,
       shareId: true,
-      stylePreset: {
+      showcaseItem: {
         select: {
           title: true,
         },
@@ -91,7 +91,7 @@ export default async function DashboardOrdersPage() {
       id: order.id,
       title:
         order.title?.trim() ||
-        order.stylePreset?.title ||
+        order.showcaseItem?.title ||
         "Генерация без названия",
       status: formatStatus(order.status),
       credits: order.creditsSpent,
