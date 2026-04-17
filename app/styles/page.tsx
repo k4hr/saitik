@@ -53,10 +53,7 @@ export default async function StylesPage() {
           },
         ],
       },
-      orderBy: [
-        { sortOrder: "asc" },
-        { createdAt: "asc" },
-      ],
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
       select: {
         id: true,
         title: true,
@@ -66,7 +63,6 @@ export default async function StylesPage() {
         coverImageUrl: true,
         categoryId: true,
         subcategoryId: true,
-        stylePresetId: true,
       },
     }),
   ]);
