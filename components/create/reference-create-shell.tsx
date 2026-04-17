@@ -8,6 +8,7 @@ import StepReferenceUpload from "@/components/create/step-reference-upload";
 import StepOrderSettings from "@/components/create/step-order-settings";
 import OrderSummaryCard from "@/components/create/order-summary-card";
 import GeneratedResultCard from "@/components/create/generated-result-card";
+import ImageOrientationPicker from "@/components/create/image-orientation-picker";
 import type { UploadedClientAsset } from "@/components/create/r2-upload-input";
 
 type GenerateResponse = {
@@ -18,14 +19,20 @@ type GenerateResponse = {
   sharePath?: string;
 };
 
+type ImageOrientation = "portrait" | "landscape" | "square";
+
 export default function ReferenceCreateShell() {
   const [faceAssets, setFaceAssets] = useState<UploadedClientAsset[]>([]);
-  const [referenceAssets, setReferenceAssets] = useState<UploadedClientAsset[]>([]);
-  const [title, setTitle] = useState("");
+  const [referenceAssets, setReferenceAssets] = useState<UploadedClientAsset[]>(
+    [],
+  );
+  const [title, setTitle] = useState("Свой референс");
   const [goal, setGoal] = useState("");
   const [notes, setNotes] = useState("");
   const [selectedFormat, setSelectedFormat] = useState<string>("Портрет");
   const [selectedMood, setSelectedMood] = useState<string>("Natural");
+  const [imageOrientation, setImageOrientation] =
+    useState<ImageOrientation>("portrait");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [result, setResult] = useState<{
@@ -68,6 +75,7 @@ export default function ReferenceCreateShell() {
           notes,
           selectedFormat,
           selectedMood,
+          imageOrientation,
           faceAssets: faceAssets.map((item) => ({
             storageKey: item.storageKey,
             fileName: item.fileName,
@@ -85,7 +93,12 @@ export default function ReferenceCreateShell() {
 
       const data = (await response.json()) as GenerateResponse;
 
-      if (!response.ok || !data.imagePath || !data.downloadPath || !data.sharePath) {
+      if (
+        !response.ok ||
+        !data.imagePath ||
+        !data.downloadPath ||
+        !data.sharePath
+      ) {
         throw new Error(data.error || "Не удалось сгенерировать изображение");
       }
 
@@ -114,14 +127,21 @@ export default function ReferenceCreateShell() {
             Создание по своему референсу
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Пользователь загружает лицо и референс. OpenAI сначала сам пишет
-            промпт по мастер-логике, потом этим промптом делает генерацию.
+            Пользователь загружает лицо и референс. Система сначала анализирует
+            референс, собирает чистый production prompt, а потом уже запускает
+            генерацию.
           </p>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
           <div className="space-y-6">
+            <ImageOrientationPicker
+              value={imageOrientation}
+              onChange={setImageOrientation}
+            />
+
             <StepFaceUpload value={faceAssets} onChange={setFaceAssets} />
+
             <StepReferenceUpload
               value={referenceAssets}
               onChange={setReferenceAssets}
