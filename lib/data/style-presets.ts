@@ -3,6 +3,8 @@ export type StyleOption = {
   title: string;
   category: string;
   description: string;
+  promptTemplate?: string | null;
+  coverImageUrl?: string | null;
 };
 
 export const styleCategories = [
@@ -21,53 +23,23 @@ export const stylePresets: StyleOption[] = [
     title: "Old Money Portrait",
     category: "Luxury",
     description: "Тихая роскошь, мягкий свет и дорогой спокойный образ.",
+    promptTemplate:
+      "Luxury old money portrait, elegant styling, premium natural skin, soft expensive light, refined composition, calm quiet luxury mood.",
   },
   {
     id: "pinterest-soft",
     title: "Pinterest Soft",
     category: "Pinterest",
     description: "Нежные оттенки, воздушная эстетика и премиальный мягкий вайб.",
+    promptTemplate:
+      "Soft pinterest aesthetic, airy feminine styling, gentle tones, creamy color palette, polished premium composition.",
   },
   {
     id: "business-clean",
     title: "Business Clean",
     category: "Business",
     description: "Чистые деловые кадры для сайта, LinkedIn и личного бренда.",
-  },
-  {
-    id: "dating-premium",
-    title: "Dating Premium",
-    category: "Dating",
-    description: "Живые естественные фото, которые выглядят дорого и цепляют.",
-  },
-  {
-    id: "travel-luxury",
-    title: "Travel Luxury",
-    category: "Travel",
-    description: "Картинка как из отпуска мечты с премиальной подачей.",
-  },
-  {
-    id: "editorial-vogue",
-    title: "Editorial Vogue",
-    category: "Editorial",
-    description: "Журнальная композиция, выразительный портрет и fashion-подача.",
-  },
-  {
-    id: "studio-glow",
-    title: "Studio Glow",
-    category: "Pinterest",
-    description: "Мягкий студийный свет и чистая дорогая картинка.",
-  },
-  {
-    id: "dark-masculine",
-    title: "Dark Masculine",
-    category: "Luxury",
-    description: "Более темный контрастный стиль с дорогим мужским образом.",
-  },
-  {
-    id: "city-business-woman",
-    title: "City Business Woman",
-    category: "Business",
-    description: "Сильная городская эстетика для экспертов и личного бренда.",
+    promptTemplate:
+      "Clean business portrait, premium corporate aesthetic, polished wardrobe, professional posture, refined office/editorial lighting.",
   },
 ];
