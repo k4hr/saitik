@@ -84,21 +84,40 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password);
+    const welcomeCredits = 10;
+    const welcomeOfferEndsAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        login,
-        passwordHash,
-      },
-      select: {
-        id: true,
-        email: true,
-        login: true,
-        role: true,
-        creditBalance: true,
-        createdAt: true,
-      },
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          email,
+          login,
+          passwordHash,
+          creditBalance: welcomeCredits,
+          welcomeOfferEndsAt,
+        },
+        select: {
+          id: true,
+          email: true,
+          login: true,
+          role: true,
+          creditBalance: true,
+          createdAt: true,
+          welcomeOfferEndsAt: true,
+        },
+      });
+
+      await tx.creditTransaction.create({
+        data: {
+          userId: createdUser.id,
+          type: "WELCOME_BONUS",
+          amount: welcomeCredits,
+          balanceAfter: welcomeCredits,
+          description: "Приветственный бонус за регистрацию",
+        },
+      });
+
+      return createdUser;
     });
 
     const token = await createSessionToken({
