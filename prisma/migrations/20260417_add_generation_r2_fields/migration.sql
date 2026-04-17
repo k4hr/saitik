@@ -40,28 +40,34 @@ ALTER TABLE "Order"
   ADD COLUMN IF NOT EXISTS "startedAt" TIMESTAMP(3),
   ADD COLUMN IF NOT EXISTS "finishedAt" TIMESTAMP(3);
 
--- Fill shareId for existing rows if empty
+-- Fill missing shareId
 UPDATE "Order"
 SET "shareId" = md5(random()::text || clock_timestamp()::text || "id")
 WHERE "shareId" IS NULL OR "shareId" = '';
+
+-- Deduplicate shareId before unique index creation
+WITH dupes AS (
+  SELECT
+    "id",
+    "shareId",
+    ROW_NUMBER() OVER (PARTITION BY "shareId" ORDER BY "createdAt", "id") AS rn
+  FROM "Order"
+  WHERE "shareId" IS NOT NULL
+)
+UPDATE "Order" o
+SET "shareId" = md5(random()::text || clock_timestamp()::text || o."id")
+FROM dupes d
+WHERE o."id" = d."id"
+  AND d.rn > 1;
 
 -- Make shareId required
 ALTER TABLE "Order"
   ALTER COLUMN "shareId" SET NOT NULL;
 
--- Unique index for shareId
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1
-    FROM pg_indexes
-    WHERE schemaname = 'public'
-      AND indexname = 'Order_shareId_key'
-  ) THEN
-    CREATE UNIQUE INDEX "Order_shareId_key" ON "Order"("shareId");
-  END IF;
-END
-$$;
+-- Recreate unique index for shareId safely
+DROP INDEX IF EXISTS "Order_shareId_key";
+
+CREATE UNIQUE INDEX "Order_shareId_key" ON "Order"("shareId");
 
 -- OrderAsset
 ALTER TABLE "OrderAsset"
