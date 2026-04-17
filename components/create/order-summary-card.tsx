@@ -11,10 +11,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { StyleOption } from "@/lib/data/style-presets";
+
+type SummaryStyle = {
+  id?: string;
+  title: string;
+  category: string;
+  description?: string;
+  promptTemplate?: string | null;
+  coverImageUrl?: string | null;
+};
 
 type OrderSummaryCardProps = {
-  selectedStyle?: StyleOption;
+  selectedStyle?: SummaryStyle;
   selectedFormat: string;
   selectedMood: string;
   modeLabel: string;
