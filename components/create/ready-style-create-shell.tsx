@@ -8,11 +8,19 @@ import StepOrderSettings from "@/components/create/step-order-settings";
 import OrderSummaryCard from "@/components/create/order-summary-card";
 import GeneratedResultCard from "@/components/create/generated-result-card";
 import ImageOrientationPicker from "@/components/create/image-orientation-picker";
-import type { StyleOption } from "@/lib/data/style-presets";
 import type { UploadedClientAsset } from "@/components/create/r2-upload-input";
 
+type SelectedReadyStyle = {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  promptTemplate?: string | null;
+  coverImageUrl?: string | null;
+};
+
 type ReadyStyleCreateShellProps = {
-  selectedStyle: StyleOption;
+  selectedStyle: SelectedReadyStyle;
 };
 
 type GenerateResponse = {
@@ -61,7 +69,7 @@ export default function ReadyStyleCreateShell({
         },
         body: JSON.stringify({
           mode: "READY",
-          stylePresetId: selectedStyle.id,
+          showcaseItemId: selectedStyle.id,
           title,
           goal,
           notes,
@@ -115,9 +123,8 @@ export default function ReadyStyleCreateShell({
           </h1>
 
           <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Этот образ уже связан со своим готовым промптом. Пользователь
-            добавляет лицо, а дальше генерация идёт по promptTemplate выбранного
-            style preset.
+            Этот образ уже содержит свой изначальный промпт. Пользователь
+            загружает лицо, выбирает ориентацию и запускает генерацию.
           </p>
         </div>
 
@@ -147,16 +154,15 @@ export default function ReadyStyleCreateShell({
                       {selectedStyle.title}
                     </h2>
                     <p className="mt-3 max-w-2xl text-sm leading-7 text-[#7e6f63]">
-                      {selectedStyle.description ||
-                        "Для этого образа уже зашит отдельный promptTemplate."}
+                      {selectedStyle.description || "Готовый образ из витрины."}
                     </p>
                   </div>
 
                   <div className="rounded-[24px] border border-[#eadfd6] bg-[#fffaf6] p-5">
                     <p className="text-sm text-[#3d3128]">
                       На этой странице пользователь только загружает своё лицо и
-                      выбирает параметры генерации. Сам промпт уже привязан к
-                      выбранному образу через админку.
+                      выбирает параметры генерации. Сам промпт уже привязан
+                      напрямую к выбранной карточке.
                     </p>
                   </div>
                 </div>
