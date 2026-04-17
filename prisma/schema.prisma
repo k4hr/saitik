@@ -73,20 +73,20 @@ model User {
 }
 
 model StylePreset {
-  id            String         @id @default(cuid())
-  slug          String         @unique
-  title         String
-  category      String
-  description   String
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  title          String
+  category       String
+  description    String
   promptTemplate String?
-  coverImageUrl String?
-  isActive      Boolean        @default(true)
-  sortOrder     Int            @default(0)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  coverImageUrl  String?
+  isActive       Boolean        @default(true)
+  sortOrder      Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
-  orders        Order[]
-  showcaseItems ShowcaseItem[]
+  orders         Order[]
+  showcaseItems  ShowcaseItem[]
 }
 
 model ShowcaseCategory {
@@ -103,18 +103,18 @@ model ShowcaseCategory {
 }
 
 model ShowcaseSubcategory {
-  id            String            @id @default(cuid())
-  categoryId    String
-  category      ShowcaseCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  id         String           @id @default(cuid())
+  categoryId String
+  category   ShowcaseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  name          String
-  slug          String
-  sortOrder     Int               @default(0)
-  isActive      Boolean           @default(true)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  name       String
+  slug       String
+  sortOrder  Int              @default(0)
+  isActive   Boolean          @default(true)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
-  items         ShowcaseItem[]
+  items      ShowcaseItem[]
 
   @@unique([categoryId, slug])
   @@index([categoryId, sortOrder])
@@ -152,17 +152,17 @@ model ShowcaseItem {
 }
 
 model Order {
-  id                 String               @id @default(cuid())
+  id                 String           @id @default(cuid())
   userId             String
-  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   stylePresetId      String?
-  stylePreset        StylePreset?         @relation(fields: [stylePresetId], references: [id], onDelete: SetNull)
+  stylePreset        StylePreset?     @relation(fields: [stylePresetId], references: [id], onDelete: SetNull)
 
-  mode               GenerationMode       @default(READY)
+  mode               GenerationMode   @default(READY)
   title              String?
   goal               String?
-  status             OrderStatus          @default(DRAFT)
+  status             OrderStatus      @default(DRAFT)
 
   selectedFormat     String?
   selectedMood       String?
@@ -171,18 +171,18 @@ model Order {
   promptInput        String?
   promptFinal        String?
   errorMessage       String?
-  shareId            String               @unique @default(cuid())
+  shareId            String?          @unique @default(cuid())
 
-  creditsSpent       Int                  @default(0)
+  creditsSpent       Int              @default(0)
   priceRub           Int?
-  currency           String               @default("RUB")
+  currency           String           @default("RUB")
 
   paidAt             DateTime?
   startedAt          DateTime?
   finishedAt         DateTime?
 
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   assets             OrderAsset[]
   payments           Payment[]
