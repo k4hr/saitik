@@ -13,7 +13,7 @@ type UploadedAssetInput = {
 
 type CreateDraftBody = {
   mode?: "READY" | "REFERENCE" | "EDIT";
-  stylePresetId?: string | null;
+  showcaseItemId?: string | null;
   title?: string;
   goal?: string;
   selectedFormat?: string;
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
     const order = await prisma.order.create({
       data: {
         userId: session.userId,
-        stylePresetId: body.stylePresetId || null,
+        showcaseItemId: body.showcaseItemId || null,
         mode,
         title: body.title?.trim() || null,
         goal: body.goal?.trim() || null,
