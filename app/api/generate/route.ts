@@ -77,6 +77,15 @@ function resolveImageSize(
   return "1024x1536";
 }
 
+function assertUserOwnsStorageKey(storageKey: string, userId: string) {
+  const normalized = storageKey.trim();
+  const allowedPrefix = `users/${userId}/`;
+
+  if (!normalized.startsWith(allowedPrefix)) {
+    throw new Error("Некорректный storageKey");
+  }
+}
+
 export async function POST(req: NextRequest) {
   let orderId: string | null = null;
 
@@ -125,6 +134,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const faceAssets = body.faceAssets || [];
+
+    for (const asset of faceAssets) {
+      assertUserOwnsStorageKey(asset.storageKey, session.userId);
+    }
+
+    if (body.referenceAsset?.storageKey) {
+      assertUserOwnsStorageKey(body.referenceAsset.storageKey, session.userId);
+    }
+
+    if (body.sourceAsset?.storageKey) {
+      assertUserOwnsStorageKey(body.sourceAsset.storageKey, session.userId);
+    }
+
     const stylePreset =
       body.stylePresetId && mode === "READY"
         ? await prisma.stylePreset.findUnique({
@@ -146,7 +169,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const faceAssets = body.faceAssets || [];
     const assetsToCreate: Prisma.OrderAssetCreateWithoutOrderInput[] = [];
 
     for (const [index, item] of faceAssets.entries()) {
