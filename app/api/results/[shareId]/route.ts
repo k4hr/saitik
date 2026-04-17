@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
 
     const file = await readObjectFromR2(asset.storageKey);
 
-    return new NextResponse(file.bytes, {
+    return new NextResponse(Buffer.from(file.bytes), {
       headers: {
         "Content-Type": asset.mimeType || file.contentType || "image/png",
         "Cache-Control": "public, max-age=31536000, immutable",
