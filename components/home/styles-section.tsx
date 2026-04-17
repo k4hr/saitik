@@ -3,20 +3,24 @@ import Link from "next/link";
 
 import SectionShell from "@/components/layout/section-shell";
 import { Button } from "@/components/ui/button";
-import { stylePresets } from "@/lib/data/style-presets";
 import { getSession } from "@/lib/auth";
+
+const demoItems = [
+  { id: "style-1", title: "Old Money", image: "/demo/main/style-1.png" },
+  { id: "style-2", title: "Luxury Black", image: "/demo/main/style-2.png" },
+  { id: "style-3", title: "Business Clean", image: "/demo/main/style-3.png" },
+  { id: "style-4", title: "Soft Editorial", image: "/demo/main/style-4.png" },
+  { id: "style-5", title: "Pinterest Soft", image: "/demo/main/style-5.png" },
+  { id: "style-6", title: "Travel Mood", image: "/demo/main/style-6.png" },
+  { id: "style-7", title: "Dating Style", image: "/demo/main/style-7.png" },
+  { id: "style-8", title: "Studio Portrait", image: "/demo/main/style-8.png" },
+];
 
 export default async function StylesSection() {
   const session = await getSession();
-  const primaryHref = session ? "/create" : "/auth/sign-in";
+  const primaryHref = session ? "/styles" : "/auth/sign-in";
 
-  const items = stylePresets.slice(0, 8).map((item, index) => ({
-    id: item.id,
-    title: item.title,
-    image: `/demo/main/style-${(index % 8) + 1}.png`,
-  }));
-
-  const loopItems = [...items, ...items];
+  const loopItems = [...demoItems, ...demoItems];
 
   return (
     <SectionShell
