@@ -14,10 +14,7 @@ import {
   buildReferencePrompt,
   REFERENCE_ANALYZER_MASTER_PROMPT,
 } from "@/lib/generation-prompts";
-import {
-  describeReferenceImage,
-  editImageWithOpenAi,
-} from "@/lib/openai";
+import { describeReferenceImage, editImageWithOpenAi } from "@/lib/openai";
 import {
   buildR2Key,
   getSignedReadUrl,
@@ -34,7 +31,7 @@ type UploadedAssetInput = {
 
 type GenerateBody = {
   mode?: "READY" | "REFERENCE" | "EDIT";
-  stylePresetId?: string | null;
+  showcaseItemId?: string | null;
   title?: string;
   goal?: string;
   selectedFormat?: string;
@@ -66,14 +63,8 @@ function buildAssetCreate(
 function resolveImageSize(
   orientation?: "portrait" | "landscape" | "square",
 ): "1024x1536" | "1536x1024" | "1024x1024" {
-  if (orientation === "landscape") {
-    return "1536x1024";
-  }
-
-  if (orientation === "square") {
-    return "1024x1024";
-  }
-
+  if (orientation === "landscape") return "1536x1024";
+  if (orientation === "square") return "1024x1024";
   return "1024x1536";
 }
 
@@ -99,9 +90,9 @@ export async function POST(req: NextRequest) {
     const body = (await req.json()) as GenerateBody;
     const mode = (body.mode || "READY") as GenerationMode;
 
-    if (mode === "READY" && !body.stylePresetId) {
+    if (mode === "READY" && !body.showcaseItemId) {
       return NextResponse.json(
-        { error: "Для готового стиля нужен stylePresetId" },
+        { error: "Для готового стиля нужен showcaseItemId" },
         { status: 400 },
       );
     }
@@ -148,23 +139,35 @@ export async function POST(req: NextRequest) {
       assertUserOwnsStorageKey(body.sourceAsset.storageKey, session.userId);
     }
 
-    const stylePreset =
-      body.stylePresetId && mode === "READY"
-        ? await prisma.stylePreset.findUnique({
-            where: { id: body.stylePresetId },
+    const showcaseItem =
+      body.showcaseItemId && mode === "READY"
+        ? await prisma.showcaseItem.findUnique({
+            where: { id: body.showcaseItemId },
             select: {
               id: true,
+              kind: true,
               title: true,
               description: true,
               promptTemplate: true,
               isActive: true,
+              category: {
+                select: {
+                  name: true,
+                },
+              },
             },
           })
         : null;
 
-    if (mode === "READY" && (!stylePreset || !stylePreset.isActive)) {
+    if (
+      mode === "READY" &&
+      (!showcaseItem ||
+        !showcaseItem.isActive ||
+        showcaseItem.kind !== "READY" ||
+        !showcaseItem.promptTemplate)
+    ) {
       return NextResponse.json(
-        { error: "Style preset не найден или выключен" },
+        { error: "Готовый стиль не найден или у него нет промпта" },
         { status: 404 },
       );
     }
@@ -190,7 +193,7 @@ export async function POST(req: NextRequest) {
     const createdOrder = await prisma.order.create({
       data: {
         userId: session.userId,
-        stylePresetId: stylePreset?.id || null,
+        showcaseItemId: showcaseItem?.id || null,
         mode,
         title: body.title?.trim() || null,
         goal: body.goal?.trim() || null,
@@ -221,9 +224,9 @@ export async function POST(req: NextRequest) {
       sourceStorageKey = faceAssets[0].storageKey;
 
       finalPrompt = buildReadyStylePrompt({
-        presetTitle: stylePreset?.title || "Ready style",
-        presetDescription: stylePreset?.description || null,
-        presetPromptTemplate: stylePreset?.promptTemplate || null,
+        presetTitle: showcaseItem?.title || "Ready style",
+        presetDescription: showcaseItem?.description || null,
+        presetPromptTemplate: showcaseItem?.promptTemplate || null,
         selectedFormat: body.selectedFormat,
         selectedMood: body.selectedMood,
         goal: body.goal,
