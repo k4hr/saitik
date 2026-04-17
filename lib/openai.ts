@@ -39,12 +39,18 @@ function extractOutputText(payload: any): string {
   return chunks.join("\n").trim();
 }
 
+export type OpenAiImageSize =
+  | "1024x1024"
+  | "1024x1536"
+  | "1536x1024"
+  | "auto";
+
 export async function describeReferenceImage(params: {
   imageUrl: string;
   masterPrompt: string;
   userContext?: string;
 }) {
-  const model = process.env.OPENAI_VISION_MODEL || "gpt-4.1-mini";
+  const model = process.env.OPENAI_VISION_MODEL || "gpt-4.1";
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -101,9 +107,10 @@ export async function editImageWithOpenAi(params: {
   sourceImageBytes: Uint8Array;
   sourceMimeType: string;
   sourceFileName: string;
+  size?: OpenAiImageSize;
 }) {
-  const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1";
-  const size = process.env.OPENAI_IMAGE_SIZE || "1024x1536";
+  const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1.5";
+  const size = params.size || process.env.OPENAI_IMAGE_SIZE || "1024x1536";
 
   const formData = new FormData();
   const arrayBuffer = params.sourceImageBytes.buffer.slice(
