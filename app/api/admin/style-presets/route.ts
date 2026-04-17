@@ -10,6 +10,7 @@ type CreateStylePresetBody = {
   slug?: string;
   category?: string;
   description?: string;
+  promptTemplate?: string | null;
   coverImageUrl?: string | null;
   sortOrder?: number | string;
   isActive?: boolean;
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest) {
     const slug = slugify(rawSlug || title);
     const category = body.category?.trim() ?? "";
     const description = body.description?.trim() ?? "";
+    const promptTemplate = body.promptTemplate?.trim() || null;
     const coverImageUrl = body.coverImageUrl?.trim() || null;
     const sortOrder = Number(body.sortOrder ?? 0);
     const isActive =
@@ -73,6 +75,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!promptTemplate) {
+      return NextResponse.json(
+        { error: "Укажи prompt template для style preset" },
+        { status: 400 },
+      );
+    }
+
     if (!Number.isFinite(sortOrder)) {
       return NextResponse.json(
         { error: "Порядок сортировки должен быть числом" },
@@ -98,6 +107,7 @@ export async function POST(req: NextRequest) {
         slug,
         category,
         description,
+        promptTemplate,
         coverImageUrl,
         sortOrder,
         isActive,
@@ -107,6 +117,7 @@ export async function POST(req: NextRequest) {
         title: true,
         slug: true,
         category: true,
+        promptTemplate: true,
         isActive: true,
       },
     });
