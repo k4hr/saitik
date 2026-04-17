@@ -11,12 +11,12 @@ type CreateShowcaseItemBody = {
   slug?: string;
   kind?: ShowcaseKind | string;
   description?: string;
+  promptTemplate?: string | null;
   coverImageUrl?: string;
   sortOrder?: number | string;
   isActive?: boolean;
   categoryId?: string;
   subcategoryId?: string | null;
-  stylePresetId?: string | null;
 };
 
 export async function POST(req: NextRequest) {
@@ -45,13 +45,12 @@ export async function POST(req: NextRequest) {
     const kind =
       body.kind === ShowcaseKind.CUSTOM ? ShowcaseKind.CUSTOM : ShowcaseKind.READY;
     const description = body.description?.trim() || null;
+    const promptTemplate = body.promptTemplate?.trim() || null;
     const coverImageUrl = body.coverImageUrl?.trim() ?? "";
     const categoryId = body.categoryId?.trim() ?? "";
     const subcategoryId = body.subcategoryId?.trim() || null;
-    const stylePresetId = body.stylePresetId?.trim() || null;
     const sortOrder = Number(body.sortOrder ?? 0);
-    const isActive =
-      typeof body.isActive === "boolean" ? body.isActive : true;
+    const isActive = typeof body.isActive === "boolean" ? body.isActive : true;
 
     if (!title) {
       return NextResponse.json(
@@ -88,9 +87,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (kind === ShowcaseKind.READY && !stylePresetId) {
+    if (kind === ShowcaseKind.READY && !promptTemplate) {
       return NextResponse.json(
-        { error: "Для готового стиля нужно выбрать StylePreset" },
+        { error: "Для готового стиля нужно указать изначальный промпт" },
         { status: 400 },
       );
     }
@@ -140,32 +139,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (stylePresetId) {
-      const preset = await prisma.stylePreset.findUnique({
-        where: { id: stylePresetId },
-        select: { id: true },
-      });
-
-      if (!preset) {
-        return NextResponse.json(
-          { error: "StylePreset не найден" },
-          { status: 404 },
-        );
-      }
-    }
-
     const item = await prisma.showcaseItem.create({
       data: {
         title,
         slug,
         kind,
         description,
+        promptTemplate: kind === ShowcaseKind.READY ? promptTemplate : null,
         coverImageUrl,
         sortOrder,
         isActive,
         categoryId,
         subcategoryId,
-        stylePresetId: kind === ShowcaseKind.READY ? stylePresetId : null,
         createdByUserId: session.userId,
       },
       select: {
@@ -173,6 +158,7 @@ export async function POST(req: NextRequest) {
         title: true,
         slug: true,
         kind: true,
+        promptTemplate: true,
         coverImageUrl: true,
         sortOrder: true,
         isActive: true,
