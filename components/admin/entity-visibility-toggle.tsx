@@ -1,61 +1,91 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
 type EntityVisibilityToggleProps = {
-  apiPath: string;
-  isActive: boolean;
+  id: string;
+  endpoint: string;
+  initialIsActive: boolean;
+  onChanged?: (nextValue: boolean) => void;
 };
 
 export default function EntityVisibilityToggle({
-  apiPath,
-  isActive,
+  id,
+  endpoint,
+  initialIsActive,
+  onChanged,
 }: EntityVisibilityToggleProps) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [active, setActive] = useState(isActive);
+  const [isActive, setIsActive] = useState(initialIsActive);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorText, setErrorText] = useState("");
 
   async function handleToggle() {
-    try {
-      setLoading(true);
+    if (isSubmitting) return;
 
-      const response = await fetch(apiPath, {
+    setIsSubmitting(true);
+    setErrorText("");
+
+    try {
+      const response = await fetch(`${endpoint}/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          isActive: !active,
+          isActive: !isActive,
         }),
       });
 
+      const data = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        item?: { isActive?: boolean };
+        category?: { isActive?: boolean };
+        subcategory?: { isActive?: boolean };
+      };
+
       if (!response.ok) {
-        setLoading(false);
-        return;
+        throw new Error(data.error || "Не удалось обновить видимость");
       }
 
-      setActive((prev) => !prev);
-      router.refresh();
+      const nextValue =
+        data.item?.isActive ??
+        data.category?.isActive ??
+        data.subcategory?.isActive ??
+        !isActive;
+
+      setIsActive(Boolean(nextValue));
+      onChanged?.(Boolean(nextValue));
+    } catch (error) {
+      setErrorText(
+        error instanceof Error ? error.message : "Ошибка обновления",
+      );
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <Button
-      type="button"
-      variant="secondary"
-      size="lg"
-      onClick={handleToggle}
-      disabled={loading}
-      className="min-w-[150px]"
-    >
-      {active ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
-      {loading ? "Сохраняем..." : active ? "Скрыть" : "Показать"}
-    </Button>
+    <div className="flex flex-col items-end gap-2">
+      <Button
+        type="button"
+        variant={isActive ? "secondary" : "default"}
+        size="lg"
+        onClick={handleToggle}
+        disabled={isSubmitting}
+      >
+        {isSubmitting
+          ? "Сохраняем..."
+          : isActive
+            ? "Скрыть"
+            : "Показать"}
+      </Button>
+
+      {errorText ? (
+        <p className="text-right text-xs text-[#8b4f43]">{errorText}</p>
+      ) : null}
+    </div>
   );
 }
