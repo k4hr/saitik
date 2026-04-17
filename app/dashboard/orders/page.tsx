@@ -66,24 +66,43 @@ export default async function DashboardOrdersPage() {
       status: true,
       creditsSpent: true,
       createdAt: true,
+      shareId: true,
       stylePreset: {
         select: {
           title: true,
         },
       },
+      assets: {
+        where: {
+          type: "RESULT",
+        },
+        take: 1,
+        select: {
+          id: true,
+        },
+      },
     },
   });
 
-  const generations = orders.map((order) => ({
-    id: order.id,
-    title:
-      order.title?.trim() ||
-      order.stylePreset?.title ||
-      "Генерация без названия",
-    status: formatStatus(order.status),
-    credits: order.creditsSpent,
-    createdAtLabel: formatDateLabel(order.createdAt),
-  }));
+  const generations = orders.map((order) => {
+    const hasResult = order.assets.length > 0 && order.status === "DONE";
+
+    return {
+      id: order.id,
+      title:
+        order.title?.trim() ||
+        order.stylePreset?.title ||
+        "Генерация без названия",
+      status: formatStatus(order.status),
+      credits: order.creditsSpent,
+      createdAtLabel: formatDateLabel(order.createdAt),
+      imagePath: hasResult ? `/api/results/${order.shareId}` : null,
+      downloadPath: hasResult
+        ? `/api/results/${order.shareId}?download=1`
+        : null,
+      sharePath: hasResult ? `/share/${order.shareId}` : null,
+    };
+  });
 
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
