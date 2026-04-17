@@ -36,6 +36,8 @@ export default async function CreatePage({ searchParams }: CreatePageProps) {
         title: true,
         category: true,
         description: true,
+        promptTemplate: true,
+        coverImageUrl: true,
       },
     });
 
@@ -45,6 +47,8 @@ export default async function CreatePage({ searchParams }: CreatePageProps) {
         title: preset.title,
         category: preset.category,
         description: preset.description,
+        promptTemplate: preset.promptTemplate,
+        coverImageUrl: preset.coverImageUrl,
       };
     }
   }
@@ -57,12 +61,15 @@ export default async function CreatePage({ searchParams }: CreatePageProps) {
         title: true,
         description: true,
         kind: true,
+        coverImageUrl: true,
         stylePreset: {
           select: {
             id: true,
             title: true,
             category: true,
             description: true,
+            promptTemplate: true,
+            coverImageUrl: true,
           },
         },
         category: {
@@ -80,6 +87,8 @@ export default async function CreatePage({ searchParams }: CreatePageProps) {
           title: showcase.stylePreset.title,
           category: showcase.stylePreset.category,
           description: showcase.stylePreset.description,
+          promptTemplate: showcase.stylePreset.promptTemplate,
+          coverImageUrl: showcase.stylePreset.coverImageUrl,
         };
       } else {
         selectedStyle = {
@@ -89,6 +98,7 @@ export default async function CreatePage({ searchParams }: CreatePageProps) {
           description:
             showcase.description ??
             "Пользовательская фотосессия из витрины.",
+          coverImageUrl: showcase.coverImageUrl,
         };
       }
     }
