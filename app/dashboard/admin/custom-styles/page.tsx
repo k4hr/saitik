@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ImageIcon, LayoutGrid, Shield } from "lucide-react";
+import { LayoutGrid, Shield } from "lucide-react";
 import { ShowcaseKind } from "@prisma/client";
 
 import SiteHeader from "@/components/layout/site-header";
@@ -18,7 +18,6 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import ShowcaseItemCreateForm from "@/components/admin/showcase-item-create-form";
 import EntityVisibilityToggle from "@/components/admin/entity-visibility-toggle";
-import { SHOWCASE_KIND } from "@/lib/showcase";
 
 function formatDate(value: Date): string {
   return new Intl.DateTimeFormat("ru-RU", {
@@ -108,8 +107,8 @@ export default async function AdminCustomStylesPage() {
             </div>
 
             <p className="mt-5 max-w-3xl text-base leading-8 text-[#726458] sm:text-lg">
-              Здесь добавляются пользовательские карточки, которые будут
-              показываться на витрине как фотосессии из референсов.
+              Здесь добавляются пользовательские карточки для режима по
+              референсам.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -151,10 +150,9 @@ export default async function AdminCustomStylesPage() {
                     </div>
                   ) : (
                     <ShowcaseItemCreateForm
-                      kind={SHOWCASE_KIND.CUSTOM}
+                      kind={ShowcaseKind.CUSTOM}
                       categories={categories}
                       subcategories={subcategories}
-                      stylePresets={[]}
                       suggestedSortOrder={suggestedSortOrder}
                     />
                   )}
@@ -239,18 +237,19 @@ export default async function AdminCustomStylesPage() {
                                     href={item.coverImageUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="mt-2 block text-sm font-medium text-[#3d3128] underline underline-offset-4"
+                                    className="mt-2 inline-block text-sm text-[#8b6b53] underline decoration-[#ccb29d] underline-offset-4"
                                   >
-                                    открыть
+                                    Открыть
                                   </a>
                                 </div>
                               </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex items-center justify-end">
                               <EntityVisibilityToggle
-                                apiPath={`/api/admin/showcase-items/${item.id}`}
-                                isActive={item.isActive}
+                                id={item.id}
+                                endpoint="/api/admin/showcase-items"
+                                initialIsActive={item.isActive}
                               />
                             </div>
                           </div>
@@ -258,22 +257,6 @@ export default async function AdminCustomStylesPage() {
                       ))}
                     </div>
                   )}
-
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <Button asChild variant="secondary" size="lg">
-                      <Link href="/dashboard/admin/categories">
-                        <LayoutGrid className="size-4.5" />
-                        К категориям
-                      </Link>
-                    </Button>
-
-                    <Button asChild variant="secondary" size="lg">
-                      <Link href="/dashboard/admin/subcategories">
-                        <ImageIcon className="size-4.5" />
-                        К подкатегориям
-                      </Link>
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             </div>
