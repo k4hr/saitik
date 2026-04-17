@@ -33,6 +33,7 @@ enum CreditTransactionType {
   SPEND
   REFUND
   ADMIN_ADJUSTMENT
+  WELCOME_BONUS
 }
 
 enum PaymentStatus {
@@ -47,6 +48,12 @@ enum ShowcaseKind {
   CUSTOM
 }
 
+enum GenerationMode {
+  READY
+  REFERENCE
+  EDIT
+}
+
 model User {
   id                 String              @id @default(cuid())
   email              String              @unique
@@ -55,6 +62,7 @@ model User {
   role               UserRole            @default(USER)
   creditBalance      Int                 @default(0)
   isActive           Boolean             @default(true)
+  welcomeOfferEndsAt DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
@@ -70,6 +78,7 @@ model StylePreset {
   title         String
   category      String
   description   String
+  promptTemplate String?
   coverImageUrl String?
   isActive      Boolean        @default(true)
   sortOrder     Int            @default(0)
@@ -150,6 +159,7 @@ model Order {
   stylePresetId      String?
   stylePreset        StylePreset?         @relation(fields: [stylePresetId], references: [id], onDelete: SetNull)
 
+  mode               GenerationMode       @default(READY)
   title              String?
   goal               String?
   status             OrderStatus          @default(DRAFT)
@@ -157,6 +167,11 @@ model Order {
   selectedFormat     String?
   selectedMood       String?
   notes              String?
+
+  promptInput        String?
+  promptFinal        String?
+  errorMessage       String?
+  shareId            String               @unique @default(cuid())
 
   creditsSpent       Int                  @default(0)
   priceRub           Int?
@@ -181,12 +196,18 @@ model OrderAsset {
 
   type       AssetType
   url        String
+  storageKey String?
+  publicUrl  String?
+  fileName   String?
+  fileSize   Int?
   mimeType   String?
   width      Int?
   height     Int?
   sortOrder  Int       @default(0)
 
   createdAt  DateTime  @default(now())
+
+  @@index([orderId, type, sortOrder])
 }
 
 model Payment {
