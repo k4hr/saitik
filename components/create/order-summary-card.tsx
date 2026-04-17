@@ -1,23 +1,38 @@
 "use client";
 
-import Link from "next/link";
-import { CheckCircle2, Sparkles, Wallet } from "lucide-react";
+import { CheckCircle2, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type { StyleOption } from "@/lib/data/style-presets";
 
 type OrderSummaryCardProps = {
   selectedStyle?: StyleOption;
   selectedFormat: string;
   selectedMood: string;
+  modeLabel: string;
+  submitText: string;
+  onSubmit: () => void;
+  disabled?: boolean;
+  isSubmitting?: boolean;
 };
 
 export default function OrderSummaryCard({
   selectedStyle,
   selectedFormat,
   selectedMood,
+  modeLabel,
+  submitText,
+  onSubmit,
+  disabled,
+  isSubmitting,
 }: OrderSummaryCardProps) {
   return (
     <Card className="sticky top-24 overflow-hidden">
@@ -29,17 +44,20 @@ export default function OrderSummaryCard({
           Сводка заказа
         </div>
 
-        <CardTitle className="mt-2">{selectedStyle?.title ?? "Выбери стиль"}</CardTitle>
+        <CardTitle className="mt-2">
+          {selectedStyle?.title ?? modeLabel}
+        </CardTitle>
 
         <CardDescription>
-          Здесь пользователь увидит краткую сводку перед списанием кредитов и запуском генерации.
+          После запуска создаётся заказ, OpenAI генерирует картинку, результат
+          сохраняется в R2 и сразу показывается пользователю.
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-5">
         <div className="flex flex-wrap gap-2">
           <Badge variant={selectedStyle ? "selected" : "outline"}>
-            {selectedStyle?.category ?? "Без категории"}
+            {selectedStyle?.category ?? modeLabel}
           </Badge>
           <Badge variant="ivory">{selectedFormat}</Badge>
           <Badge variant="ivory">{selectedMood}</Badge>
@@ -49,9 +67,9 @@ export default function OrderSummaryCard({
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
             <div>
-              <p className="text-sm text-[#3d3128]">Готовый стиль — 40 кредитов</p>
+              <p className="text-sm text-[#3d3128]">Upload → R2</p>
               <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                Базовая генерация по каталогу ATELIA.
+                Исходники сразу уходят в Cloudflare.
               </p>
             </div>
           </div>
@@ -59,9 +77,9 @@ export default function OrderSummaryCard({
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
             <div>
-              <p className="text-sm text-[#3d3128]">Референс — +30 кредитов</p>
+              <p className="text-sm text-[#3d3128]">OpenAI generation</p>
               <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                Доплата, если пользователь загружает свою картинку.
+                Генерация идёт через API и сохраняется в заказ.
               </p>
             </div>
           </div>
@@ -69,33 +87,22 @@ export default function OrderSummaryCard({
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
             <div>
-              <p className="text-sm text-[#3d3128]">Reroll и upscale отдельно</p>
+              <p className="text-sm text-[#3d3128]">Скачать и поделиться</p>
               <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                Позже легко подключим дополнительные действия по кредитам.
+                У результата есть download и share-ссылка на твой сайт.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-[24px] border border-[#eadfd6] bg-white p-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-[#7e6f63]">
-              <Wallet className="size-4" />
-              Баланс пользователя
-            </div>
-            <p className="text-xl text-[#3d3128]">150 credits</p>
-          </div>
-          <p className="mt-2 text-xs leading-6 text-[#8f7f73]">
-            Для MVP это пока UI-заглушка. Следом сюда подключим реальные данные пользователя.
-          </p>
-        </div>
-
-        <div className="grid gap-3">
-          <Button size="xl">Запустить за кредиты</Button>
-          <Button asChild variant="secondary" size="xl">
-            <Link href="/dashboard/billing">Пополнить баланс</Link>
-          </Button>
-        </div>
+        <Button
+          size="xl"
+          className="w-full"
+          onClick={onSubmit}
+          disabled={disabled || isSubmitting}
+        >
+          {isSubmitting ? "Генерируем..." : submitText}
+        </Button>
       </CardContent>
     </Card>
   );
