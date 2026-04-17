@@ -31,7 +31,6 @@ type ShowcaseItem = {
   coverImageUrl: string;
   categoryId: string;
   subcategoryId: string | null;
-  stylePresetId: string | null;
 };
 
 type StylesPageClientProps = {
@@ -148,8 +147,8 @@ export default function StylesPageClient({
       return "/auth/sign-in";
     }
 
-    if (item.kind === SHOWCASE_KIND.READY && item.stylePresetId) {
-      return `/create?style=${encodeURIComponent(item.stylePresetId)}`;
+    if (item.kind === SHOWCASE_KIND.READY) {
+      return `/create?style=${encodeURIComponent(item.id)}`;
     }
 
     return `/create?showcase=${encodeURIComponent(item.id)}`;
@@ -291,49 +290,64 @@ export default function StylesPageClient({
             </div>
           ) : null}
 
-          <div className="mt-8">
+          <div className="mt-10">
             {filteredItems.length === 0 ? (
-              <div className="rounded-[28px] border border-[#eadfd6] bg-white/80 p-8 text-center shadow-[0_12px_34px_rgba(95,69,48,0.06)]">
-                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#f3e4d6] text-[#9f7f67]">
+              <div className="rounded-[28px] border border-[#eadfd6] bg-white/70 px-6 py-10 text-center shadow-[0_12px_34px_rgba(95,69,48,0.06)]">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#f2e4d8] text-[#a07f66]">
                   <Sparkles className="size-6" />
                 </div>
-                <h2 className="mt-5 text-2xl text-[#3d3128]">
+                <h3 className="mt-4 text-2xl text-[#3d3128]">
                   Пока здесь пусто
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-[#6f6156]">
-                  Для выбранных фильтров пока нет карточек витрины.
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-[#7e6f63]">
+                  В этой комбинации фильтров пока нет карточек. Попробуй
+                  переключить тип витрины или выбрать другую категорию.
                 </p>
+                <div className="mt-6">
+                  <Button asChild size="xl">
+                    <Link href={primaryHref}>Начать</Link>
+                  </Button>
+                </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredItems.map((item) => (
-                  <Link
+                  <article
                     key={item.id}
-                    href={getItemHref(item)}
-                    className="group block overflow-hidden rounded-[22px] border border-[#eadfd6] bg-white shadow-[0_8px_24px_rgba(88,62,40,0.05)] transition hover:-translate-y-1"
+                    className="group overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white/85 shadow-[0_14px_38px_rgba(88,62,40,0.08)] transition-transform duration-500 hover:-translate-y-1"
                   >
-                    <div className="relative aspect-[0.8] overflow-hidden bg-[#eadfd6]">
-                      <Image
-                        src={item.coverImageUrl}
-                        alt={item.title}
-                        fill
-                        className="object-cover transition duration-500 group-hover:scale-[1.03]"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                      />
-                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.08)_100%)]" />
-                    </div>
-                  </Link>
+                    <Link href={getItemHref(item)} className="block">
+                      <div className="relative aspect-[0.82] overflow-hidden">
+                        <Image
+                          src={item.coverImageUrl}
+                          alt={item.title}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                        />
+                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.14)_100%)]" />
+                      </div>
+
+                      <div className="p-5">
+                        <h3 className="text-2xl leading-tight text-[#3d3128]">
+                          {item.title}
+                        </h3>
+
+                        <p className="mt-3 min-h-[56px] text-sm leading-7 text-[#6f6156]">
+                          {item.description || "Открыть и перейти к генерации."}
+                        </p>
+
+                        <div className="mt-5">
+                          <span className="inline-flex rounded-full border border-[#d8c5b7] bg-[#fffaf6] px-4 py-2 text-sm text-[#5f5248]">
+                            Начать
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </article>
                 ))}
               </div>
             )}
-          </div>
-
-          <div className="mt-10 flex justify-center">
-            <Button asChild size="xl" className="min-w-[220px] rounded-[22px]">
-              <Link href={primaryHref}>
-                {isAuthenticated ? "Начать" : "Войти / Регистрация"}
-              </Link>
-            </Button>
           </div>
         </div>
       </Container>
