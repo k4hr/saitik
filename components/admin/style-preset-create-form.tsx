@@ -23,6 +23,7 @@ export default function StylePresetCreateForm({
   const [slugTouched, setSlugTouched] = useState(false);
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [promptTemplate, setPromptTemplate] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [sortOrder, setSortOrder] = useState(String(suggestedSortOrder));
   const [isActive, setIsActive] = useState(true);
@@ -52,6 +53,7 @@ export default function StylePresetCreateForm({
           slug: slugTouched ? slug : title,
           category,
           description,
+          promptTemplate,
           coverImageUrl: coverImageUrl || null,
           sortOrder,
           isActive,
@@ -75,6 +77,7 @@ export default function StylePresetCreateForm({
       setSlugTouched(false);
       setCategory("");
       setDescription("");
+      setPromptTemplate("");
       setCoverImageUrl("");
       setSortOrder(String(Number(sortOrder || 0) + 10));
       setIsActive(true);
@@ -151,6 +154,22 @@ export default function StylePresetCreateForm({
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           placeholder="Короткое описание готового стиля."
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="preset-prompt"
+          className="mb-2 block text-sm font-medium text-[#6f6156]"
+        >
+          Prompt template
+        </label>
+        <Textarea
+          id="preset-prompt"
+          value={promptTemplate}
+          onChange={(event) => setPromptTemplate(event.target.value)}
+          placeholder="Например: luxury old money portrait, premium styling, elegant soft light, quiet luxury interior..."
+          className="min-h-[180px]"
         />
       </div>
 
