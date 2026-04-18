@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import Container from "@/components/ui/container";
 import StepFaceUpload from "@/components/create/step-face-upload";
 import StepReferenceUpload from "@/components/create/step-reference-upload";
 import StepOrderSettings from "@/components/create/step-order-settings";
 import OrderSummaryCard from "@/components/create/order-summary-card";
-import GeneratedResultCard from "@/components/create/generated-result-card";
 import ImageOrientationPicker from "@/components/create/image-orientation-picker";
 import MultiFaceUpload, {
   type FaceGroup,
@@ -17,39 +17,32 @@ import type { UploadedClientAsset } from "@/components/create/r2-upload-input";
 type GenerateResponse = {
   ok?: boolean;
   error?: string;
-  imagePath?: string;
-  downloadPath?: string;
-  sharePath?: string;
 };
 
 type ImageOrientation = "portrait" | "landscape" | "square";
 
+const TOP_UP_PATH = "/pricing";
+
 export default function ReferenceCreateShell() {
+  const router = useRouter();
+
   const [faceAssets, setFaceAssets] = useState<UploadedClientAsset[]>([]);
   const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([]);
   const [referenceAssets, setReferenceAssets] = useState<UploadedClientAsset[]>(
     [],
   );
   const [title, setTitle] = useState("Свой референс");
-  const [goal, setGoal] = useState("");
   const [notes, setNotes] = useState("");
-  const [selectedFormat, setSelectedFormat] = useState<string>("Портрет");
-  const [selectedMood, setSelectedMood] = useState<string>("Natural");
   const [imageOrientation, setImageOrientation] =
     useState<ImageOrientation>("portrait");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const [result, setResult] = useState<{
-    imagePath: string;
-    downloadPath: string;
-    sharePath: string;
-  } | null>(null);
 
   const selectedStyle = {
     id: "reference-mode",
     title: "Свой референс",
-    category: "Reference",
-    description: "Генерация по загруженной референс-картинке пользователя.",
+    coverImageUrl: referenceAssets[0]?.publicUrl || null,
+    generationPriceCredits: null,
   };
 
   const allFaceAssets = useMemo(() => {
@@ -91,10 +84,7 @@ export default function ReferenceCreateShell() {
         body: JSON.stringify({
           mode: "REFERENCE",
           title,
-          goal,
           notes,
-          selectedFormat,
-          selectedMood,
           imageOrientation,
           faceAssets: allFaceAssets.map((item) => ({
             storageKey: item.storageKey,
@@ -114,20 +104,17 @@ export default function ReferenceCreateShell() {
 
       const data = (await response.json()) as GenerateResponse;
 
-      if (
-        !response.ok ||
-        !data.imagePath ||
-        !data.downloadPath ||
-        !data.sharePath
-      ) {
+      if (!response.ok) {
+        if (data.error === "Недостаточно кредитов") {
+          router.push(TOP_UP_PATH);
+          return;
+        }
+
         throw new Error(data.error || "Не удалось сгенерировать изображение");
       }
 
-      setResult({
-        imagePath: data.imagePath,
-        downloadPath: data.downloadPath,
-        sharePath: data.sharePath,
-      });
+      router.push("/dashboard/orders");
+      router.refresh();
     } catch (error) {
       setErrorText(
         error instanceof Error ? error.message : "Ошибка генерации",
@@ -140,47 +127,59 @@ export default function ReferenceCreateShell() {
   return (
     <section className="py-10 sm:py-12 lg:py-16">
       <Container>
-        <div className="mb-10 max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
-            Reference mode
-          </p>
-          <h1 className="mt-4 text-4xl leading-[1.06] text-[#3d3128] sm:text-5xl lg:text-6xl">
-            Создание по своему референсу
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Пользователь загружает лицо и референс. Система сначала анализирует
-            референс, собирает чистый production prompt, а потом уже запускает
-            генерацию.
-          </p>
-        </div>
-
         <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-          <div className="space-y-6">
-            <ImageOrientationPicker
-              value={imageOrientation}
-              onChange={setImageOrientation}
-            />
+          <div className="space-y-8">
+            <section className="space-y-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+                  Шаг 1
+                </p>
+                <h2 className="mt-3 text-3xl leading-tight text-[#3d3128] sm:text-4xl">
+                  Загрузка лица
+                </h2>
+              </div>
 
-            <StepFaceUpload value={faceAssets} onChange={setFaceAssets} />
+              <StepFaceUpload value={faceAssets} onChange={setFaceAssets} />
+              <MultiFaceUpload value={faceGroups} onChange={setFaceGroups} />
+            </section>
 
-            <MultiFaceUpload value={faceGroups} onChange={setFaceGroups} />
+            <section className="space-y-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+                  Шаг 2
+                </p>
+                <h2 className="mt-3 text-3xl leading-tight text-[#3d3128] sm:text-4xl">
+                  Ориентация картинки
+                </h2>
+              </div>
 
-            <StepReferenceUpload
-              value={referenceAssets}
-              onChange={setReferenceAssets}
-            />
+              <ImageOrientationPicker
+                value={imageOrientation}
+                onChange={setImageOrientation}
+              />
+            </section>
+
+            <section className="space-y-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+                  Референс
+                </p>
+                <h2 className="mt-3 text-3xl leading-tight text-[#3d3128] sm:text-4xl">
+                  Загрузка референса
+                </h2>
+              </div>
+
+              <StepReferenceUpload
+                value={referenceAssets}
+                onChange={setReferenceAssets}
+              />
+            </section>
 
             <StepOrderSettings
               title={title}
-              goal={goal}
               notes={notes}
-              selectedFormat={selectedFormat}
-              selectedMood={selectedMood}
               onTitleChange={setTitle}
-              onGoalChange={setGoal}
               onNotesChange={setNotes}
-              onFormatSelect={setSelectedFormat}
-              onMoodSelect={setSelectedMood}
             />
 
             {errorText ? (
@@ -188,22 +187,11 @@ export default function ReferenceCreateShell() {
                 {errorText}
               </div>
             ) : null}
-
-            {result ? (
-              <GeneratedResultCard
-                imagePath={result.imagePath}
-                downloadPath={result.downloadPath}
-                sharePath={result.sharePath}
-              />
-            ) : null}
           </div>
 
           <div>
             <OrderSummaryCard
               selectedStyle={selectedStyle}
-              selectedFormat={selectedFormat}
-              selectedMood={selectedMood}
-              modeLabel="Свой референс"
               submitText="Сгенерировать"
               onSubmit={handleGenerate}
               disabled={allFaceAssets.length === 0 || referenceAssets.length === 0}
