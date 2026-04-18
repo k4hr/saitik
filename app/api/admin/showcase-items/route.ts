@@ -12,6 +12,7 @@ type CreateShowcaseItemBody = {
   kind?: ShowcaseKind | string;
   description?: string;
   promptTemplate?: string | null;
+  generationPriceCredits?: number | string | null;
   coverImageUrl?: string;
   sortOrder?: number | string;
   isActive?: boolean;
@@ -24,17 +25,11 @@ export async function POST(req: NextRequest) {
     const session = await getSession();
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Нужна авторизация" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: "Нужна авторизация" }, { status: 401 });
     }
 
     if (session.role !== "ADMIN") {
-      return NextResponse.json(
-        { error: "Недостаточно прав" },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Недостаточно прав" }, { status: 403 });
     }
 
     const body = (await req.json()) as CreateShowcaseItemBody;
@@ -51,33 +46,27 @@ export async function POST(req: NextRequest) {
     const subcategoryId = body.subcategoryId?.trim() || null;
     const sortOrder = Number(body.sortOrder ?? 0);
     const isActive = typeof body.isActive === "boolean" ? body.isActive : true;
+    const generationPriceCreditsRaw =
+      body.generationPriceCredits === null ||
+      body.generationPriceCredits === undefined ||
+      body.generationPriceCredits === ""
+        ? null
+        : Number(body.generationPriceCredits);
 
     if (!title) {
-      return NextResponse.json(
-        { error: "Укажи название карточки" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Укажи название карточки" }, { status: 400 });
     }
 
     if (!slug) {
-      return NextResponse.json(
-        { error: "Не удалось сформировать slug" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Не удалось сформировать slug" }, { status: 400 });
     }
 
     if (!coverImageUrl) {
-      return NextResponse.json(
-        { error: "Укажи URL обложки" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Укажи URL обложки" }, { status: 400 });
     }
 
     if (!categoryId) {
-      return NextResponse.json(
-        { error: "Выбери категорию" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Выбери категорию" }, { status: 400 });
     }
 
     if (!Number.isFinite(sortOrder)) {
@@ -90,6 +79,27 @@ export async function POST(req: NextRequest) {
     if (kind === ShowcaseKind.READY && !promptTemplate) {
       return NextResponse.json(
         { error: "Для готового стиля нужно указать изначальный промпт" },
+        { status: 400 },
+      );
+    }
+
+    if (
+      kind === ShowcaseKind.READY &&
+      (!Number.isFinite(generationPriceCreditsRaw) || generationPriceCreditsRaw === null)
+    ) {
+      return NextResponse.json(
+        { error: "Для готового стиля нужно указать цену в кредитах" },
+        { status: 400 },
+      );
+    }
+
+    if (
+      kind === ShowcaseKind.READY &&
+      generationPriceCreditsRaw !== null &&
+      generationPriceCreditsRaw < 0
+    ) {
+      return NextResponse.json(
+        { error: "Цена в кредитах не может быть отрицательной" },
         { status: 400 },
       );
     }
@@ -112,10 +122,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!category) {
-      return NextResponse.json(
-        { error: "Категория не найдена" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Категория не найдена" }, { status: 404 });
     }
 
     if (subcategoryId) {
@@ -146,6 +153,8 @@ export async function POST(req: NextRequest) {
         kind,
         description,
         promptTemplate: kind === ShowcaseKind.READY ? promptTemplate : null,
+        generationPriceCredits:
+          kind === ShowcaseKind.READY ? generationPriceCreditsRaw : null,
         coverImageUrl,
         sortOrder,
         isActive,
@@ -159,6 +168,7 @@ export async function POST(req: NextRequest) {
         slug: true,
         kind: true,
         promptTemplate: true,
+        generationPriceCredits: true,
         coverImageUrl: true,
         sortOrder: true,
         isActive: true,
