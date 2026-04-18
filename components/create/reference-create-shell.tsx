@@ -41,7 +41,7 @@ export default function ReferenceCreateShell() {
   const selectedStyle = {
     id: "reference-mode",
     title: "Свой референс",
-    coverImageUrl: referenceAssets[0]?.publicUrl || null,
+    coverImageUrl: null,
     generationPriceCredits: null,
   };
 
