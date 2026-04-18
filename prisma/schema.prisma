@@ -104,29 +104,30 @@ model ShowcaseSubcategory {
 }
 
 model ShowcaseItem {
-  id              String               @id @default(cuid())
-  title           String
-  slug            String               @unique
-  kind            ShowcaseKind
-  description     String?
-  promptTemplate  String?
-  coverImageUrl   String
-  sortOrder       Int                  @default(0)
-  isActive        Boolean              @default(true)
+  id                     String               @id @default(cuid())
+  title                  String
+  slug                   String               @unique
+  kind                   ShowcaseKind
+  description            String?
+  promptTemplate         String?
+  generationPriceCredits Int?
+  coverImageUrl          String
+  sortOrder              Int                  @default(0)
+  isActive               Boolean              @default(true)
 
-  categoryId      String
-  category        ShowcaseCategory     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryId             String
+  category               ShowcaseCategory     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
-  subcategoryId   String?
-  subcategory     ShowcaseSubcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  subcategoryId          String?
+  subcategory            ShowcaseSubcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
 
-  createdByUserId String?
-  createdByUser   User?                @relation("ShowcaseItemCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdByUserId        String?
+  createdByUser          User?                @relation("ShowcaseItemCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
 
-  orders          Order[]
+  orders                 Order[]
 
   @@index([kind, isActive, sortOrder])
   @@index([categoryId, isActive, sortOrder])
@@ -185,11 +186,13 @@ model OrderAsset {
   mimeType   String?
   width      Int?
   height     Int?
+  personIndex Int?
   sortOrder  Int       @default(0)
 
   createdAt  DateTime  @default(now())
 
   @@index([orderId, type, sortOrder])
+  @@index([orderId, type, personIndex])
 }
 
 model Payment {
