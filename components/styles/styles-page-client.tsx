@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -83,14 +83,10 @@ export default function StylesPageClient({
       selectedKind === "READY" ? SHOWCASE_KIND.READY : SHOWCASE_KIND.CUSTOM;
 
     const filteredItems = showcaseItems.filter((item) => {
-      if (item.kind !== currentKind) {
-        return false;
-      }
-
+      if (item.kind !== currentKind) return false;
       if (selectedCategoryId !== "all" && item.categoryId !== selectedCategoryId) {
         return false;
       }
-
       return Boolean(item.subcategoryId);
     });
 
@@ -123,21 +119,16 @@ export default function StylesPageClient({
       selectedKind === "READY" ? SHOWCASE_KIND.READY : SHOWCASE_KIND.CUSTOM;
 
     return showcaseItems.filter((item) => {
-      if (item.kind !== currentKind) {
-        return false;
-      }
-
+      if (item.kind !== currentKind) return false;
       if (selectedCategoryId !== "all" && item.categoryId !== selectedCategoryId) {
         return false;
       }
-
       if (
         selectedSubcategoryId !== "all" &&
         item.subcategoryId !== selectedSubcategoryId
       ) {
         return false;
       }
-
       return true;
     });
   }, [showcaseItems, selectedKind, selectedCategoryId, selectedSubcategoryId]);
@@ -293,15 +284,8 @@ export default function StylesPageClient({
           <div className="mt-10">
             {filteredItems.length === 0 ? (
               <div className="rounded-[28px] border border-[#eadfd6] bg-white/70 px-6 py-10 text-center shadow-[0_12px_34px_rgba(95,69,48,0.06)]">
-                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#f2e4d8] text-[#a07f66]">
-                  <Sparkles className="size-6" />
-                </div>
-                <h3 className="mt-4 text-2xl text-[#3d3128]">
-                  Пока здесь пусто
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-[#7e6f63]">
-                  В этой комбинации фильтров пока нет карточек. Попробуй
-                  переключить тип витрины или выбрать другую категорию.
+                <p className="text-sm leading-7 text-[#7e6f63]">
+                  В этой комбинации фильтров пока нет карточек.
                 </p>
                 <div className="mt-6">
                   <Button asChild size="xl">
@@ -310,41 +294,25 @@ export default function StylesPageClient({
                 </div>
               </div>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredItems.map((item) => (
-                  <article
+                  <Link
                     key={item.id}
-                    className="group overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white/85 shadow-[0_14px_38px_rgba(88,62,40,0.08)] transition-transform duration-500 hover:-translate-y-1"
+                    href={getItemHref(item)}
+                    className="group block overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white/85 shadow-[0_14px_38px_rgba(88,62,40,0.08)] transition-transform duration-500 hover:-translate-y-1"
+                    aria-label={item.title}
+                    title={item.title}
                   >
-                    <Link href={getItemHref(item)} className="block">
-                      <div className="relative aspect-[0.82] overflow-hidden">
-                        <Image
-                          src={item.coverImageUrl}
-                          alt={item.title}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                        />
-                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(61,49,40,0.14)_100%)]" />
-                      </div>
-
-                      <div className="p-5">
-                        <h3 className="text-2xl leading-tight text-[#3d3128]">
-                          {item.title}
-                        </h3>
-
-                        <p className="mt-3 min-h-[56px] text-sm leading-7 text-[#6f6156]">
-                          {item.description || "Открыть и перейти к генерации."}
-                        </p>
-
-                        <div className="mt-5">
-                          <span className="inline-flex rounded-full border border-[#d8c5b7] bg-[#fffaf6] px-4 py-2 text-sm text-[#5f5248]">
-                            Начать
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </article>
+                    <div className="relative aspect-[0.82] overflow-hidden">
+                      <Image
+                        src={item.coverImageUrl}
+                        alt={item.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                      />
+                    </div>
+                  </Link>
                 ))}
               </div>
             )}
