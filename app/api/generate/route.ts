@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   AssetType,
+  CreditTransactionType,
   GenerationMode,
   OrderStatus,
   type Prisma,
@@ -27,6 +28,7 @@ type UploadedAssetInput = {
   fileName?: string;
   mimeType?: string;
   fileSize?: number;
+  personIndex?: number;
 };
 
 type GenerateBody = {
@@ -56,6 +58,8 @@ function buildAssetCreate(
     fileName: item.fileName || null,
     mimeType: item.mimeType || null,
     fileSize: item.fileSize || null,
+    personIndex:
+      typeof item.personIndex === "number" ? item.personIndex : null,
     sortOrder,
   };
 }
@@ -79,6 +83,7 @@ function assertUserOwnsStorageKey(storageKey: string, userId: string) {
 
 export async function POST(req: NextRequest) {
   let orderId: string | null = null;
+  let chargedCredits = 0;
 
   try {
     const session = await getSession();
@@ -149,12 +154,8 @@ export async function POST(req: NextRequest) {
               title: true,
               description: true,
               promptTemplate: true,
+              generationPriceCredits: true,
               isActive: true,
-              category: {
-                select: {
-                  name: true,
-                },
-              },
             },
           })
         : null;
@@ -171,6 +172,11 @@ export async function POST(req: NextRequest) {
         { status: 404 },
       );
     }
+
+    const creditsToCharge =
+      mode === "READY"
+        ? Math.max(showcaseItem?.generationPriceCredits ?? 0, 0)
+        : 0;
 
     const assetsToCreate: Prisma.OrderAssetCreateWithoutOrderInput[] = [];
 
@@ -190,32 +196,77 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const createdOrder = await prisma.order.create({
-      data: {
-        userId: session.userId,
-        showcaseItemId: showcaseItem?.id || null,
-        mode,
-        title: body.title?.trim() || null,
-        goal: body.goal?.trim() || null,
-        selectedFormat: body.selectedFormat?.trim() || null,
-        selectedMood: body.selectedMood?.trim() || null,
-        notes: body.notes?.trim() || null,
-        promptInput: body.prompt?.trim() || null,
-        status: OrderStatus.PROCESSING,
-        startedAt: new Date(),
-        assets: assetsToCreate.length
-          ? {
-              create: assetsToCreate,
-            }
-          : undefined,
-      },
-      select: {
-        id: true,
-        shareId: true,
-      },
+    const createdOrder = await prisma.$transaction(async (tx) => {
+      let balanceAfter = 0;
+
+      if (creditsToCharge > 0) {
+        const user = await tx.user.findUnique({
+          where: { id: session.userId },
+          select: { id: true, creditBalance: true },
+        });
+
+        if (!user) {
+          throw new Error("Пользователь не найден");
+        }
+
+        if (user.creditBalance < creditsToCharge) {
+          throw new Error("Недостаточно кредитов");
+        }
+
+        balanceAfter = user.creditBalance - creditsToCharge;
+
+        await tx.user.update({
+          where: { id: session.userId },
+          data: {
+            creditBalance: balanceAfter,
+          },
+        });
+      }
+
+      const order = await tx.order.create({
+        data: {
+          userId: session.userId,
+          showcaseItemId: showcaseItem?.id || null,
+          mode,
+          title: body.title?.trim() || null,
+          goal: body.goal?.trim() || null,
+          selectedFormat: body.selectedFormat?.trim() || null,
+          selectedMood: body.selectedMood?.trim() || null,
+          notes: body.notes?.trim() || null,
+          promptInput: body.prompt?.trim() || null,
+          status: OrderStatus.PROCESSING,
+          startedAt: new Date(),
+          creditsSpent: creditsToCharge,
+          assets: assetsToCreate.length
+            ? {
+                create: assetsToCreate,
+              }
+            : undefined,
+        },
+        select: {
+          id: true,
+          shareId: true,
+        },
+      });
+
+      if (creditsToCharge > 0) {
+        await tx.creditTransaction.create({
+          data: {
+            userId: session.userId,
+            orderId: order.id,
+            type: CreditTransactionType.SPEND,
+            amount: -creditsToCharge,
+            balanceAfter,
+            description: `Списание за генерацию: ${showcaseItem?.title || "Готовый стиль"}`,
+          },
+        });
+      }
+
+      return order;
     });
 
     orderId = createdOrder.id;
+    chargedCredits = creditsToCharge;
 
     let finalPrompt = "";
     let sourceStorageKey = "";
@@ -316,6 +367,7 @@ export async function POST(req: NextRequest) {
       imagePath: `/api/results/${createdOrder.shareId}`,
       downloadPath: `/api/results/${createdOrder.shareId}?download=1`,
       sharePath: `/share/${createdOrder.shareId}`,
+      chargedCredits,
     });
   } catch (error) {
     console.error("generate error", error);
@@ -332,6 +384,37 @@ export async function POST(req: NextRequest) {
           },
         })
         .catch(() => undefined);
+
+      if (chargedCredits > 0) {
+        await prisma.$transaction(async (tx) => {
+          const user = await tx.user.findUnique({
+            where: { id: session!.userId },
+            select: { creditBalance: true },
+          });
+
+          if (!user) return;
+
+          const balanceAfter = user.creditBalance + chargedCredits;
+
+          await tx.user.update({
+            where: { id: session!.userId },
+            data: {
+              creditBalance: balanceAfter,
+            },
+          });
+
+          await tx.creditTransaction.create({
+            data: {
+              userId: session!.userId,
+              orderId,
+              type: CreditTransactionType.REFUND,
+              amount: chargedCredits,
+              balanceAfter,
+              description: "Возврат кредитов из-за ошибки генерации",
+            },
+          });
+        }).catch(() => undefined);
+      }
     }
 
     return NextResponse.json(
