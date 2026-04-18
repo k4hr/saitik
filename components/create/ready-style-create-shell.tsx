@@ -32,6 +32,7 @@ type GenerateResponse = {
   imagePath?: string;
   downloadPath?: string;
   sharePath?: string;
+  chargedCredits?: number;
 };
 
 type ImageOrientation = "portrait" | "landscape" | "square";
@@ -40,13 +41,7 @@ export default function ReadyStyleCreateShell({
   selectedStyle,
 }: ReadyStyleCreateShellProps) {
   const [faceAssets, setFaceAssets] = useState<UploadedClientAsset[]>([]);
-  const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([
-    {
-      personIndex: 0,
-      label: "Человек 1",
-      assets: [],
-    },
-  ]);
+  const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([]);
   const [title, setTitle] = useState(selectedStyle.title || "");
   const [goal, setGoal] = useState("");
   const [notes, setNotes] = useState("");
@@ -63,8 +58,19 @@ export default function ReadyStyleCreateShell({
   } | null>(null);
 
   const allFaceAssets = useMemo(() => {
-    const grouped = faceGroups.flatMap((group) => group.assets);
-    return [...faceAssets, ...grouped];
+    const primary = faceAssets.map((item) => ({
+      ...item,
+      personIndex: 0,
+    }));
+
+    const grouped = faceGroups.flatMap((group) =>
+      group.assets.map((asset) => ({
+        ...asset,
+        personIndex: group.personIndex,
+      })),
+    );
+
+    return [...primary, ...grouped];
   }, [faceAssets, faceGroups]);
 
   async function handleGenerate() {
@@ -96,6 +102,7 @@ export default function ReadyStyleCreateShell({
             fileName: item.fileName,
             mimeType: item.mimeType,
             fileSize: item.fileSize,
+            personIndex: item.personIndex,
           })),
         }),
       });
@@ -149,7 +156,6 @@ export default function ReadyStyleCreateShell({
               <div className="grid gap-0 md:grid-cols-[280px_1fr]">
                 <div className="bg-[#f5ece6]">
                   {selectedStyle.coverImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={selectedStyle.coverImageUrl}
                       alt={selectedStyle.title}
@@ -175,9 +181,9 @@ export default function ReadyStyleCreateShell({
 
                   <div className="rounded-[24px] border border-[#eadfd6] bg-[#fffaf6] p-5">
                     <p className="text-sm text-[#3d3128]">
-                      На этой странице пользователь только загружает своё лицо и
-                      выбирает параметры генерации. Сам промпт уже привязан
-                      напрямую к выбранной карточке.
+                      На этой странице пользователь загружает лица и выбирает
+                      параметры генерации. Сам промпт уже привязан напрямую к
+                      выбранной карточке.
                     </p>
                   </div>
                 </div>
