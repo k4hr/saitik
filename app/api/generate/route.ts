@@ -84,6 +84,7 @@ function assertUserOwnsStorageKey(storageKey: string, userId: string) {
 export async function POST(req: NextRequest) {
   let orderId: string | null = null;
   let chargedCredits = 0;
+  let sessionUserId: string | null = null;
 
   try {
     const session = await getSession();
@@ -91,6 +92,8 @@ export async function POST(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: "Неавторизован" }, { status: 401 });
     }
+
+    sessionUserId = session.userId;
 
     const body = (await req.json()) as GenerateBody;
     const mode = (body.mode || "READY") as GenerationMode;
@@ -385,35 +388,37 @@ export async function POST(req: NextRequest) {
         })
         .catch(() => undefined);
 
-      if (chargedCredits > 0) {
-        await prisma.$transaction(async (tx) => {
-          const user = await tx.user.findUnique({
-            where: { id: session!.userId },
-            select: { creditBalance: true },
-          });
+      if (chargedCredits > 0 && sessionUserId) {
+        await prisma
+          .$transaction(async (tx) => {
+            const user = await tx.user.findUnique({
+              where: { id: sessionUserId },
+              select: { creditBalance: true },
+            });
 
-          if (!user) return;
+            if (!user) return;
 
-          const balanceAfter = user.creditBalance + chargedCredits;
+            const balanceAfter = user.creditBalance + chargedCredits;
 
-          await tx.user.update({
-            where: { id: session!.userId },
-            data: {
-              creditBalance: balanceAfter,
-            },
-          });
+            await tx.user.update({
+              where: { id: sessionUserId },
+              data: {
+                creditBalance: balanceAfter,
+              },
+            });
 
-          await tx.creditTransaction.create({
-            data: {
-              userId: session!.userId,
-              orderId,
-              type: CreditTransactionType.REFUND,
-              amount: chargedCredits,
-              balanceAfter,
-              description: "Возврат кредитов из-за ошибки генерации",
-            },
-          });
-        }).catch(() => undefined);
+            await tx.creditTransaction.create({
+              data: {
+                userId: sessionUserId,
+                orderId,
+                type: CreditTransactionType.REFUND,
+                amount: chargedCredits,
+                balanceAfter,
+                description: "Возврат кредитов из-за ошибки генерации",
+              },
+            });
+          })
+          .catch(() => undefined);
       }
     }
 
