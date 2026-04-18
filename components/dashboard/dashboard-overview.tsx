@@ -1,30 +1,22 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { Download, Share2, Sparkles } from "lucide-react";
+import { Sparkles, Wallet, Shield } from "lucide-react";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 
-type GenerationCard = {
-  id: string;
-  title: string;
-  status: string;
-  credits: number;
-  createdAtLabel: string;
-  imagePath: string | null;
-  downloadPath: string | null;
-  sharePath: string | null;
+type DashboardOverviewProps = {
+  login: string;
+  balance: number;
+  isAdmin: boolean;
 };
 
-type DashboardOrdersProps = {
-  generations: GenerationCard[];
-};
-
-export default function DashboardOrders({
-  generations,
-}: DashboardOrdersProps) {
+export default function DashboardOverview({
+  login,
+  balance,
+  isAdmin,
+}: DashboardOverviewProps) {
   return (
     <section className="py-10 sm:py-12 lg:py-16">
       <Container>
@@ -34,92 +26,85 @@ export default function DashboardOrders({
           </p>
 
           <h1 className="mt-4 text-4xl leading-[1.04] text-[#3d3128] sm:text-5xl">
-            Мои заказы
+            Привет, {login}
           </h1>
 
-          <div className="mt-8 space-y-5">
-            {generations.length === 0 ? (
-              <div className="rounded-[28px] border border-[#eadfd6] bg-white/80 p-8 text-center shadow-[0_12px_34px_rgba(95,69,48,0.06)]">
-                <p className="text-base text-[#726458]">
-                  У тебя пока нет заказов.
-                </p>
-              </div>
-            ) : (
-              generations.map((item) => {
-                const isProcessing = item.status === "В обработке";
+          <div className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-[30px] border border-[#eadfd6] bg-white/90 p-6 shadow-[0_14px_36px_rgba(95,69,48,0.06)] sm:p-7">
+              <div className="flex items-center gap-3">
+                <div className="flex size-11 items-center justify-center rounded-full bg-[#f1e4d8] text-[#a07f66]">
+                  <Sparkles className="size-5" />
+                </div>
 
-                return (
-                  <div
-                    key={item.id}
-                    className="grid gap-0 overflow-hidden rounded-[28px] border border-[#eadfd6] bg-white/90 shadow-[0_14px_36px_rgba(95,69,48,0.06)] md:grid-cols-[240px_1fr]"
-                  >
-                    <div className="relative min-h-[240px] bg-[#efe3d7]">
-                      {item.imagePath ? (
-                        <Image
-                          src={item.imagePath}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                          sizes="240px"
-                        />
-                      ) : (
-                        <div className="flex h-full min-h-[240px] items-center justify-center text-[#a18672]">
-                          <Sparkles className="size-8" />
-                        </div>
-                      )}
+                <div>
+                  <p className="text-sm text-[#7e6f63]">Быстрый старт</p>
+                  <p className="mt-1 text-2xl text-[#3d3128]">
+                    Создай новую фотосессию
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#6f6156]">
+                Выбери готовый стиль или зайди в режим по своему референсу,
+                загрузи фото и получи готовый результат.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button asChild size="lg">
+                  <Link href="/styles">Выбрать стиль</Link>
+                </Button>
+
+                <Button asChild variant="secondary" size="lg">
+                  <Link href="/dashboard/orders">Мои заказы</Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-[30px] border border-[#eadfd6] bg-white/90 p-6 shadow-[0_14px_36px_rgba(95,69,48,0.06)] sm:p-7">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-11 items-center justify-center rounded-full bg-[#f1e4d8] text-[#a07f66]">
+                    <Wallet className="size-5" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-[#7e6f63]">Баланс</p>
+                    <p className="mt-1 text-3xl text-[#3d3128]">
+                      {balance} кредитов
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <Button asChild size="lg" className="w-full">
+                    <Link href="/pricing">Пополнить баланс</Link>
+                  </Button>
+                </div>
+              </div>
+
+              {isAdmin ? (
+                <div className="rounded-[30px] border border-[#eadfd6] bg-white/90 p-6 shadow-[0_14px_36px_rgba(95,69,48,0.06)] sm:p-7">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-11 items-center justify-center rounded-full bg-[#f1e4d8] text-[#a07f66]">
+                      <Shield className="size-5" />
                     </div>
 
-                    <div className="flex flex-col justify-between p-6 sm:p-8">
-                      <div>
-                        <h2 className="text-3xl leading-tight text-[#3d3128]">
-                          {item.title}
-                        </h2>
-
-                        <p className="mt-3 text-sm text-[#7e6f63]">
-                          Создано: {item.createdAtLabel}
-                        </p>
-
-                        <div className="mt-5 flex flex-wrap gap-2">
-                          <span className="inline-flex rounded-full border border-[#d8c5b7] bg-[#fffaf6] px-4 py-2 text-sm text-[#5f5248]">
-                            {item.status}
-                          </span>
-
-                          <span className="inline-flex rounded-full border border-[#d8c5b7] bg-[#fffaf6] px-4 py-2 text-sm text-[#5f5248]">
-                            {item.credits} credits
-                          </span>
-                        </div>
-
-                        {isProcessing ? (
-                          <div className="mt-6 rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] px-5 py-4">
-                            <p className="text-base text-[#3d3128]">
-                              Подождите, идет генерация.
-                            </p>
-                          </div>
-                        ) : null}
-                      </div>
-
-                      {!isProcessing && item.downloadPath && item.sharePath ? (
-                        <div className="mt-8 flex flex-wrap gap-3">
-                          <Button asChild size="lg">
-                            <Link href={item.downloadPath}>
-                              <Download className="size-4.5" />
-                              Скачать
-                            </Link>
-                          </Button>
-
-                          <Button asChild size="lg" variant="secondary">
-                            <Link href={item.sharePath}>
-                              <Share2 className="size-4.5" />
-                              Поделиться
-                            </Link>
-                          </Button>
-                        </div>
-                      ) : null}
+                    <div>
+                      <p className="text-sm text-[#7e6f63]">Админка</p>
+                      <p className="mt-1 text-2xl text-[#3d3128]">
+                        Управление витриной
+                      </p>
                     </div>
                   </div>
-                );
-              })
-            )}
+
+                  <div className="mt-6">
+                    <Button asChild variant="secondary" size="lg" className="w-full">
+                      <Link href="/dashboard/admin">Открыть админ меню</Link>
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </Container>
