@@ -26,13 +26,7 @@ type ImageOrientation = "portrait" | "landscape" | "square";
 
 export default function ReferenceCreateShell() {
   const [faceAssets, setFaceAssets] = useState<UploadedClientAsset[]>([]);
-  const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([
-    {
-      personIndex: 0,
-      label: "Человек 1",
-      assets: [],
-    },
-  ]);
+  const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([]);
   const [referenceAssets, setReferenceAssets] = useState<UploadedClientAsset[]>(
     [],
   );
@@ -59,8 +53,19 @@ export default function ReferenceCreateShell() {
   };
 
   const allFaceAssets = useMemo(() => {
-    const grouped = faceGroups.flatMap((group) => group.assets);
-    return [...faceAssets, ...grouped];
+    const primary = faceAssets.map((item) => ({
+      ...item,
+      personIndex: 0,
+    }));
+
+    const grouped = faceGroups.flatMap((group) =>
+      group.assets.map((asset) => ({
+        ...asset,
+        personIndex: group.personIndex,
+      })),
+    );
+
+    return [...primary, ...grouped];
   }, [faceAssets, faceGroups]);
 
   async function handleGenerate() {
@@ -96,6 +101,7 @@ export default function ReferenceCreateShell() {
             fileName: item.fileName,
             mimeType: item.mimeType,
             fileSize: item.fileSize,
+            personIndex: item.personIndex,
           })),
           referenceAsset: {
             storageKey: referenceAssets[0].storageKey,
