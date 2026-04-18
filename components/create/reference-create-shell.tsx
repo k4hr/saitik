@@ -162,7 +162,7 @@ export default function ReferenceCreateShell() {
             <section className="space-y-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
-                  Референс
+                  Шаг 3
                 </p>
                 <h2 className="mt-3 text-3xl leading-tight text-[#3d3128] sm:text-4xl">
                   Загрузка референса
