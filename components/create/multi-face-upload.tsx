@@ -20,13 +20,14 @@ type MultiFaceUploadProps = {
   onChange: (value: FaceGroup[]) => void;
 };
 
-function buildGroups(count: number, previous: FaceGroup[]): FaceGroup[] {
-  return Array.from({ length: count }, (_, index) => {
-    const existing = previous[index];
+function buildGroups(extraPeopleCount: number, previous: FaceGroup[]): FaceGroup[] {
+  return Array.from({ length: extraPeopleCount }, (_, index) => {
+    const personIndex = index + 1;
+    const existing = previous.find((item) => item.personIndex === personIndex);
 
     return {
-      personIndex: index,
-      label: `Человек ${index + 1}`,
+      personIndex,
+      label: `Человек ${personIndex + 1}`,
       assets: existing?.assets ?? [],
     };
   });
@@ -37,12 +38,11 @@ export default function MultiFaceUpload({
   onChange,
 }: MultiFaceUploadProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [peopleCount, setPeopleCount] = useState<number>(
-    Math.max(value.length || 1, 1),
-  );
+  const [peopleCount, setPeopleCount] = useState<number>(1);
 
   useEffect(() => {
-    onChange(buildGroups(peopleCount, value));
+    const extraPeopleCount = Math.max(peopleCount - 1, 0);
+    onChange(buildGroups(extraPeopleCount, value));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [peopleCount]);
 
@@ -51,7 +51,7 @@ export default function MultiFaceUpload({
   }, [value]);
 
   function updateGroupAssets(personIndex: number, assets: UploadedClientAsset[]) {
-    const next = buildGroups(peopleCount, value).map((group) =>
+    const next = buildGroups(Math.max(peopleCount - 1, 0), value).map((group) =>
       group.personIndex === personIndex ? { ...group, assets } : group,
     );
 
@@ -66,10 +66,11 @@ export default function MultiFaceUpload({
             <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
               Дополнительно
             </p>
-            <h3 className="mt-3 text-2xl text-[#3d3128]">Добавить лица</h3>
+            <h3 className="mt-3 text-2xl text-[#3d3128]">Добавить лицо</h3>
             <p className="mt-3 text-sm leading-7 text-[#7e6f63]">
-              Если на выбранном образе или референсе больше одного человека,
-              открой этот блок и загрузи лица отдельно для каждого участника.
+              Если на образе или референсе больше одного человека, открой этот
+              блок, укажи количество людей на картинке и загрузи лица отдельно
+              для каждого дополнительного участника.
             </p>
           </div>
 
@@ -98,11 +99,11 @@ export default function MultiFaceUpload({
 
             <div>
               <p className="text-sm text-[#3d3128]">
-                Сейчас выбрано участников:{" "}
+                Людей на итоговой картинке:{" "}
                 <span className="font-medium">{peopleCount}</span>
               </p>
               <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                Всего загружено фото: {totalPhotos}
+                Фото дополнительных лиц: {totalPhotos}
               </p>
             </div>
           </div>
@@ -136,35 +137,35 @@ export default function MultiFaceUpload({
                 </div>
               </div>
 
-              <div className="space-y-5">
-                {buildGroups(peopleCount, value).map((group, index) => (
-                  <div
-                    key={group.personIndex}
-                    className="rounded-[24px] border border-[#eadfd6] bg-white p-4 sm:p-5"
-                  >
-                    <div className="mb-4">
-                      <p className="text-lg text-[#3d3128]">
-                        {group.label}
-                      </p>
-                      <p className="mt-1 text-sm leading-7 text-[#7e6f63]">
-                        Загрузи 1–5 фото для {index === 0 ? "первого" : `${index + 1}-го`} человека.
-                      </p>
-                    </div>
+              {peopleCount > 1 ? (
+                <div className="space-y-5">
+                  {buildGroups(Math.max(peopleCount - 1, 0), value).map((group) => (
+                    <div
+                      key={group.personIndex}
+                      className="rounded-[24px] border border-[#eadfd6] bg-white p-4 sm:p-5"
+                    >
+                      <div className="mb-4">
+                        <p className="text-lg text-[#3d3128]">{group.label}</p>
+                        <p className="mt-1 text-sm leading-7 text-[#7e6f63]">
+                          Загрузи 1–5 фото для этого человека.
+                        </p>
+                      </div>
 
-                    <R2UploadInput
-                      title={`Фото: ${group.label.toLowerCase()}`}
-                      description="Лучше всего несколько кадров с хорошим светом, без сильных фильтров."
-                      kind="face"
-                      value={group.assets}
-                      onChange={(assets) =>
-                        updateGroupAssets(group.personIndex, assets)
-                      }
-                      multiple
-                      maxFiles={5}
-                    />
-                  </div>
-                ))}
-              </div>
+                      <R2UploadInput
+                        title={`Фото: ${group.label.toLowerCase()}`}
+                        description="Лучше всего несколько кадров с хорошим светом, без сильных фильтров."
+                        kind="face"
+                        value={group.assets}
+                        onChange={(assets) =>
+                          updateGroupAssets(group.personIndex, assets)
+                        }
+                        multiple
+                        maxFiles={5}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
