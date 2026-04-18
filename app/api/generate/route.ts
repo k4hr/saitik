@@ -389,10 +389,12 @@ export async function POST(req: NextRequest) {
         .catch(() => undefined);
 
       if (chargedCredits > 0 && sessionUserId) {
+        const refundUserId = sessionUserId;
+
         await prisma
           .$transaction(async (tx) => {
             const user = await tx.user.findUnique({
-              where: { id: sessionUserId },
+              where: { id: refundUserId },
               select: { creditBalance: true },
             });
 
@@ -401,7 +403,7 @@ export async function POST(req: NextRequest) {
             const balanceAfter = user.creditBalance + chargedCredits;
 
             await tx.user.update({
-              where: { id: sessionUserId },
+              where: { id: refundUserId },
               data: {
                 creditBalance: balanceAfter,
               },
@@ -409,7 +411,7 @@ export async function POST(req: NextRequest) {
 
             await tx.creditTransaction.create({
               data: {
-                userId: sessionUserId,
+                userId: refundUserId,
                 orderId,
                 type: CreditTransactionType.REFUND,
                 amount: chargedCredits,
