@@ -63,6 +63,7 @@ export default async function AdminCustomStylesPage() {
         id: true,
         title: true,
         slug: true,
+        description: true,
         coverImageUrl: true,
         isActive: true,
         sortOrder: true,
@@ -107,8 +108,9 @@ export default async function AdminCustomStylesPage() {
             </div>
 
             <p className="mt-5 max-w-3xl text-base leading-8 text-[#726458] sm:text-lg">
-              Здесь добавляются пользовательские карточки для режима по
-              референсам.
+              Здесь создаются карточки для сценария по своему референсу.
+              У пользовательских карточек нет встроенной цены и нет обязательного
+              promptTemplate, потому что пользователь сам загружает референс.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -130,8 +132,8 @@ export default async function AdminCustomStylesPage() {
                 <CardHeader>
                   <CardTitle>Добавить пользовательскую карточку</CardTitle>
                   <CardDescription>
-                    Создай карточку пользовательской фотосессии и отправь её в
-                    нужную категорию.
+                    Создай карточку для режима по своему референсу и отправь её
+                    в нужную категорию или подкатегорию.
                   </CardDescription>
                 </CardHeader>
 
@@ -163,8 +165,8 @@ export default async function AdminCustomStylesPage() {
                 <CardHeader>
                   <CardTitle>Текущие пользовательские карточки</CardTitle>
                   <CardDescription>
-                    Карточки, которые уже созданы во вкладке пользовательских
-                    фотосессий.
+                    Карточки, которые уже созданы для пользовательских
+                    фотосессий по референсам.
                   </CardDescription>
                 </CardHeader>
 
@@ -217,6 +219,12 @@ export default async function AdminCustomStylesPage() {
                                 <p className="mt-1 text-sm text-[#7e6f63]">
                                   Создан: {formatDate(item.createdAt)}
                                 </p>
+
+                                {item.description ? (
+                                  <p className="mt-3 text-sm leading-7 text-[#6f6156]">
+                                    {item.description}
+                                  </p>
+                                ) : null}
                               </div>
 
                               <div className="grid shrink-0 grid-cols-2 gap-3 text-center">
