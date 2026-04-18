@@ -65,6 +65,7 @@ export default async function AdminStylesPage() {
         slug: true,
         description: true,
         promptTemplate: true,
+        generationPriceCredits: true,
         coverImageUrl: true,
         isActive: true,
         sortOrder: true,
@@ -109,8 +110,9 @@ export default async function AdminStylesPage() {
             </div>
 
             <p className="mt-5 max-w-3xl text-base leading-8 text-[#726458] sm:text-lg">
-              Здесь создаются готовые карточки витрины. У каждой карточки сразу
-              есть своя обложка, категория, подкатегория и изначальный промпт.
+              Здесь создаются готовые карточки витрины. У каждой карточки есть
+              обложка, категория, подкатегория, изначальный промпт и цена
+              генерации в кредитах.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -132,8 +134,8 @@ export default async function AdminStylesPage() {
                 <CardHeader>
                   <CardTitle>Добавить готовый стиль</CardTitle>
                   <CardDescription>
-                    Загрузи карточку готового образа и сразу укажи промпт, по
-                    которому потом будет генерироваться изображение пользователя.
+                    Загрузи карточку готового образа, укажи промпт и цену
+                    генерации в кредитах.
                   </CardDescription>
                 </CardHeader>
 
@@ -217,6 +219,13 @@ export default async function AdminStylesPage() {
 
                                 <p className="mt-1 text-sm text-[#7e6f63]">
                                   Создан: {formatDate(item.createdAt)}
+                                </p>
+
+                                <p className="mt-1 text-sm text-[#7e6f63]">
+                                  Цена:{" "}
+                                  <span className="font-medium text-[#3d3128]">
+                                    {item.generationPriceCredits ?? 0} кредитов
+                                  </span>
                                 </p>
 
                                 {item.description ? (
