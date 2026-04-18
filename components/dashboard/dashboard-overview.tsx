@@ -1,123 +1,126 @@
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
-import {
-  CreditCard,
-  ImageIcon,
-  Settings,
-  Shield,
-  Wallet,
-} from "lucide-react";
+import { Download, Share2, Sparkles } from "lucide-react";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 
-type DashboardOverviewProps = {
-  login: string;
-  balance: number;
-  isAdmin?: boolean;
+type GenerationCard = {
+  id: string;
+  title: string;
+  status: string;
+  credits: number;
+  createdAtLabel: string;
+  imagePath: string | null;
+  downloadPath: string | null;
+  sharePath: string | null;
 };
 
-const actions = [
-  {
-    title: "Мои генерации",
-    href: "/dashboard/orders",
-    icon: ImageIcon,
-  },
-  {
-    title: "Пополнить баланс",
-    href: "/dashboard/billing",
-    icon: Wallet,
-  },
-  {
-    title: "История транзакций",
-    href: "/dashboard/billing",
-    icon: CreditCard,
-  },
-  {
-    title: "Настройки",
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
-];
+type DashboardOrdersProps = {
+  generations: GenerationCard[];
+};
 
-export default function DashboardOverview({
-  login,
-  balance,
-  isAdmin = false,
-}: DashboardOverviewProps) {
+export default function DashboardOrders({
+  generations,
+}: DashboardOrdersProps) {
   return (
-    <section className="relative py-12 sm:py-14 lg:py-18">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[6%] top-[20px] h-[220px] w-[220px] rounded-full bg-[#efe2d7]/65 blur-3xl" />
-        <div className="absolute right-[8%] top-[60px] h-[240px] w-[240px] rounded-full bg-[#ead8c9]/55 blur-3xl" />
-        <div className="absolute bottom-[-40px] left-[28%] h-[220px] w-[220px] rounded-full bg-[#f3e8de]/80 blur-3xl" />
-      </div>
-
-      <Container className="relative">
-        <div className="mx-auto max-w-5xl rounded-[32px] border border-white/60 bg-white/45 p-6 shadow-[0_24px_80px_rgba(91,67,49,0.10)] backdrop-blur-xl sm:p-8 lg:p-10">
-          <h1 className="text-4xl leading-[1.02] text-[#3d3128] sm:text-5xl">
-            Личный кабинет ATELIA
-          </h1>
-
-          <p className="mt-5 text-lg leading-8 text-[#6f6156] sm:text-xl">
-            Здравствуйте, {login}
+    <section className="py-10 sm:py-12 lg:py-16">
+      <Container>
+        <div className="mx-auto max-w-6xl rounded-[34px] border border-white/60 bg-white/45 p-6 shadow-[0_24px_80px_rgba(91,67,49,0.10)] backdrop-blur-xl sm:p-8 lg:p-10">
+          <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+            Личный кабинет
           </p>
 
-          <Card className="mt-8 overflow-hidden rounded-[28px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.82)_0%,rgba(255,248,242,0.72)_100%)] shadow-[0_18px_50px_rgba(95,69,48,0.10)]">
-            <CardContent className="p-6 sm:p-8">
-              <p className="text-sm uppercase tracking-[0.20em] text-[#a18672]">
-                Баланс
-              </p>
-              <p className="mt-4 text-4xl leading-none text-[#3d3128] sm:text-5xl">
-                {balance} credits
-              </p>
-            </CardContent>
-          </Card>
+          <h1 className="mt-4 text-4xl leading-[1.04] text-[#3d3128] sm:text-5xl">
+            Мои заказы
+          </h1>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {actions.map((action) => {
-              const Icon = action.icon;
+          <div className="mt-8 space-y-5">
+            {generations.length === 0 ? (
+              <div className="rounded-[28px] border border-[#eadfd6] bg-white/80 p-8 text-center shadow-[0_12px_34px_rgba(95,69,48,0.06)]">
+                <p className="text-base text-[#726458]">
+                  У тебя пока нет заказов.
+                </p>
+              </div>
+            ) : (
+              generations.map((item) => {
+                const isProcessing = item.status === "В обработке";
 
-              return (
-                <Button
-                  key={action.title}
-                  asChild
-                  variant="secondary"
-                  size="xl"
-                  className="group h-auto w-full justify-between rounded-[26px] border border-white/70 bg-white/55 px-6 py-6 text-left text-[#3d3128] shadow-[0_16px_40px_rgba(95,69,48,0.08)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-[0_22px_50px_rgba(95,69,48,0.12)]"
-                >
-                  <Link
-                    href={action.href}
-                    className="flex w-full items-center justify-between gap-4"
+                return (
+                  <div
+                    key={item.id}
+                    className="grid gap-0 overflow-hidden rounded-[28px] border border-[#eadfd6] bg-white/90 shadow-[0_14px_36px_rgba(95,69,48,0.06)] md:grid-cols-[240px_1fr]"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="flex size-12 items-center justify-center rounded-full border border-white/70 bg-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                        <Icon className="size-5 text-[#9f7f67]" />
-                      </div>
-                      <span className="text-base font-medium sm:text-lg">
-                        {action.title}
-                      </span>
+                    <div className="relative min-h-[240px] bg-[#efe3d7]">
+                      {item.imagePath ? (
+                        <Image
+                          src={item.imagePath}
+                          alt={item.title}
+                          fill
+                          className="object-cover"
+                          sizes="240px"
+                        />
+                      ) : (
+                        <div className="flex h-full min-h-[240px] items-center justify-center text-[#a18672]">
+                          <Sparkles className="size-8" />
+                        </div>
+                      )}
                     </div>
-                  </Link>
-                </Button>
-              );
-            })}
-          </div>
 
-          {isAdmin ? (
-            <div className="mt-8">
-              <Button
-                asChild
-                size="xl"
-                className="w-full rounded-[26px] bg-[#bc9670] px-6 py-6 text-[#2f241d] shadow-[0_16px_40px_rgba(95,69,48,0.16)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#b38b64] hover:shadow-[0_22px_52px_rgba(95,69,48,0.22)] sm:w-auto"
-              >
-                <Link href="/dashboard/admin" className="flex items-center gap-3">
-                  <Shield className="size-5" />
-                  <span>Админ меню</span>
-                </Link>
-              </Button>
-            </div>
-          ) : null}
+                    <div className="flex flex-col justify-between p-6 sm:p-8">
+                      <div>
+                        <h2 className="text-3xl leading-tight text-[#3d3128]">
+                          {item.title}
+                        </h2>
+
+                        <p className="mt-3 text-sm text-[#7e6f63]">
+                          Создано: {item.createdAtLabel}
+                        </p>
+
+                        <div className="mt-5 flex flex-wrap gap-2">
+                          <span className="inline-flex rounded-full border border-[#d8c5b7] bg-[#fffaf6] px-4 py-2 text-sm text-[#5f5248]">
+                            {item.status}
+                          </span>
+
+                          <span className="inline-flex rounded-full border border-[#d8c5b7] bg-[#fffaf6] px-4 py-2 text-sm text-[#5f5248]">
+                            {item.credits} credits
+                          </span>
+                        </div>
+
+                        {isProcessing ? (
+                          <div className="mt-6 rounded-[20px] border border-[#eadfd6] bg-[#fffaf6] px-5 py-4">
+                            <p className="text-base text-[#3d3128]">
+                              Подождите, идет генерация.
+                            </p>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {!isProcessing && item.downloadPath && item.sharePath ? (
+                        <div className="mt-8 flex flex-wrap gap-3">
+                          <Button asChild size="lg">
+                            <Link href={item.downloadPath}>
+                              <Download className="size-4.5" />
+                              Скачать
+                            </Link>
+                          </Button>
+
+                          <Button asChild size="lg" variant="secondary">
+                            <Link href={item.sharePath}>
+                              <Share2 className="size-4.5" />
+                              Поделиться
+                            </Link>
+                          </Button>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
       </Container>
     </section>
