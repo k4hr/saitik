@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import Container from "@/components/ui/container";
 import StepFaceUpload from "@/components/create/step-face-upload";
@@ -9,6 +9,9 @@ import StepOrderSettings from "@/components/create/step-order-settings";
 import OrderSummaryCard from "@/components/create/order-summary-card";
 import GeneratedResultCard from "@/components/create/generated-result-card";
 import ImageOrientationPicker from "@/components/create/image-orientation-picker";
+import MultiFaceUpload, {
+  type FaceGroup,
+} from "@/components/create/multi-face-upload";
 import type { UploadedClientAsset } from "@/components/create/r2-upload-input";
 
 type GenerateResponse = {
@@ -23,6 +26,13 @@ type ImageOrientation = "portrait" | "landscape" | "square";
 
 export default function ReferenceCreateShell() {
   const [faceAssets, setFaceAssets] = useState<UploadedClientAsset[]>([]);
+  const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([
+    {
+      personIndex: 0,
+      label: "Человек 1",
+      assets: [],
+    },
+  ]);
   const [referenceAssets, setReferenceAssets] = useState<UploadedClientAsset[]>(
     [],
   );
@@ -48,8 +58,13 @@ export default function ReferenceCreateShell() {
     description: "Генерация по загруженной референс-картинке пользователя.",
   };
 
+  const allFaceAssets = useMemo(() => {
+    const grouped = faceGroups.flatMap((group) => group.assets);
+    return [...faceAssets, ...grouped];
+  }, [faceAssets, faceGroups]);
+
   async function handleGenerate() {
-    if (faceAssets.length === 0) {
+    if (allFaceAssets.length === 0) {
       setErrorText("Сначала загрузи хотя бы одно фото лица");
       return;
     }
@@ -76,7 +91,7 @@ export default function ReferenceCreateShell() {
           selectedFormat,
           selectedMood,
           imageOrientation,
-          faceAssets: faceAssets.map((item) => ({
+          faceAssets: allFaceAssets.map((item) => ({
             storageKey: item.storageKey,
             fileName: item.fileName,
             mimeType: item.mimeType,
@@ -142,6 +157,8 @@ export default function ReferenceCreateShell() {
 
             <StepFaceUpload value={faceAssets} onChange={setFaceAssets} />
 
+            <MultiFaceUpload value={faceGroups} onChange={setFaceGroups} />
+
             <StepReferenceUpload
               value={referenceAssets}
               onChange={setReferenceAssets}
@@ -183,7 +200,7 @@ export default function ReferenceCreateShell() {
               modeLabel="Свой референс"
               submitText="Сгенерировать"
               onSubmit={handleGenerate}
-              disabled={faceAssets.length === 0 || referenceAssets.length === 0}
+              disabled={allFaceAssets.length === 0 || referenceAssets.length === 0}
               isSubmitting={isSubmitting}
             />
           </div>
