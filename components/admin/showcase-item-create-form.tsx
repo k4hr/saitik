@@ -42,6 +42,7 @@ export default function ShowcaseItemCreateForm({
   const [slugTouched, setSlugTouched] = useState(false);
   const [description, setDescription] = useState("");
   const [promptTemplate, setPromptTemplate] = useState("");
+  const [generationPriceCredits, setGenerationPriceCredits] = useState("10");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
   const [subcategoryId, setSubcategoryId] = useState("");
@@ -80,6 +81,7 @@ export default function ShowcaseItemCreateForm({
           kind,
           description,
           promptTemplate: isReady ? promptTemplate : null,
+          generationPriceCredits: isReady ? generationPriceCredits : null,
           coverImageUrl,
           categoryId,
           subcategoryId: subcategoryId || null,
@@ -105,6 +107,7 @@ export default function ShowcaseItemCreateForm({
       setSlugTouched(false);
       setDescription("");
       setPromptTemplate("");
+      setGenerationPriceCredits("10");
       setCoverImageUrl("");
       setSubcategoryId("");
       setSortOrder(String(Number(sortOrder || 0) + 10));
@@ -174,21 +177,41 @@ export default function ShowcaseItemCreateForm({
       </div>
 
       {isReady ? (
-        <div>
-          <label
-            htmlFor="showcase-prompt"
-            className="mb-2 block text-sm font-medium text-[#6f6156]"
-          >
-            Изначальный промпт
-          </label>
-          <Textarea
-            id="showcase-prompt"
-            value={promptTemplate}
-            onChange={(event) => setPromptTemplate(event.target.value)}
-            placeholder="Именно по этому промпту потом будет генерироваться изображение пользователя."
-            className="min-h-[220px]"
-          />
-        </div>
+        <>
+          <div>
+            <label
+              htmlFor="showcase-prompt"
+              className="mb-2 block text-sm font-medium text-[#6f6156]"
+            >
+              Изначальный промпт
+            </label>
+            <Textarea
+              id="showcase-prompt"
+              value={promptTemplate}
+              onChange={(event) => setPromptTemplate(event.target.value)}
+              placeholder="Именно по этому промпту потом будет генерироваться изображение пользователя."
+              className="min-h-[220px]"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="showcase-price"
+              className="mb-2 block text-sm font-medium text-[#6f6156]"
+            >
+              Цена генерации в кредитах
+            </label>
+            <Input
+              id="showcase-price"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={generationPriceCredits}
+              onChange={(event) => setGenerationPriceCredits(event.target.value)}
+              placeholder="Например: 10"
+            />
+          </div>
+        </>
       ) : null}
 
       <div>
