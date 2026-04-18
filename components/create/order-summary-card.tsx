@@ -1,31 +1,20 @@
 "use client";
 
-import { CheckCircle2, Sparkles } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 type SummaryStyle = {
   id?: string;
   title: string;
-  category: string;
+  category?: string;
   description?: string;
   promptTemplate?: string | null;
   coverImageUrl?: string | null;
+  generationPriceCredits?: number | null;
 };
 
 type OrderSummaryCardProps = {
   selectedStyle?: SummaryStyle;
-  selectedFormat: string;
-  selectedMood: string;
-  modeLabel: string;
   submitText: string;
   onSubmit: () => void;
   disabled?: boolean;
@@ -34,83 +23,50 @@ type OrderSummaryCardProps = {
 
 export default function OrderSummaryCard({
   selectedStyle,
-  selectedFormat,
-  selectedMood,
-  modeLabel,
   submitText,
   onSubmit,
   disabled,
   isSubmitting,
 }: OrderSummaryCardProps) {
   return (
-    <Card className="sticky top-24 overflow-hidden">
-      <div className="aspect-[1.2] bg-[linear-gradient(180deg,#e2d2c5_0%,#f4ece6_100%)]" />
-
-      <CardHeader>
-        <div className="flex items-center gap-2 text-sm text-[#a18672]">
-          <Sparkles className="size-4" />
-          Сводка заказа
+    <Card className="sticky top-24 overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_14px_36px_rgba(95,69,48,0.06)]">
+      <CardContent className="p-0">
+        <div className="aspect-[0.82] overflow-hidden bg-[#efe3d7]">
+          {selectedStyle?.coverImageUrl ? (
+            <img
+              src={selectedStyle.coverImageUrl}
+              alt={selectedStyle.title}
+              className="h-full w-full object-cover"
+            />
+          ) : null}
         </div>
 
-        <CardTitle className="mt-2">
-          {selectedStyle?.title ?? modeLabel}
-        </CardTitle>
+        <div className="space-y-5 p-5 sm:p-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+              Выбранный стиль
+            </p>
+            <h3 className="mt-3 text-3xl leading-tight text-[#3d3128]">
+              {selectedStyle?.title || "Стиль"}
+            </h3>
+          </div>
 
-        <CardDescription>
-          После запуска создаётся заказ, OpenAI генерирует картинку, результат
-          сохраняется в R2 и сразу показывается пользователю.
-        </CardDescription>
-      </CardHeader>
+          <div className="rounded-[22px] border border-[#eadfd6] bg-[#fffaf6] px-4 py-4">
+            <p className="text-sm text-[#7e6f63]">Цена</p>
+            <p className="mt-2 text-2xl text-[#3d3128]">
+              {selectedStyle?.generationPriceCredits ?? 0} кредитов
+            </p>
+          </div>
 
-      <CardContent className="space-y-5">
-        <div className="flex flex-wrap gap-2">
-          <Badge variant={selectedStyle ? "selected" : "outline"}>
-            {selectedStyle?.category ?? modeLabel}
-          </Badge>
-          <Badge variant="ivory">{selectedFormat}</Badge>
-          <Badge variant="ivory">{selectedMood}</Badge>
+          <Button
+            size="xl"
+            className="w-full"
+            onClick={onSubmit}
+            disabled={disabled || isSubmitting}
+          >
+            {isSubmitting ? "Генерируем..." : submitText}
+          </Button>
         </div>
-
-        <div className="space-y-3 rounded-[24px] border border-[#eadfd6] bg-[#fffaf6] p-5">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
-            <div>
-              <p className="text-sm text-[#3d3128]">Upload → R2</p>
-              <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                Исходники сразу уходят в Cloudflare.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
-            <div>
-              <p className="text-sm text-[#3d3128]">OpenAI generation</p>
-              <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                Генерация идёт через API и сохраняется в заказ.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="mt-0.5 size-4 text-[#a18672]" />
-            <div>
-              <p className="text-sm text-[#3d3128]">Скачать и поделиться</p>
-              <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                У результата есть download и share-ссылка на твой сайт.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <Button
-          size="xl"
-          className="w-full"
-          onClick={onSubmit}
-          disabled={disabled || isSubmitting}
-        >
-          {isSubmitting ? "Генерируем..." : submitText}
-        </Button>
       </CardContent>
     </Card>
   );
