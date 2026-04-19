@@ -1,12 +1,32 @@
+import Image from "next/image";
+
 import SectionShell from "@/components/layout/section-shell";
 
 const items = [
-  { label: "Исходник" },
-  { label: "Результат" },
-  { label: "Исходник" },
-  { label: "Результат" },
-  { label: "Исходник" },
-  { label: "Результат" },
+  {
+    label: "Исходник",
+    image: "/demo/before-after/before-1.jpg",
+  },
+  {
+    label: "Результат",
+    image: "/demo/before-after/after-1.jpg",
+  },
+  {
+    label: "Исходник",
+    image: "/demo/before-after/before-2.jpg",
+  },
+  {
+    label: "Результат",
+    image: "/demo/before-after/after-2.jpg",
+  },
+  {
+    label: "Исходник",
+    image: "/demo/before-after/before-3.jpg",
+  },
+  {
+    label: "Результат",
+    image: "/demo/before-after/after-3.jpg",
+  },
 ];
 
 export default function BeforeAfterSection() {
@@ -25,13 +45,16 @@ export default function BeforeAfterSection() {
               key={`${item.label}-${index}`}
               className="overflow-hidden rounded-[24px] border border-[#eadfd6] bg-white"
             >
-              <div
-                className={`aspect-[0.72] ${
-                  index % 2 === 0
-                    ? "bg-[linear-gradient(180deg,#ded1c7_0%,#f3ebe5_100%)]"
-                    : "bg-[linear-gradient(180deg,#cdb5a5_0%,#efe5de_100%)]"
-                }`}
-              />
+              <div className="relative aspect-[0.72] overflow-hidden">
+                <Image
+                  src={item.image}
+                  alt={item.label}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 50vw, 320px"
+                />
+              </div>
+
               <div className="border-t border-[#efe4db] px-4 py-3">
                 <p className="text-sm text-[#7e6f63]">{item.label}</p>
               </div>
