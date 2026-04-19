@@ -18,6 +18,8 @@ export default async function DashboardPage() {
     select: {
       login: true,
       creditBalance: true,
+      welcomeOfferEndsAt: true,
+      createdAt: true,
     },
   });
 
@@ -32,6 +34,7 @@ export default async function DashboardPage() {
         login={user.login}
         balance={user.creditBalance}
         isAdmin={session.role === "ADMIN"}
+        welcomeOfferEndsAt={user.welcomeOfferEndsAt?.toISOString() ?? null}
       />
       <SiteFooter />
     </main>
