@@ -17,7 +17,7 @@ const packs = [
   {
     key: "start",
     name: "Старт",
-    title: "60 кредитов",
+    credits: 60,
     priceRub: 290,
     note: "6 изображений",
     featured: false,
@@ -25,7 +25,7 @@ const packs = [
   {
     key: "creator",
     name: "Креатор",
-    title: "160 кредитов",
+    credits: 160,
     priceRub: 690,
     note: "16 изображений",
     featured: false,
@@ -33,7 +33,7 @@ const packs = [
   {
     key: "studio",
     name: "Студия",
-    title: "380 кредитов",
+    credits: 380,
     priceRub: 1490,
     note: "38 изображений",
     featured: true,
@@ -41,7 +41,7 @@ const packs = [
   {
     key: "business",
     name: "Бизнес",
-    title: "800 кредитов",
+    credits: 800,
     priceRub: 2990,
     note: "80 изображений",
     featured: false,
@@ -187,14 +187,14 @@ export default function DashboardBilling({
                   <div key={pack.key} className="relative pt-7">
                     {pack.featured ? (
                       <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2">
-                        <span className="inline-flex rounded-full bg-[#d9b392] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-white shadow-[0_10px_24px_rgba(95,69,48,0.16)]">
+                        <span className="inline-flex rounded-full bg-[#d9b392] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-white shadow-[0_10px_24px_rgba(95,69,48,0.16)]">
                           Лучший выбор
                         </span>
                       </div>
                     ) : null}
 
                     <div
-                      className={`flex h-full min-h-[440px] flex-col rounded-[24px] border p-5 shadow-[0_10px_30px_rgba(95,69,48,0.05)] ${
+                      className={`flex h-full min-h-[360px] flex-col rounded-[24px] border p-5 shadow-[0_10px_30px_rgba(95,69,48,0.05)] ${
                         pack.featured
                           ? "border-[#caa789] bg-[#fff7f1]"
                           : "border-[#eadfd6] bg-[#fffaf6]"
@@ -205,25 +205,26 @@ export default function DashboardBilling({
                           {pack.name} · {pack.note}
                         </p>
 
-                        <h2 className="mt-5 text-[46px] leading-[0.95] tracking-[-0.02em] text-[#3d3128]">
-                          {pack.title.replace(" кредитов", "")}
-                        </h2>
-
-                        <p className="mt-1 text-[46px] leading-[0.95] tracking-[-0.02em] text-[#3d3128]">
-                          кредитов
-                        </p>
+                        <div className="mt-6">
+                          <p className="text-[28px] font-medium leading-[1] tracking-[-0.02em] text-[#3d3128] sm:text-[32px]">
+                            {pack.credits}
+                          </p>
+                          <p className="mt-1 text-[28px] font-medium leading-[1] tracking-[-0.02em] text-[#3d3128] sm:text-[32px]">
+                            кредитов
+                          </p>
+                        </div>
 
                         {isPromoStudio ? (
-                          <div className="mt-5">
-                            <p className="text-lg text-[#9d8470] line-through">
+                          <div className="mt-6">
+                            <p className="text-base text-[#9d8470] line-through">
                               {formatRub(pack.priceRub)}
                             </p>
-                            <p className="mt-2 text-[42px] leading-none text-[#2f241d]">
+                            <p className="mt-2 text-[30px] font-medium leading-none text-[#2f241d] sm:text-[34px]">
                               {formatRub(finalPriceRub)}
                             </p>
                           </div>
                         ) : (
-                          <p className="mt-5 text-[42px] leading-none text-[#2f241d]">
+                          <p className="mt-6 text-[30px] font-medium leading-none text-[#2f241d] sm:text-[34px]">
                             {formatRub(finalPriceRub)}
                           </p>
                         )}
