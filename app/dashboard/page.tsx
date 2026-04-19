@@ -19,7 +19,6 @@ export default async function DashboardPage() {
       login: true,
       creditBalance: true,
       welcomeOfferEndsAt: true,
-      createdAt: true,
     },
   });
 
