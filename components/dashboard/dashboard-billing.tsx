@@ -16,30 +16,34 @@ import {
 const packs = [
   {
     key: "start",
+    name: "Старт",
     title: "60 кредитов",
     priceRub: 290,
-    note: "Старт · 6 изображений",
+    note: "6 изображений",
     featured: false,
   },
   {
     key: "creator",
+    name: "Креатор",
     title: "160 кредитов",
     priceRub: 690,
-    note: "Креатор · 16 изображений",
+    note: "16 изображений",
     featured: false,
   },
   {
     key: "studio",
+    name: "Студия",
     title: "380 кредитов",
     priceRub: 1490,
-    note: "Студия · 38 изображений",
+    note: "38 изображений",
     featured: true,
   },
   {
     key: "business",
+    name: "Бизнес",
     title: "800 кредитов",
     priceRub: 2990,
-    note: "Бизнес · 80 изображений",
+    note: "80 изображений",
     featured: false,
   },
 ] as const;
@@ -109,8 +113,8 @@ export default function DashboardBilling({
             Пополнить баланс
           </h1>
           <p className="mt-5 text-base leading-8 text-[#726458] sm:text-lg">
-            10 кредитов = 1 изображение. После регистрации пользователь получает
-            10 бесплатных кредитов, чтобы попробовать 1 генерацию без оплаты.
+            После регистрации пользователь получает 10 бесплатных кредитов,
+            чтобы попробовать сервис без оплаты.
           </p>
         </div>
 
@@ -174,51 +178,63 @@ export default function DashboardBilling({
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <CardContent className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {packs.map((pack) => {
                 const isPromoStudio = hasWelcomeOffer && pack.key === "studio";
                 const finalPriceRub = isPromoStudio ? 890 : pack.priceRub;
 
                 return (
-                  <div
-                    key={pack.key}
-                    className={`rounded-[24px] border p-5 shadow-[0_10px_30px_rgba(95,69,48,0.05)] ${
-                      pack.featured
-                        ? "border-[#caa789] bg-[#fff7f1]"
-                        : "border-[#eadfd6] bg-[#fffaf6]"
-                    }`}
-                  >
+                  <div key={pack.key} className="relative pt-7">
                     {pack.featured ? (
-                      <span className="inline-flex rounded-full bg-[#f1e0d1] px-3 py-1 text-xs uppercase tracking-[0.18em] text-[#9a7658]">
-                        Лучший выбор
-                      </span>
+                      <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2">
+                        <span className="inline-flex rounded-full bg-[#d9b392] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-white shadow-[0_10px_24px_rgba(95,69,48,0.16)]">
+                          Лучший выбор
+                        </span>
+                      </div>
                     ) : null}
 
-                    <p className="mt-3 text-sm text-[#a18672]">{pack.note}</p>
-                    <h2 className="mt-3 text-2xl text-[#3d3128]">{pack.title}</h2>
+                    <div
+                      className={`flex h-full min-h-[440px] flex-col rounded-[24px] border p-5 shadow-[0_10px_30px_rgba(95,69,48,0.05)] ${
+                        pack.featured
+                          ? "border-[#caa789] bg-[#fff7f1]"
+                          : "border-[#eadfd6] bg-[#fffaf6]"
+                      }`}
+                    >
+                      <div>
+                        <p className="text-sm leading-6 text-[#a18672]">
+                          {pack.name} · {pack.note}
+                        </p>
 
-                    {isPromoStudio ? (
-                      <div className="mt-2">
-                        <p className="text-sm text-[#9d8470] line-through">
-                          {formatRub(pack.priceRub)}
+                        <h2 className="mt-5 text-[46px] leading-[0.95] tracking-[-0.02em] text-[#3d3128]">
+                          {pack.title.replace(" кредитов", "")}
+                        </h2>
+
+                        <p className="mt-1 text-[46px] leading-[0.95] tracking-[-0.02em] text-[#3d3128]">
+                          кредитов
                         </p>
-                        <p className="mt-1 text-lg text-[#3d3128]">
-                          {formatRub(finalPriceRub)}
-                        </p>
+
+                        {isPromoStudio ? (
+                          <div className="mt-5">
+                            <p className="text-lg text-[#9d8470] line-through">
+                              {formatRub(pack.priceRub)}
+                            </p>
+                            <p className="mt-2 text-[42px] leading-none text-[#2f241d]">
+                              {formatRub(finalPriceRub)}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="mt-5 text-[42px] leading-none text-[#2f241d]">
+                            {formatRub(finalPriceRub)}
+                          </p>
+                        )}
                       </div>
-                    ) : (
-                      <p className="mt-2 text-lg text-[#3d3128]">
-                        {formatRub(finalPriceRub)}
-                      </p>
-                    )}
 
-                    <p className="mt-4 text-sm leading-7 text-[#7e6f63]">
-                      Стандартная генерация списывает 10 кредитов за 1 изображение.
-                    </p>
-
-                    <Button size="lg" className="mt-5 w-full">
-                      Купить
-                    </Button>
+                      <div className="mt-auto pt-8">
+                        <Button size="lg" className="w-full">
+                          Купить
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
