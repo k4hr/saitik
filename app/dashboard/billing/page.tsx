@@ -25,6 +25,7 @@ export default async function DashboardBillingPage() {
     where: { id: session.userId },
     select: {
       id: true,
+      welcomeOfferEndsAt: true,
     },
   });
 
@@ -47,22 +48,24 @@ export default async function DashboardBillingPage() {
       id: true,
       creditsPurchased: true,
       amountRub: true,
-      paidAt: true,
       createdAt: true,
     },
   });
 
-  const transactions = payments.map((payment) => ({
-    id: payment.id,
-    credits: payment.creditsPurchased ?? 0,
-    amountRub: payment.amountRub,
-    dateLabel: formatDateLabel(payment.paidAt ?? payment.createdAt),
+  const transactions = payments.map((item) => ({
+    id: item.id,
+    credits: item.creditsPurchased ?? 0,
+    amountRub: item.amountRub,
+    dateLabel: formatDateLabel(item.createdAt),
   }));
 
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
       <SiteHeader />
-      <DashboardBilling transactions={transactions} />
+      <DashboardBilling
+        transactions={transactions}
+        welcomeOfferEndsAt={user.welcomeOfferEndsAt?.toISOString() ?? null}
+      />
       <SiteFooter />
     </main>
   );
