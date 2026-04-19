@@ -158,12 +158,23 @@ export default function ReadyStyleCreateShell({
               />
             </section>
 
-            <StepOrderSettings
-              title={title}
-              notes={notes}
-              onTitleChange={setTitle}
-              onNotesChange={setNotes}
-            />
+            <section className="space-y-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+                  Шаг 3
+                </p>
+                <h2 className="mt-3 text-3xl leading-tight text-[#3d3128] sm:text-4xl">
+                  Настройки заказа
+                </h2>
+              </div>
+
+              <StepOrderSettings
+                title={title}
+                notes={notes}
+                onTitleChange={setTitle}
+                onNotesChange={setNotes}
+              />
+            </section>
 
             {errorText ? (
               <div className="rounded-[18px] border border-[#e7c7bf] bg-[#fff6f3] px-4 py-3 text-sm text-[#8b4f43]">
