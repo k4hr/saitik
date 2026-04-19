@@ -183,164 +183,157 @@ export default function DashboardBilling({
           </div>
         ) : null}
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
-          <div className="relative overflow-hidden rounded-[34px] bg-[radial-gradient(circle_at_top_right,rgba(222,207,194,0.65),transparent_32%),linear-gradient(180deg,#2d241f_0%,#4f3f35_38%,#d9c8bb_100%)] px-4 py-8 text-white shadow-[0_24px_80px_rgba(91,67,49,0.10)] sm:px-6 lg:px-8">
-            <div className="pointer-events-none absolute inset-0">
-              <div className="absolute left-[-120px] top-[80px] h-[280px] w-[280px] rounded-full bg-[#8b6b56]/25 blur-3xl" />
-              <div className="absolute right-[-100px] top-[-40px] h-[360px] w-[360px] rounded-full bg-[#d8c0ad]/20 blur-3xl" />
-              <div className="absolute bottom-[-120px] left-1/2 h-[280px] w-[280px] -translate-x-1/2 rounded-full bg-[#f4ebe4]/15 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[34px] bg-[radial-gradient(circle_at_top_right,rgba(222,207,194,0.65),transparent_32%),linear-gradient(180deg,#2d241f_0%,#4f3f35_38%,#d9c8bb_100%)] px-4 py-8 text-white shadow-[0_24px_80px_rgba(91,67,49,0.10)] sm:px-6 lg:px-8">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-[-120px] top-[80px] h-[280px] w-[280px] rounded-full bg-[#8b6b56]/25 blur-3xl" />
+            <div className="absolute right-[-100px] top-[-40px] h-[360px] w-[360px] rounded-full bg-[#d8c0ad]/20 blur-3xl" />
+            <div className="absolute bottom-[-120px] left-1/2 h-[280px] w-[280px] -translate-x-1/2 rounded-full bg-[#f4ebe4]/15 blur-3xl" />
+          </div>
+
+          <div className="relative">
+            <div className="mx-auto max-w-4xl text-center">
+              <p className="text-sm font-medium uppercase tracking-[0.26em] text-[#ead6c7]">
+                Тарифы
+              </p>
+
+              <h2 className="mt-4 text-4xl leading-[1.02] text-white sm:text-5xl">
+                Кредиты для генерации фотосессий
+              </h2>
+
+              <p className="mt-5 text-base leading-8 text-white/78 sm:text-lg">
+                Подберите удобный пакет для генераций.
+              </p>
             </div>
 
-            <div className="relative">
-              <div className="mx-auto max-w-4xl text-center">
-                <p className="text-sm font-medium uppercase tracking-[0.26em] text-[#ead6c7]">
-                  Тарифы
-                </p>
+            <div className="mt-10 grid gap-5 lg:grid-cols-4">
+              {creditPacks.map((pack) => {
+                const isPromoStudio = hasWelcomeOffer && pack.name === "Студия";
+                const actualPriceRub = isPromoStudio
+                  ? studioPromoPriceRub
+                  : pack.priceRub;
 
-                <h2 className="mt-4 text-4xl leading-[1.02] text-white sm:text-5xl">
-                  Кредиты для генерации фотосессий
-                </h2>
+                return (
+                  <div
+                    key={pack.name}
+                    className={`relative rounded-[32px] border p-7 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm ${
+                      pack.featured
+                        ? "border-[#d9b392] bg-[#fff9f4] text-[#2f241d]"
+                        : "border-white/12 bg-white/92 text-[#2f241d]"
+                    }`}
+                  >
+                    {pack.featured && pack.badge ? (
+                      <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#bc9670] px-4 py-2 text-sm font-medium text-white shadow-[0_10px_24px_rgba(95,69,48,0.20)]">
+                        {pack.badge}
+                      </div>
+                    ) : null}
 
-                <p className="mt-5 text-base leading-8 text-white/78 sm:text-lg">
-                  Подберите удобный пакет для генераций.
-                </p>
-              </div>
+                    <h3 className="text-3xl italic text-[#2f241d]">{pack.name}</h3>
+                    <p className="mt-2 text-lg text-[#6e5d51]">{pack.subtitle}</p>
 
-              <div className="mt-10 grid gap-5 lg:grid-cols-4">
-                {creditPacks.map((pack) => {
-                  const isPromoStudio =
-                    hasWelcomeOffer && pack.name === "Студия";
-                  const actualPriceRub = isPromoStudio
-                    ? studioPromoPriceRub
-                    : pack.priceRub;
-
-                  return (
-                    <div
-                      key={pack.name}
-                      className={`relative rounded-[32px] border p-7 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm ${
-                        pack.featured
-                          ? "border-[#d9b392] bg-[#fff9f4] text-[#2f241d]"
-                          : "border-white/12 bg-white/92 text-[#2f241d]"
-                      }`}
-                    >
-                      {pack.featured && pack.badge ? (
-                        <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#bc9670] px-4 py-2 text-sm font-medium text-white shadow-[0_10px_24px_rgba(95,69,48,0.20)]">
-                          {pack.badge}
-                        </div>
-                      ) : null}
-
-                      <h3 className="text-3xl italic text-[#2f241d]">
-                        {pack.name}
-                      </h3>
-                      <p className="mt-2 text-lg text-[#6e5d51]">
-                        {pack.subtitle}
-                      </p>
-
-                      <div className="mt-7">
-                        {isPromoStudio ? (
-                          <div className="space-y-2">
-                            <p className="text-xl text-[#9d8470] line-through">
-                              {formatRub(studioRegularPriceRub)}
-                            </p>
-                            <p className="text-5xl font-semibold tracking-tight text-[#1f1712]">
-                              {formatRub(actualPriceRub)}
-                            </p>
-                            <p className="text-sm text-[#9d8470]">
-                              Только для новых пользователей
-                            </p>
-                          </div>
-                        ) : (
+                    <div className="mt-7">
+                      {isPromoStudio ? (
+                        <div className="space-y-2">
+                          <p className="text-xl text-[#9d8470] line-through">
+                            {formatRub(studioRegularPriceRub)}
+                          </p>
                           <p className="text-5xl font-semibold tracking-tight text-[#1f1712]">
                             {formatRub(actualPriceRub)}
                           </p>
-                        )}
-                      </div>
-
-                      <div className="mt-5 flex items-center gap-2 text-[#2f241d]">
-                        <Sparkles className="size-5 text-[#bc9670]" />
-                        <p className="text-2xl font-medium">
-                          {pack.credits} кредитов
-                        </p>
-                      </div>
-
-                      <div className="mt-7 border-t border-[#eadfd6] pt-5">
-                        <p className="text-sm font-medium uppercase tracking-[0.16em] text-[#9d8470]">
-                          Хватит на
-                        </p>
-
-                        <div className="mt-4 flex items-center gap-3 text-[#2f241d]">
-                          <div className="flex size-6 items-center justify-center rounded-full bg-[#bc9670] text-white">
-                            <Check className="size-4" />
-                          </div>
-                          <p className="text-lg">{pack.images} изображений</p>
+                          <p className="text-sm text-[#9d8470]">
+                            Только для новых пользователей
+                          </p>
                         </div>
-
-                        <p className="mt-4 text-sm leading-7 text-[#6e5d51]">
-                          Стандартная генерация: 1 фото = 10 кредитов.
+                      ) : (
+                        <p className="text-5xl font-semibold tracking-tight text-[#1f1712]">
+                          {formatRub(actualPriceRub)}
                         </p>
+                      )}
+                    </div>
+
+                    <div className="mt-5 flex items-center gap-2 text-[#2f241d]">
+                      <Sparkles className="size-5 text-[#bc9670]" />
+                      <p className="text-2xl font-medium">
+                        {pack.credits} кредитов
+                      </p>
+                    </div>
+
+                    <div className="mt-7 border-t border-[#eadfd6] pt-5">
+                      <p className="text-sm font-medium uppercase tracking-[0.16em] text-[#9d8470]">
+                        Хватит на
+                      </p>
+
+                      <div className="mt-4 flex items-center gap-3 text-[#2f241d]">
+                        <div className="flex size-6 items-center justify-center rounded-full bg-[#bc9670] text-white">
+                          <Check className="size-4" />
+                        </div>
+                        <p className="text-lg">{pack.images} изображений</p>
                       </div>
 
-                      <Button
-                        size="lg"
-                        className={`mt-8 w-full ${
-                          pack.featured
-                            ? "bg-[#bc9670] text-[#2f241d] hover:bg-[#b18861]"
-                            : "bg-[#2f241d] text-white hover:bg-[#241b16]"
-                        }`}
-                      >
-                        Купить
-                      </Button>
+                      <p className="mt-4 text-sm leading-7 text-[#6e5d51]">
+                        Стандартная генерация: 1 фото = 10 кредитов.
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
+
+                    <Button
+                      size="lg"
+                      className={`mt-8 w-full ${
+                        pack.featured
+                          ? "bg-[#bc9670] text-[#2f241d] hover:bg-[#b18861]"
+                          : "bg-[#2f241d] text-white hover:bg-[#241b16]"
+                      }`}
+                    >
+                      Купить
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </div>
+        </div>
 
-          <Card className="rounded-[30px] border border-[#eadfd6] bg-[#fffaf6] shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
-            <CardHeader>
-              <CardTitle>История транзакций</CardTitle>
-              <CardDescription>
-                Здесь отображаются все пополнения баланса пользователя.
-              </CardDescription>
-            </CardHeader>
+        <Card className="mt-8 rounded-[30px] border border-[#eadfd6] bg-[#fffaf6] shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
+          <CardHeader>
+            <CardTitle>История транзакций</CardTitle>
+            <CardDescription>
+              Здесь отображаются все пополнения баланса пользователя.
+            </CardDescription>
+          </CardHeader>
 
-            <CardContent className="space-y-4">
-              {transactions.length === 0 ? (
-                <div className="rounded-[20px] border border-[#eadfd6] bg-white p-4 text-sm text-[#7e6f63]">
-                  Пока нет ни одного пополнения.
-                </div>
-              ) : (
-                transactions.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-[20px] border border-[#eadfd6] bg-white p-4 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-[#3d3128]">
-                          Пополнение баланса
-                        </p>
-                        <p className="mt-1 text-xs text-[#8f7f73]">
-                          {item.dateLabel}
-                        </p>
-                      </div>
+          <CardContent className="space-y-4">
+            {transactions.length === 0 ? (
+              <div className="rounded-[20px] border border-[#eadfd6] bg-white p-4 text-sm text-[#7e6f63]">
+                Пока нет ни одного пополнения.
+              </div>
+            ) : (
+              transactions.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-[20px] border border-[#eadfd6] bg-white p-4 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-[#3d3128]">
+                        Пополнение баланса
+                      </p>
+                      <p className="mt-1 text-xs text-[#8f7f73]">
+                        {item.dateLabel}
+                      </p>
+                    </div>
 
-                      <div className="text-right">
-                        <p className="text-sm text-[#3d3128]">
-                          +{item.credits} credits
-                        </p>
-                        <p className="mt-1 text-xs text-[#8f7f73]">
-                          {formatRub(item.amountRub)}
-                        </p>
-                      </div>
+                    <div className="text-right">
+                      <p className="text-sm text-[#3d3128]">
+                        +{item.credits} credits
+                      </p>
+                      <p className="mt-1 text-xs text-[#8f7f73]">
+                        {formatRub(item.amountRub)}
+                      </p>
                     </div>
                   </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
       </Container>
     </section>
   );
