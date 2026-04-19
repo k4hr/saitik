@@ -1,48 +1,90 @@
 import Link from "next/link";
-import { Sparkles, Check } from "lucide-react";
+import { Sparkles, Check, Clock3, Gift } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 const creditPacks = [
   {
     name: "Старт",
     subtitle: "Для первого знакомства",
-    price: "290 ₽",
-    credits: "60 кредитов",
-    images: "6 изображений",
+    priceRub: 290,
+    credits: 60,
+    images: 6,
     featured: false,
   },
   {
     name: "Креатор",
     subtitle: "Для регулярных генераций",
-    price: "690 ₽",
-    credits: "160 кредитов",
-    images: "16 изображений",
+    priceRub: 690,
+    credits: 160,
+    images: 16,
     featured: false,
   },
   {
     name: "Студия",
     subtitle: "Оптимальный выбор",
-    price: "1 490 ₽",
-    credits: "380 кредитов",
-    images: "38 изображений",
+    priceRub: 1490,
+    credits: 380,
+    images: 38,
     featured: true,
     badge: "Лучший выбор",
   },
   {
     name: "Бизнес",
     subtitle: "Максимум выгоды",
-    price: "2 990 ₽",
-    credits: "800 кредитов",
-    images: "80 изображений",
+    priceRub: 2990,
+    credits: 800,
+    images: 80,
     featured: false,
   },
-];
+] as const;
+
+function formatRub(value: number): string {
+  return `${new Intl.NumberFormat("ru-RU").format(value)} ₽`;
+}
+
+function formatTimeLeft(targetDate: Date): string {
+  const diff = targetDate.getTime() - Date.now();
+
+  if (diff <= 0) {
+    return "00:00:00";
+  }
+
+  const totalSeconds = Math.floor(diff / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return [hours, minutes, seconds]
+    .map((value) => String(value).padStart(2, "0"))
+    .join(":");
+}
 
 export default async function PricingSection() {
   const session = await getSession();
   const primaryHref = session ? "/dashboard/billing" : "/auth/sign-in";
+
+  const user = session
+    ? await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: {
+          welcomeOfferEndsAt: true,
+        },
+      })
+    : null;
+
+  const hasWelcomeOffer =
+    Boolean(user?.welcomeOfferEndsAt) &&
+    user!.welcomeOfferEndsAt!.getTime() > Date.now();
+
+  const studioPromoPriceRub = 890;
+  const studioRegularPriceRub = 1490;
+  const studioDiscountRub = studioRegularPriceRub - studioPromoPriceRub;
+  const timeLeft = hasWelcomeOffer
+    ? formatTimeLeft(user!.welcomeOfferEndsAt!)
+    : null;
 
   return (
     <section
@@ -71,105 +113,200 @@ export default async function PricingSection() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-4">
-          {creditPacks.map((pack) => (
-            <div
-              key={pack.name}
-              className={`relative rounded-[32px] border p-7 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm ${
-                pack.featured
-                  ? "border-[#d9b392] bg-[#fff9f4] text-[#2f241d]"
-                  : "border-white/12 bg-white/92 text-[#2f241d]"
-              }`}
-            >
-              {pack.featured && pack.badge ? (
-                <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#bc9670] px-4 py-2 text-sm font-medium text-white shadow-[0_10px_24px_rgba(95,69,48,0.20)]">
-                  {pack.badge}
-                </div>
-              ) : null}
-
-              <h3 className="text-3xl italic text-[#2f241d]">{pack.name}</h3>
-              <p className="mt-2 text-lg text-[#6e5d51]">{pack.subtitle}</p>
-
-              <div className="mt-7">
-                <p className="text-5xl font-semibold tracking-tight text-[#1f1712]">
-                  {pack.price}
-                </p>
-              </div>
-
-              <div className="mt-5 flex items-center gap-2 text-[#2f241d]">
-                <Sparkles className="size-5 text-[#bc9670]" />
-                <p className="text-2xl font-medium">{pack.credits}</p>
-              </div>
-
-              <div className="mt-7 border-t border-[#eadfd6] pt-5">
-                <p className="text-sm font-medium uppercase tracking-[0.16em] text-[#9d8470]">
-                  Хватит на
-                </p>
-
-                <div className="mt-4 flex items-center gap-3 text-[#2f241d]">
-                  <div className="flex size-6 items-center justify-center rounded-full bg-[#bc9670] text-white">
-                    <Check className="size-4" />
+        {hasWelcomeOffer ? (
+          <div className="mx-auto mt-10 max-w-6xl overflow-hidden rounded-[32px] border border-white/14 bg-white/10 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.12)] backdrop-blur-md sm:p-8">
+            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-white/15 text-white">
+                    <Gift className="size-5" />
                   </div>
-                  <p className="text-lg">{pack.images}</p>
+
+                  <p className="text-sm uppercase tracking-[0.24em] text-[#ead6c7]">
+                    Предложение для нового пользователя
+                  </p>
                 </div>
 
-                <p className="mt-4 text-sm leading-7 text-[#6e5d51]">
-                  Стандартная генерация: 1 фото = 10 кредитов.
+                <h3 className="mt-5 text-3xl leading-tight text-white sm:text-4xl">
+                  Вам начислено 10 кредитов за регистрацию
+                </h3>
+
+                <p className="mt-4 max-w-2xl text-base leading-8 text-white/78">
+                  Только первый час после регистрации действует специальная
+                  цена на тариф <span className="font-medium text-white">Студия</span>.
                 </p>
+
+                <div className="mt-6 flex flex-wrap items-end gap-3">
+                  <span className="text-xl text-white/52 line-through">
+                    {formatRub(studioRegularPriceRub)}
+                  </span>
+                  <span className="text-4xl font-semibold text-white">
+                    {formatRub(studioPromoPriceRub)}
+                  </span>
+                  <span className="rounded-full bg-white/12 px-3 py-1 text-sm text-[#ead6c7]">
+                    Выгода {formatRub(studioDiscountRub)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-[28px] border border-white/12 bg-white/8 p-6">
+                <div className="flex items-center gap-3">
+                  <Clock3 className="size-5 text-[#ead6c7]" />
+                  <p className="text-sm uppercase tracking-[0.18em] text-[#ead6c7]">
+                    До конца акции
+                  </p>
+                </div>
+
+                <p className="mt-4 text-4xl font-semibold tracking-[0.06em] text-white">
+                  {timeLeft}
+                </p>
+
+                <div className="mt-6">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full bg-white text-[#2f241d] hover:bg-[#f7efe9]"
+                  >
+                    <Link href={primaryHref}>
+                      <span className="text-[#2f241d]">
+                        Купить тариф Студия
+                      </span>
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-10 grid gap-5 lg:grid-cols-4">
+          {creditPacks.map((pack) => {
+            const isPromoStudio = hasWelcomeOffer && pack.name === "Студия";
+            const actualPriceRub = isPromoStudio
+              ? studioPromoPriceRub
+              : pack.priceRub;
+
+            return (
+              <div
+                key={pack.name}
+                className={`relative rounded-[32px] border p-7 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm ${
+                  pack.featured
+                    ? "border-[#d9b392] bg-[#fff9f4] text-[#2f241d]"
+                    : "border-white/12 bg-white/92 text-[#2f241d]"
+                }`}
+              >
+                {pack.featured && pack.badge ? (
+                  <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#bc9670] px-4 py-2 text-sm font-medium text-white shadow-[0_10px_24px_rgba(95,69,48,0.20)]">
+                    {pack.badge}
+                  </div>
+                ) : null}
+
+                <h3 className="text-3xl italic text-[#2f241d]">{pack.name}</h3>
+                <p className="mt-2 text-lg text-[#6e5d51]">{pack.subtitle}</p>
+
+                <div className="mt-7">
+                  {isPromoStudio ? (
+                    <div className="space-y-2">
+                      <p className="text-xl text-[#9d8470] line-through">
+                        {formatRub(studioRegularPriceRub)}
+                      </p>
+                      <p className="text-5xl font-semibold tracking-tight text-[#1f1712]">
+                        {formatRub(actualPriceRub)}
+                      </p>
+                      <p className="text-sm text-[#9d8470]">
+                        Только для новых пользователей
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-5xl font-semibold tracking-tight text-[#1f1712]">
+                      {formatRub(actualPriceRub)}
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt-5 flex items-center gap-2 text-[#2f241d]">
+                  <Sparkles className="size-5 text-[#bc9670]" />
+                  <p className="text-2xl font-medium">
+                    {pack.credits} кредитов
+                  </p>
+                </div>
+
+                <div className="mt-7 border-t border-[#eadfd6] pt-5">
+                  <p className="text-sm font-medium uppercase tracking-[0.16em] text-[#9d8470]">
+                    Хватит на
+                  </p>
+
+                  <div className="mt-4 flex items-center gap-3 text-[#2f241d]">
+                    <div className="flex size-6 items-center justify-center rounded-full bg-[#bc9670] text-white">
+                      <Check className="size-4" />
+                    </div>
+                    <p className="text-lg">
+                      {pack.images} изображений
+                    </p>
+                  </div>
+
+                  <p className="mt-4 text-sm leading-7 text-[#6e5d51]">
+                    Стандартная генерация: 1 фото = 10 кредитов.
+                  </p>
+                </div>
+
+                <Button
+                  asChild
+                  size="lg"
+                  className={`mt-8 w-full ${
+                    pack.featured
+                      ? "bg-[#bc9670] text-[#2f241d] hover:bg-[#b18861]"
+                      : "bg-[#2f241d] text-white hover:bg-[#241b16]"
+                  }`}
+                >
+                  <Link href={primaryHref}>
+                    <span
+                      className={pack.featured ? "text-[#2f241d]" : "text-white"}
+                    >
+                      Купить
+                    </span>
+                  </Link>
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+
+        {!hasWelcomeOffer ? (
+          <div className="mt-8 rounded-[30px] border border-white/15 bg-white/10 p-6 shadow-[0_16px_40px_rgba(0,0,0,0.10)] backdrop-blur-md sm:p-7">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-14 items-center justify-center rounded-full bg-white/15 text-white">
+                    <Sparkles className="size-6" />
+                  </div>
+
+                  <div>
+                    <h3 className="text-2xl text-white">
+                      Бесплатные кредиты для новых пользователей
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-white/78">
+                      После регистрации пользователь получает 10 кредитов — этого
+                      хватит на 1 бесплатную генерацию.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <Button
                 asChild
-                size="lg"
-                className={`mt-8 w-full ${
-                  pack.featured
-                    ? "bg-[#bc9670] text-[#2f241d] hover:bg-[#b18861]"
-                    : "bg-[#2f241d] text-white hover:bg-[#241b16]"
-                }`}
+                size="xl"
+                className="min-w-[240px] bg-white text-[#2f241d] hover:bg-[#f7efe9]"
               >
-                <Link href={primaryHref}>
-                  <span className={pack.featured ? "text-[#2f241d]" : "text-white"}>
-                    Купить
+                <Link href={session ? "/create" : "/auth/sign-in"}>
+                  <span className="text-[#2f241d]">
+                    {session ? "Начать" : "Попробовать бесплатно"}
                   </span>
                 </Link>
               </Button>
             </div>
-          ))}
-        </div>
-
-        <div className="mt-8 rounded-[30px] border border-white/15 bg-white/10 p-6 shadow-[0_16px_40px_rgba(0,0,0,0.10)] backdrop-blur-md sm:p-7">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="flex items-center gap-3">
-                <div className="flex size-14 items-center justify-center rounded-full bg-white/15 text-white">
-                  <Sparkles className="size-6" />
-                </div>
-
-                <div>
-                  <h3 className="text-2xl text-white">
-                    Бесплатные кредиты для новых пользователей
-                  </h3>
-                  <p className="mt-2 text-base leading-7 text-white/78">
-                    После регистрации пользователь получает 10 кредитов — этого
-                    хватит на 1 бесплатную генерацию.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <Button
-              asChild
-              size="xl"
-              className="min-w-[240px] bg-white text-[#2f241d] hover:bg-[#f7efe9]"
-            >
-              <Link href={session ? "/create" : "/auth/sign-in"}>
-                <span className="text-[#2f241d]">
-                  {session ? "Начать" : "Попробовать бесплатно"}
-                </span>
-              </Link>
-            </Button>
           </div>
-        </div>
+        ) : null}
       </div>
     </section>
   );
