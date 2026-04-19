@@ -27,12 +27,12 @@ const items = [
   {
     type: "single" as const,
     label: "Исходник",
-    image: "/demo/before-after/before-3.png",
+    image: "/demo/before-after/before-3.PNG",
   },
   {
     type: "single" as const,
     label: "Результат",
-    image: "/demo/before-after/after-3.png",
+    image: "/demo/before-after/after-3.PNG",
   },
 ];
 
