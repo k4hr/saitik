@@ -5,27 +5,27 @@ import SectionShell from "@/components/layout/section-shell";
 const items = [
   {
     label: "Исходник",
-    image: "/demo/before-after/before-1.jpg",
+    image: "/demo/before-after/before-1.png",
   },
   {
     label: "Результат",
-    image: "/demo/before-after/after-1.jpg",
+    image: "/demo/before-after/after-1.png",
   },
   {
     label: "Исходник",
-    image: "/demo/before-after/before-2.jpg",
+    image: "/demo/before-after/before-2.png",
   },
   {
     label: "Результат",
-    image: "/demo/before-after/after-2.jpg",
+    image: "/demo/before-after/after-2.png",
   },
   {
     label: "Исходник",
-    image: "/demo/before-after/before-3.jpg",
+    image: "/demo/before-after/before-3.png",
   },
   {
     label: "Результат",
-    image: "/demo/before-after/after-3.jpg",
+    image: "/demo/before-after/after-3.png",
   },
 ];
 
