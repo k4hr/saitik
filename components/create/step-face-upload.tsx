@@ -18,17 +18,6 @@ export default function StepFaceUpload({
 }: StepFaceUploadProps) {
   return (
     <div className="space-y-4">
-      <div>
-        <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
-          Шаг 2
-        </p>
-        <h2 className="mt-3 text-3xl text-[#3d3128]">Загрузка лица</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-[#7e6f63]">
-          Загрузи 1–5 фото пользователя. Они сразу уходят в Cloudflare R2 и потом
-          используются для генерации.
-        </p>
-      </div>
-
       <R2UploadInput
         title="Фото пользователя"
         description="Лучше всего 3–5 фото с хорошим светом, без масок, очков и сильных фильтров."
