@@ -19,6 +19,7 @@ type OrderSummaryCardProps = {
   onSubmit: () => void;
   disabled?: boolean;
   isSubmitting?: boolean;
+  currentBalance?: number | null;
 };
 
 export default function OrderSummaryCard({
@@ -27,7 +28,13 @@ export default function OrderSummaryCard({
   onSubmit,
   disabled,
   isSubmitting,
+  currentBalance,
 }: OrderSummaryCardProps) {
+  const price = selectedStyle?.generationPriceCredits ?? 0;
+  const hasBalanceInfo = typeof currentBalance === "number";
+  const insufficientCredits =
+    hasBalanceInfo && price > 0 ? currentBalance < price : false;
+
   return (
     <Card className="sticky top-24 overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white/90 shadow-[0_14px_36px_rgba(95,69,48,0.06)]">
       <CardContent className="p-0">
@@ -53,16 +60,29 @@ export default function OrderSummaryCard({
 
           <div className="rounded-[22px] border border-[#eadfd6] bg-[#fffaf6] px-4 py-4">
             <p className="text-sm text-[#7e6f63]">Цена</p>
-            <p className="mt-2 text-2xl text-[#3d3128]">
-              {selectedStyle?.generationPriceCredits ?? 0} кредитов
-            </p>
+            <p className="mt-2 text-2xl text-[#3d3128]">{price} кредитов</p>
           </div>
+
+          {hasBalanceInfo ? (
+            <div className="rounded-[22px] border border-[#eadfd6] bg-[#fffaf6] px-4 py-4">
+              <p className="text-sm text-[#7e6f63]">Баланс</p>
+              <p className="mt-2 text-2xl text-[#3d3128]">
+                {currentBalance} кредитов
+              </p>
+
+              {insufficientCredits ? (
+                <p className="mt-3 text-sm leading-6 text-[#a05d50]">
+                  Недостаточно кредитов для генерации.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
 
           <Button
             size="xl"
             className="w-full"
             onClick={onSubmit}
-            disabled={disabled || isSubmitting}
+            disabled={disabled || isSubmitting || insufficientCredits}
           >
             {isSubmitting ? "Генерируем..." : submitText}
           </Button>
