@@ -21,9 +21,15 @@ type GenerateResponse = {
 
 type ImageOrientation = "portrait" | "landscape" | "square";
 
+type ReferenceCreateShellProps = {
+  currentBalance: number;
+};
+
 const TOP_UP_PATH = "/pricing";
 
-export default function ReferenceCreateShell() {
+export default function ReferenceCreateShell({
+  currentBalance,
+}: ReferenceCreateShellProps) {
   const router = useRouter();
 
   const [faceAssets, setFaceAssets] = useState<UploadedClientAsset[]>([]);
@@ -42,7 +48,7 @@ export default function ReferenceCreateShell() {
     id: "reference-mode",
     title: "Свой референс",
     coverImageUrl: null,
-    generationPriceCredits: null,
+    generationPriceCredits: 15,
   };
 
   const allFaceAssets = useMemo(() => {
@@ -61,6 +67,8 @@ export default function ReferenceCreateShell() {
     return [...primary, ...grouped];
   }, [faceAssets, faceGroups]);
 
+  const hasEnoughCredits = currentBalance >= 15;
+
   async function handleGenerate() {
     if (allFaceAssets.length === 0) {
       setErrorText("Сначала загрузи хотя бы одно фото лица");
@@ -69,6 +77,10 @@ export default function ReferenceCreateShell() {
 
     if (referenceAssets.length === 0) {
       setErrorText("Сначала загрузи референс");
+      return;
+    }
+
+    if (!hasEnoughCredits) {
       return;
     }
 
@@ -196,6 +208,7 @@ export default function ReferenceCreateShell() {
               onSubmit={handleGenerate}
               disabled={allFaceAssets.length === 0 || referenceAssets.length === 0}
               isSubmitting={isSubmitting}
+              currentBalance={currentBalance}
             />
           </div>
         </div>
