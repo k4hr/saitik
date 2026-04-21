@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, WandSparkles } from "lucide-react";
+import { WandSparkles } from "lucide-react";
 
 import Container from "@/components/ui/container";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,6 +18,7 @@ import R2UploadInput, {
 } from "@/components/create/r2-upload-input";
 import GeneratedResultCard from "@/components/create/generated-result-card";
 import ImageOrientationPicker from "@/components/create/image-orientation-picker";
+import OrderSummaryCard from "@/components/create/order-summary-card";
 
 type GenerateResponse = {
   ok?: boolean;
@@ -30,7 +30,13 @@ type GenerateResponse = {
 
 type ImageOrientation = "portrait" | "landscape" | "square";
 
-export default function FreeEditShell() {
+type FreeEditShellProps = {
+  currentBalance: number;
+};
+
+export default function FreeEditShell({
+  currentBalance,
+}: FreeEditShellProps) {
   const [sourceAssets, setSourceAssets] = useState<UploadedClientAsset[]>([]);
   const [title, setTitle] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -44,14 +50,22 @@ export default function FreeEditShell() {
     sharePath: string;
   } | null>(null);
 
+  const selectedStyle = {
+    id: "edit-mode",
+    title: "Свободное редактирование",
+    coverImageUrl: null,
+    generationPriceCredits: 15,
+  };
+
+  const hasEnoughCredits = currentBalance >= 15;
+
   async function handleGenerate() {
-    if (sourceAssets.length === 0) {
-      setErrorText("Сначала загрузи изображение");
+    if (!prompt.trim()) {
+      setErrorText("Напиши промпт для генерации");
       return;
     }
 
-    if (!prompt.trim()) {
-      setErrorText("Напиши промпт для редактирования");
+    if (!hasEnoughCredits) {
       return;
     }
 
@@ -69,12 +83,15 @@ export default function FreeEditShell() {
           title,
           prompt,
           imageOrientation,
-          sourceAsset: {
-            storageKey: sourceAssets[0].storageKey,
-            fileName: sourceAssets[0].fileName,
-            mimeType: sourceAssets[0].mimeType,
-            fileSize: sourceAssets[0].fileSize,
-          },
+          sourceAsset:
+            sourceAssets.length > 0
+              ? {
+                  storageKey: sourceAssets[0].storageKey,
+                  fileName: sourceAssets[0].fileName,
+                  mimeType: sourceAssets[0].mimeType,
+                  fileSize: sourceAssets[0].fileSize,
+                }
+              : null,
         }),
       });
 
@@ -86,7 +103,7 @@ export default function FreeEditShell() {
         !data.downloadPath ||
         !data.sharePath
       ) {
-        throw new Error(data.error || "Не удалось отредактировать изображение");
+        throw new Error(data.error || "Не удалось создать изображение");
       }
 
       setResult({
@@ -96,7 +113,7 @@ export default function FreeEditShell() {
       });
     } catch (error) {
       setErrorText(
-        error instanceof Error ? error.message : "Ошибка редактирования",
+        error instanceof Error ? error.message : "Ошибка генерации",
       );
     } finally {
       setIsSubmitting(false);
@@ -114,8 +131,9 @@ export default function FreeEditShell() {
             Свободное редактирование
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Пользователь сам загружает исходное изображение, сам пишет промпт и
-            выбирает ориентацию финальной картинки.
+            Можно загрузить исходное изображение и изменить его по промпту.
+            Либо не загружать ничего и создать новую картинку только по текстовому
+            описанию.
           </p>
         </div>
 
@@ -128,7 +146,7 @@ export default function FreeEditShell() {
 
             <R2UploadInput
               title="Исходное изображение"
-              description="Загрузи фото или картинку, которую хочешь изменить."
+              description="Необязательно. Если загрузишь картинку, она будет отредактирована по твоему промпту. Если не загрузишь — система создаст изображение с нуля только по тексту."
               kind="edit-source"
               value={sourceAssets}
               onChange={setSourceAssets}
@@ -139,7 +157,7 @@ export default function FreeEditShell() {
               <CardHeader>
                 <CardTitle>Свободный промпт</CardTitle>
                 <CardDescription>
-                  Опиши, что именно нужно сделать с изображением.
+                  Опиши, что именно нужно сделать или какое изображение нужно создать.
                 </CardDescription>
               </CardHeader>
 
@@ -151,7 +169,7 @@ export default function FreeEditShell() {
                   <Input
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
-                    placeholder="Например: luxury portrait / заменить фон / изменить одежду"
+                    placeholder="Например: luxury portrait / заменить фон / создать fashion scene"
                   />
                 </label>
 
@@ -159,7 +177,7 @@ export default function FreeEditShell() {
                   className="min-h-[220px]"
                   value={prompt}
                   onChange={(event) => setPrompt(event.target.value)}
-                  placeholder="Например: сделай из этого фото дорогой editorial portrait, сохрани лицо, измени одежду на молочный пиджак, замени фон на luxury interior, добавь мягкий теплый свет..."
+                  placeholder="Например: создай дорогой editorial portrait в luxury интерьере, мягкий теплый свет, молочный пиджак, реалистичная кожа, премиальный фотореализм..."
                 />
 
                 <div className="rounded-[24px] border border-[#eadfd6] bg-[#fffaf6] p-5">
@@ -167,11 +185,11 @@ export default function FreeEditShell() {
                     <WandSparkles className="mt-0.5 size-5 text-[#a18672]" />
                     <div>
                       <p className="text-sm text-[#3d3128]">
-                        Полностью свободный режим
+                        Два сценария в одном режиме
                       </p>
                       <p className="mt-1 text-xs leading-6 text-[#7e6f63]">
-                        Что написал пользователь, то и идёт в OpenAI edit
-                        pipeline.
+                        С загрузкой исходника — редактирование изображения. Без
+                        исходника — генерация новой картинки только по промпту.
                       </p>
                     </div>
                   </div>
@@ -195,45 +213,14 @@ export default function FreeEditShell() {
           </div>
 
           <div>
-            <Card className="sticky top-24 overflow-hidden">
-              <div className="aspect-[1.18] bg-[linear-gradient(180deg,#e2d2c5_0%,#f4ece6_100%)]" />
-
-              <CardHeader>
-                <div className="flex items-center gap-2 text-sm text-[#a18672]">
-                  <Sparkles className="size-4" />
-                  Сводка режима
-                </div>
-
-                <CardTitle className="mt-2">Свободное редактирование</CardTitle>
-
-                <CardDescription>
-                  Upload в R2 → OpenAI edit → показ результата → download/share.
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-5">
-                <div className="space-y-3 rounded-[24px] border border-[#eadfd6] bg-[#fffaf6] p-5">
-                  <p className="text-sm text-[#3d3128]">Этот режим делает:</p>
-                  <ul className="space-y-2 text-xs leading-6 text-[#7e6f63]">
-                    <li>загрузку исходника</li>
-                    <li>свободный пользовательский prompt</li>
-                    <li>редактирование через OpenAI</li>
-                    <li>выдачу результата на сайте</li>
-                  </ul>
-                </div>
-
-                <Button
-                  size="xl"
-                  className="w-full"
-                  onClick={handleGenerate}
-                  disabled={
-                    isSubmitting || sourceAssets.length === 0 || !prompt.trim()
-                  }
-                >
-                  {isSubmitting ? "Обрабатываем..." : "Запустить редактирование"}
-                </Button>
-              </CardContent>
-            </Card>
+            <OrderSummaryCard
+              selectedStyle={selectedStyle}
+              submitText="Сгенерировать"
+              onSubmit={handleGenerate}
+              disabled={!prompt.trim()}
+              isSubmitting={isSubmitting}
+              currentBalance={currentBalance}
+            />
           </div>
         </div>
       </Container>
