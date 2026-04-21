@@ -1,6 +1,13 @@
 import { prisma } from "@/lib/prisma";
 
-type ThrottleScope = "login-ip" | "login-identifier" | "register-ip";
+type ThrottleScope =
+  | "login-ip"
+  | "login-identifier"
+  | "register-ip"
+  | "upload-sign-ip"
+  | "upload-sign-user"
+  | "generate-ip"
+  | "generate-user";
 
 type ThrottleConfig = {
   scope: ThrottleScope;
