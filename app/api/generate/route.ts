@@ -15,7 +15,11 @@ import {
   buildReferencePrompt,
   REFERENCE_ANALYZER_MASTER_PROMPT,
 } from "@/lib/generation-prompts";
-import { describeReferenceImage, editImageWithOpenAi } from "@/lib/openai";
+import {
+  describeReferenceImage,
+  editImageWithOpenAi,
+  type OpenAiInputImage,
+} from "@/lib/openai";
 import {
   buildR2Key,
   getSignedReadUrl,
@@ -150,6 +154,34 @@ function resolveFaceCount(faceAssets: UploadedAssetInput[]): number {
   return 1;
 }
 
+function sortFaceAssetsForOpenAi(faceAssets: UploadedAssetInput[]): UploadedAssetInput[] {
+  return [...faceAssets].sort((a, b) => {
+    const personA =
+      typeof a.personIndex === "number" && a.personIndex >= 0 ? a.personIndex : 0;
+    const personB =
+      typeof b.personIndex === "number" && b.personIndex >= 0 ? b.personIndex : 0;
+
+    if (personA !== personB) {
+      return personA - personB;
+    }
+
+    return (a.storageKey || "").localeCompare(b.storageKey || "");
+  });
+}
+
+async function buildOpenAiInputImage(
+  item: UploadedAssetInput,
+  fallbackName: string,
+): Promise<OpenAiInputImage> {
+  const object = await readObjectFromR2(item.storageKey);
+
+  return {
+    bytes: object.bytes,
+    mimeType: item.mimeType || object.contentType || "image/png",
+    fileName: item.fileName || fallbackName,
+  };
+}
+
 export async function POST(req: NextRequest) {
   let orderId: string | null = null;
   let chargedCredits = 0;
@@ -236,9 +268,10 @@ export async function POST(req: NextRequest) {
     }
 
     const faceAssets = body.faceAssets || [];
-    const faceCount = resolveFaceCount(faceAssets);
+    const sortedFaceAssets = sortFaceAssetsForOpenAi(faceAssets);
+    const faceCount = resolveFaceCount(sortedFaceAssets);
 
-    for (const asset of faceAssets) {
+    for (const asset of sortedFaceAssets) {
       assertUserOwnsStorageKey(asset.storageKey, session.userId);
       assertClientDeclaredFileSize(asset, MAX_FACE_FILE_SIZE, "Фото лица");
     }
@@ -262,7 +295,7 @@ export async function POST(req: NextRequest) {
     }
 
     await Promise.all([
-      ...faceAssets.map((asset) =>
+      ...sortedFaceAssets.map((asset) =>
         assertActualR2ObjectSize(asset.storageKey, MAX_FACE_FILE_SIZE, "Фото лица"),
       ),
       ...(body.referenceAsset?.storageKey
@@ -410,11 +443,9 @@ export async function POST(req: NextRequest) {
     chargedCredits = creditsToCharge;
 
     let finalPrompt = "";
-    let sourceStorageKey = "";
+    let inputImages: OpenAiInputImage[] = [];
 
     if (mode === "READY") {
-      sourceStorageKey = faceAssets[0].storageKey;
-
       finalPrompt = buildReadyStylePrompt({
         presetTitle: showcaseItem?.title || "Ready style",
         presetDescription: showcaseItem?.description || null,
@@ -425,11 +456,15 @@ export async function POST(req: NextRequest) {
         notes: body.notes,
         faceCount,
       });
+
+      inputImages = await Promise.all(
+        sortedFaceAssets.map((asset, index) =>
+          buildOpenAiInputImage(asset, `face-${index + 1}.png`),
+        ),
+      );
     }
 
     if (mode === "REFERENCE") {
-      sourceStorageKey = faceAssets[0].storageKey;
-
       const referenceSignedUrl = await getSignedReadUrl({
         key: body.referenceAsset!.storageKey,
       });
@@ -449,23 +484,37 @@ export async function POST(req: NextRequest) {
         notes: body.notes,
         faceCount,
       });
+
+      inputImages = await Promise.all(
+        sortedFaceAssets.map((asset, index) =>
+          buildOpenAiInputImage(asset, `face-${index + 1}.png`),
+        ),
+      );
     }
 
     if (mode === "EDIT") {
-      sourceStorageKey = body.sourceAsset!.storageKey;
       finalPrompt = buildEditPrompt({
         prompt: body.prompt!.trim(),
         faceCount,
       });
-    }
 
-    const sourceObject = await readObjectFromR2(sourceStorageKey);
+      const editBase = await buildOpenAiInputImage(
+        body.sourceAsset!,
+        "edit-source.png",
+      );
+
+      const faceReferenceImages = await Promise.all(
+        sortedFaceAssets.map((asset, index) =>
+          buildOpenAiInputImage(asset, `face-${index + 1}.png`),
+        ),
+      );
+
+      inputImages = [editBase, ...faceReferenceImages];
+    }
 
     const generatedImageBuffer = await editImageWithOpenAi({
       prompt: finalPrompt,
-      sourceImageBytes: sourceObject.bytes,
-      sourceMimeType: sourceObject.contentType,
-      sourceFileName: "source.png",
+      inputImages,
       size: resolveImageSize(body.imageOrientation),
     });
 
