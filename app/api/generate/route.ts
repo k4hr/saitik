@@ -132,6 +132,24 @@ async function assertActualR2ObjectSize(
   }
 }
 
+function resolveFaceCount(faceAssets: UploadedAssetInput[]): number {
+  if (!faceAssets.length) return 1;
+
+  const personIndexes = new Set<number>();
+
+  for (const asset of faceAssets) {
+    if (typeof asset.personIndex === "number" && asset.personIndex >= 0) {
+      personIndexes.add(asset.personIndex);
+    }
+  }
+
+  if (personIndexes.size > 0) {
+    return personIndexes.size;
+  }
+
+  return 1;
+}
+
 export async function POST(req: NextRequest) {
   let orderId: string | null = null;
   let chargedCredits = 0;
@@ -218,6 +236,7 @@ export async function POST(req: NextRequest) {
     }
 
     const faceAssets = body.faceAssets || [];
+    const faceCount = resolveFaceCount(faceAssets);
 
     for (const asset of faceAssets) {
       assertUserOwnsStorageKey(asset.storageKey, session.userId);
@@ -404,6 +423,7 @@ export async function POST(req: NextRequest) {
         selectedMood: body.selectedMood,
         goal: body.goal,
         notes: body.notes,
+        faceCount,
       });
     }
 
@@ -427,6 +447,7 @@ export async function POST(req: NextRequest) {
         selectedMood: body.selectedMood,
         goal: body.goal,
         notes: body.notes,
+        faceCount,
       });
     }
 
@@ -434,6 +455,7 @@ export async function POST(req: NextRequest) {
       sourceStorageKey = body.sourceAsset!.storageKey;
       finalPrompt = buildEditPrompt({
         prompt: body.prompt!.trim(),
+        faceCount,
       });
     }
 
