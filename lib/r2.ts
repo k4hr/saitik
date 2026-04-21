@@ -35,6 +35,10 @@ export function getR2BucketName(): string {
   return getEnv("CLOUDFLARE_R2_BUCKET_NAME");
 }
 
+export function getR2PublicBaseUrl(): string {
+  return getEnv("R2_PUBLIC_BASE_URL").replace(/\/+$/, "");
+}
+
 function sanitizeFileName(fileName: string): string {
   return fileName
     .trim()
@@ -46,7 +50,7 @@ function sanitizeFileName(fileName: string): string {
 
 export function buildR2Key(params: {
   userId: string;
-  kind: "face" | "reference" | "edit-source" | "result";
+  kind: "face" | "reference" | "edit-source" | "result" | "showcase-cover";
   fileName: string;
   orderId?: string;
 }) {
@@ -58,7 +62,15 @@ export function buildR2Key(params: {
     return `users/${params.userId}/orders/${params.orderId}/result/${stamp}-${random}-${safeName}`;
   }
 
+  if (params.kind === "showcase-cover") {
+    return `users/${params.userId}/showcase-cover/${stamp}-${random}-${safeName}`;
+  }
+
   return `users/${params.userId}/${params.kind}/${stamp}-${random}-${safeName}`;
+}
+
+export function buildPublicR2Url(key: string): string {
+  return `${getR2PublicBaseUrl()}/${key}`;
 }
 
 export async function getSignedUploadUrl(params: {
