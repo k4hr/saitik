@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth";
-import { buildR2Key, getSignedUploadUrl } from "@/lib/r2";
+import {
+  buildPublicR2Url,
+  buildR2Key,
+  getSignedUploadUrl,
+} from "@/lib/r2";
 import {
   getRequestIp,
   getThrottleState,
   registerThrottleFailure,
 } from "@/lib/auth-throttle";
 
-type UploadKind = "face" | "reference" | "edit-source";
+type UploadKind = "face" | "reference" | "edit-source" | "showcase-cover";
 
 type RequestBody = {
   fileName?: string;
@@ -27,6 +31,7 @@ const MAX_FILE_SIZE_BY_KIND: Record<UploadKind, number> = {
   face: 10 * 1024 * 1024,
   reference: 15 * 1024 * 1024,
   "edit-source": 15 * 1024 * 1024,
+  "showcase-cover": 15 * 1024 * 1024,
 };
 
 const UPLOAD_SIGN_MAX_ATTEMPTS_IP = 40;
@@ -98,7 +103,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!["face", "reference", "edit-source"].includes(kind)) {
+    if (!["face", "reference", "edit-source", "showcase-cover"].includes(kind)) {
       await Promise.all([
         registerThrottleFailure({
           scope: "upload-sign-ip",
@@ -156,6 +161,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       signedUrl,
       key,
+      publicUrl: kind === "showcase-cover" ? buildPublicR2Url(key) : null,
       maxFileSize: MAX_FILE_SIZE_BY_KIND[kind],
     });
   } catch (error) {
