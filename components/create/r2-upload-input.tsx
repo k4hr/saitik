@@ -26,6 +26,22 @@ type R2UploadInputProps = {
   maxFiles?: number;
 };
 
+const MAX_FILE_SIZE_BY_KIND: Record<UploadKind, number> = {
+  face: 10 * 1024 * 1024,
+  reference: 15 * 1024 * 1024,
+  "edit-source": 15 * 1024 * 1024,
+};
+
+const ALLOWED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
+function formatMegabytes(bytes: number): string {
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+}
+
 export default function R2UploadInput({
   title,
   description,
@@ -48,6 +64,7 @@ export default function R2UploadInput({
       body: JSON.stringify({
         fileName: file.name,
         contentType: file.type,
+        fileSize: file.size,
         kind,
       }),
     });
@@ -84,6 +101,22 @@ export default function R2UploadInput({
     };
   }
 
+  function validateIncomingFile(file: File): string | null {
+    if (!ALLOWED_TYPES.has(file.type)) {
+      return "Разрешены только JPG, PNG, WEBP";
+    }
+
+    const maxFileSize = MAX_FILE_SIZE_BY_KIND[kind];
+
+    if (file.size > maxFileSize) {
+      return kind === "face"
+        ? "Фото лица слишком большое. Максимум 10 MB."
+        : "Файл слишком большой. Максимум 15 MB.";
+    }
+
+    return null;
+  }
+
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
 
@@ -91,10 +124,22 @@ export default function R2UploadInput({
     setIsUploading(true);
 
     try {
-      const incoming = Array.from(files).slice(0, maxFiles);
+      const availableSlots = Math.max(maxFiles - value.length, 0);
+
+      if (availableSlots <= 0) {
+        throw new Error(`Можно загрузить максимум ${maxFiles} файлов`);
+      }
+
+      const incoming = Array.from(files).slice(0, availableSlots);
       const uploaded: UploadedClientAsset[] = [];
 
       for (const file of incoming) {
+        const validationError = validateIncomingFile(file);
+
+        if (validationError) {
+          throw new Error(validationError);
+        }
+
         uploaded.push(await uploadSingleFile(file));
       }
 
@@ -116,6 +161,11 @@ export default function R2UploadInput({
     const next = value.filter((_, itemIndex) => itemIndex !== index);
     onChange(next);
   }
+
+  const limitText =
+    kind === "face"
+      ? "JPG, PNG, WEBP. До 10 MB."
+      : "JPG, PNG, WEBP. До 15 MB.";
 
   return (
     <Card className="overflow-hidden">
@@ -140,7 +190,7 @@ export default function R2UploadInput({
             </h3>
 
             <p className="mt-2 max-w-xl text-sm leading-7 text-[#7e6f63]">
-              JPG, PNG, WEBP. Загрузка идёт сразу в Cloudflare R2.
+              {limitText} Загрузка идёт сразу в Cloudflare R2.
             </p>
 
             <div className="mt-5">
@@ -191,7 +241,7 @@ export default function R2UploadInput({
                       {item.fileName}
                     </p>
                     <p className="mt-1 text-xs text-[#8f7f73]">
-                      {(item.fileSize / 1024 / 1024).toFixed(2)} MB
+                      {formatMegabytes(item.fileSize)}
                     </p>
                   </div>
 
