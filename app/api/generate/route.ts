@@ -59,7 +59,8 @@ type GenerateBody = {
 const MAX_FACE_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_REFERENCE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_FACE_FILES = 10;
-const REFERENCE_GENERATION_PRICE_CREDITS = 0;
+const REFERENCE_GENERATION_PRICE_CREDITS = 15;
+const EDIT_GENERATION_PRICE_CREDITS = 15;
 
 const GENERATE_MAX_ATTEMPTS_IP = 12;
 const GENERATE_MAX_ATTEMPTS_USER = 8;
@@ -238,13 +239,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (mode === "EDIT" && !body.sourceAsset?.storageKey) {
-      return NextResponse.json(
-        { error: "Нужно загрузить исходную картинку для редактирования" },
-        { status: 400 },
-      );
-    }
-
     if (mode === "EDIT" && !body.prompt?.trim()) {
       return NextResponse.json(
         { error: "Для свободного редактирования нужен промпт" },
@@ -336,7 +330,9 @@ export async function POST(req: NextRequest) {
         ? Math.max(showcaseItem?.generationPriceCredits ?? 0, 0)
         : mode === "REFERENCE"
           ? REFERENCE_GENERATION_PRICE_CREDITS
-          : 0;
+          : mode === "EDIT"
+            ? EDIT_GENERATION_PRICE_CREDITS
+            : 0;
 
     const assetsToCreate: Prisma.OrderAssetCreateWithoutOrderInput[] = [];
 
@@ -420,7 +416,9 @@ export async function POST(req: NextRequest) {
             description:
               mode === "REFERENCE"
                 ? "Списание за генерацию по референсу"
-                : `Списание за генерацию: ${showcaseItem?.title || "Готовый стиль"}`,
+                : mode === "EDIT"
+                  ? "Списание за свободную генерацию"
+                  : `Списание за генерацию: ${showcaseItem?.title || "Готовый стиль"}`,
           },
         });
       }
@@ -480,18 +478,15 @@ export async function POST(req: NextRequest) {
         prompt: body.prompt!.trim(),
       });
 
-      const editBase = await buildOpenAiInputImage(
-        body.sourceAsset!,
-        "edit-source.png",
-      );
-
-      const faceReferenceImages = await Promise.all(
-        sortedFaceAssets.map((asset, index) =>
-          buildOpenAiInputImage(asset, `face-${index + 1}.png`),
-        ),
-      );
-
-      inputImages = [editBase, ...faceReferenceImages];
+      if (body.sourceAsset?.storageKey) {
+        const editBase = await buildOpenAiInputImage(
+          body.sourceAsset,
+          "edit-source.png",
+        );
+        inputImages = [editBase];
+      } else {
+        inputImages = [];
+      }
     }
 
     const generatedImageBuffer = await editImageWithOpenAi({
