@@ -65,8 +65,7 @@ export default function DashboardOrders({
             Мои генерации
           </h1>
           <p className="mt-5 text-base leading-8 text-[#726458] sm:text-lg">
-            Здесь пользователь видит свои заказы, готовые картинки, кнопки скачать
-            и поделиться ссылкой на сайт.
+            Посмотрите Ваши генерации.
           </p>
         </div>
 
