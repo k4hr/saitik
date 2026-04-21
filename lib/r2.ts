@@ -1,5 +1,6 @@
 import {
   GetObjectCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -143,5 +144,22 @@ export async function readObjectFromR2(key: string) {
     bytes,
     contentType: response.ContentType || "application/octet-stream",
     contentDisposition: response.ContentDisposition || undefined,
+  };
+}
+
+export async function headObjectInR2(key: string) {
+  const client = getR2Client();
+  const bucket = getR2BucketName();
+
+  const response = await client.send(
+    new HeadObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    }),
+  );
+
+  return {
+    contentLength: Number(response.ContentLength || 0),
+    contentType: response.ContentType || "application/octet-stream",
   };
 }
