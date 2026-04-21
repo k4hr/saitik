@@ -115,17 +115,59 @@ function uint8ToArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   ) as ArrayBuffer;
 }
 
-export async function editImageWithOpenAi(params: {
+async function generateImageWithOpenAi(params: {
   prompt: string;
-  inputImages: OpenAiInputImage[];
   size?: OpenAiImageSize;
 }) {
   const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1.5";
   const size = params.size || process.env.OPENAI_IMAGE_SIZE || "1024x1536";
 
-  if (!params.inputImages.length) {
-    throw new Error("OpenAI image edit requires at least one input image");
+  const response = await fetch("https://api.openai.com/v1/images/generations", {
+    method: "POST",
+    headers: getOpenAiHeaders("application/json"),
+    body: JSON.stringify({
+      model,
+      prompt: params.prompt,
+      size,
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`OpenAI image generation error: ${response.status} ${text}`);
   }
+
+  const payload = (await response.json()) as {
+    data?: Array<{
+      b64_json?: string;
+    }>;
+  };
+
+  const base64 = payload.data?.[0]?.b64_json;
+
+  if (!base64) {
+    throw new Error("OpenAI image generation returned empty image");
+  }
+
+  return Buffer.from(base64, "base64");
+}
+
+export async function editImageWithOpenAi(params: {
+  prompt: string;
+  inputImages?: OpenAiInputImage[];
+  size?: OpenAiImageSize;
+}) {
+  const inputImages = params.inputImages || [];
+
+  if (inputImages.length === 0) {
+    return generateImageWithOpenAi({
+      prompt: params.prompt,
+      size: params.size,
+    });
+  }
+
+  const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1.5";
+  const size = params.size || process.env.OPENAI_IMAGE_SIZE || "1024x1536";
 
   const formData = new FormData();
 
@@ -133,7 +175,7 @@ export async function editImageWithOpenAi(params: {
   formData.append("prompt", params.prompt);
   formData.append("size", size);
 
-  for (const image of params.inputImages) {
+  for (const image of inputImages) {
     const blob = new Blob([uint8ToArrayBuffer(image.bytes)], {
       type: image.mimeType || "image/png",
     });
