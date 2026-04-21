@@ -44,6 +44,45 @@ Do not add explanations.
 Do not add markdown.
 `.trim();
 
+export const REFERENCE_EXTRA_PROMPT = `
+Use the uploaded face photo(s) as the only identity source for the main subject.
+
+Preserve the exact same real person with strong identity fidelity and stable recognizability. The generated subject must remain clearly the same person as in the uploaded face photo(s), not a similar-looking person, not a beautified version, and not a newly invented face.
+
+Use the uploaded reference image only as the source for visual style and scene direction: clothing, pose, composition, camera framing, camera distance, angle, lighting, background, setting, mood, color palette, and overall photographic feel.
+
+Identity must come from the uploaded face photo(s).
+Style and scene must come from the uploaded reference image.
+
+Keep the person's facial identity consistent and believable:
+preserve facial structure, face shape, forehead, brows, eyes, nose, lips, cheekbones, jawline, chin, skin tone, natural proportions, and distinctive identity markers.
+Keep the person recognizable even if hairstyle, makeup, pose, wardrobe, lighting, or background differ from the original face photo.
+
+Do not replace the person.
+Do not reinterpret the face.
+Do not beautify, idealize, glamourize, genericize, or over-correct facial features.
+Do not make the person more symmetrical, more perfect, younger, older, or more model-like.
+Do not drift away from the real identity.
+
+The final image must look like a real photograph of this exact same person placed into the scene and style of the uploaded reference image.
+
+Prioritize photorealism and realism:
+natural skin texture, real pores, natural asymmetry, realistic eyes, realistic hair strands, believable hands, believable fabric texture, believable lighting, believable shadows, believable reflections, natural depth of field, and true photographic rendering.
+
+The result must look premium and realistic, but still human and natural.
+No beauty-filter effect.
+No plastic skin.
+No waxy skin.
+No doll-like face.
+No overprocessed portrait look.
+No CGI look.
+No illustration look.
+No fake AI-generated finish.
+
+Avoid:
+different person, lookalike, weak resemblance, identity drift, altered facial anatomy, changed eye shape, changed brows, changed nose, changed lips, changed jawline, changed proportions, beautified face, idealized face, generic model face, doll face, plastic skin, wax skin, cgi, 3d render, illustration, painting, anime, cartoon, fake photo, over-smoothed skin, beauty filter, unnatural face, dead eyes, bad anatomy, distorted hands, extra fingers, unrealistic lighting, fake shadows, fake background
+`.trim();
+
 export function buildReadyStylePrompt(params: {
   presetPromptTemplate?: string | null;
   selectedFormat?: string | null;
@@ -64,12 +103,15 @@ export function buildReferencePrompt(params: {
   selectedMood?: string | null;
   notes?: string | null;
 }): string {
-  return buildStylePromptBlock({
-    analyzedReferencePrompt: params.analyzedReferencePrompt,
-    selectedFormat: params.selectedFormat,
-    selectedMood: params.selectedMood,
-    notes: params.notes,
-  });
+  return joinBlocks(
+    REFERENCE_EXTRA_PROMPT,
+    buildStylePromptBlock({
+      analyzedReferencePrompt: params.analyzedReferencePrompt,
+      selectedFormat: params.selectedFormat,
+      selectedMood: params.selectedMood,
+      notes: params.notes,
+    }),
+  );
 }
 
 export function buildEditPrompt(params: {
