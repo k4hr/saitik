@@ -59,6 +59,7 @@ type GenerateBody = {
 const MAX_FACE_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_REFERENCE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_FACE_FILES = 10;
+const REFERENCE_GENERATION_PRICE_CREDITS = 15;
 
 const GENERATE_MAX_ATTEMPTS_IP = 12;
 const GENERATE_MAX_ATTEMPTS_USER = 8;
@@ -333,7 +334,9 @@ export async function POST(req: NextRequest) {
     const creditsToCharge =
       mode === "READY"
         ? Math.max(showcaseItem?.generationPriceCredits ?? 0, 0)
-        : 0;
+        : mode === "REFERENCE"
+          ? REFERENCE_GENERATION_PRICE_CREDITS
+          : 0;
 
     const assetsToCreate: Prisma.OrderAssetCreateWithoutOrderInput[] = [];
 
@@ -414,7 +417,10 @@ export async function POST(req: NextRequest) {
             type: CreditTransactionType.SPEND,
             amount: -creditsToCharge,
             balanceAfter,
-            description: `Списание за генерацию: ${showcaseItem?.title || "Готовый стиль"}`,
+            description:
+              mode === "REFERENCE"
+                ? "Списание за генерацию по референсу"
+                : `Списание за генерацию: ${showcaseItem?.title || "Готовый стиль"}`,
           },
         });
       }
