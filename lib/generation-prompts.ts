@@ -7,7 +7,7 @@ function joinBlocks(...blocks: Array<string | null | undefined>): string {
 }
 
 const FACE_LOCK_SINGLE = `
-Use the uploaded face photo as the only identity source for the main subject.
+Use the uploaded face photo(s) as the only identity source for the main subject.
 Preserve the exact same real person with high identity fidelity.
 Keep facial structure unchanged: eye shape, brows, nose, lips, cheekbones, jawline, forehead, skin tone, and natural facial proportions.
 Do not beautify, idealize, genericize, replace, or reinterpret the face.
@@ -19,23 +19,26 @@ different person, lookalike, identity drift, altered facial anatomy, changed eye
 
 function buildFaceLockMulti(faceCount: number): string {
   const lines = [
-    `Use the uploaded face photos as the only identity sources for the ${faceCount} main people in the image.`,
-    `Preserve each person as the exact same real person from their corresponding uploaded reference.`,
+    `Use the uploaded face photo groups as the only identity sources for the ${faceCount} main people in the image.`,
+    `Each uploaded face group corresponds to one exact real person.`,
     "",
     "Identity mapping:",
-    "- main person 1 must match uploaded face 1",
-    "- main person 2 must match uploaded face 2",
+    "- main person 1 must match uploaded face group 1",
+    "- main person 2 must match uploaded face group 2",
   ];
 
   if (faceCount >= 3) {
-    lines.push("- main person 3 must match uploaded face 3");
+    lines.push("- main person 3 must match uploaded face group 3");
   }
 
   if (faceCount >= 4) {
-    lines.push("- main person 4 must match uploaded face 4");
+    lines.push("- main person 4 must match uploaded face group 4");
   }
 
   lines.push(
+    "",
+    "The uploaded face groups are provided in order.",
+    "All images belonging to the same uploaded face group describe the same person from different angles or expressions.",
     "",
     "Do not swap identities.",
     "Do not merge identities.",
@@ -55,10 +58,7 @@ identity swap, merged faces, blended faces, averaged face, duplicated identity, 
 
 function buildIdentityWrapper(faceCount: number): string {
   if (faceCount <= 1) {
-    return joinBlocks(
-      FACE_LOCK_SINGLE,
-      `Avoid: ${NEGATIVE_SINGLE}`,
-    );
+    return joinBlocks(FACE_LOCK_SINGLE, `Avoid: ${NEGATIVE_SINGLE}`);
   }
 
   const normalizedFaceCount = Math.min(Math.max(faceCount, 2), 4);
@@ -187,8 +187,5 @@ export function buildEditPrompt(params: {
 }): string {
   const faceCount = Math.max(1, params.faceCount || 1);
 
-  return joinBlocks(
-    buildIdentityWrapper(faceCount),
-    clean(params.prompt),
-  );
+  return joinBlocks(buildIdentityWrapper(faceCount), clean(params.prompt));
 }
