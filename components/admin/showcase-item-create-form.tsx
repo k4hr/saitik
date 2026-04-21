@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ShowcaseKind } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { ImagePlus, LoaderCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,14 @@ type ShowcaseItemCreateFormProps = {
   suggestedSortOrder: number;
 };
 
+const ALLOWED_COVER_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
+const MAX_COVER_FILE_SIZE = 15 * 1024 * 1024;
+
 export default function ShowcaseItemCreateForm({
   kind,
   categories,
@@ -36,6 +45,7 @@ export default function ShowcaseItemCreateForm({
   suggestedSortOrder,
 }: ShowcaseItemCreateFormProps) {
   const router = useRouter();
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -44,11 +54,13 @@ export default function ShowcaseItemCreateForm({
   const [promptTemplate, setPromptTemplate] = useState("");
   const [generationPriceCredits, setGenerationPriceCredits] = useState("10");
   const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
   const [subcategoryId, setSubcategoryId] = useState("");
   const [sortOrder, setSortOrder] = useState(String(suggestedSortOrder));
   const [isActive, setIsActive] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [successText, setSuccessText] = useState("");
 
@@ -61,6 +73,72 @@ export default function ShowcaseItemCreateForm({
   }, [subcategories, categoryId]);
 
   const isReady = kind === ShowcaseKind.READY;
+
+  async function handleCoverUpload(file: File) {
+    if (!ALLOWED_COVER_TYPES.has(file.type)) {
+      setErrorText("Для обложки разрешены только JPG, PNG, WEBP");
+      return;
+    }
+
+    if (file.size > MAX_COVER_FILE_SIZE) {
+      setErrorText("Обложка слишком большая. Максимум 15 MB.");
+      return;
+    }
+
+    setErrorText("");
+    setIsUploadingCover(true);
+
+    try {
+      const signResponse = await fetch("/api/uploads/sign", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          contentType: file.type,
+          fileSize: file.size,
+          kind: "showcase-cover",
+        }),
+      });
+
+      const signData = (await signResponse.json()) as {
+        ok?: boolean;
+        error?: string;
+        signedUrl?: string;
+        publicUrl?: string | null;
+      };
+
+      if (!signResponse.ok || !signData.signedUrl || !signData.publicUrl) {
+        throw new Error(signData.error || "Не удалось подготовить загрузку обложки");
+      }
+
+      const uploadResponse = await fetch(signData.signedUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type,
+        },
+        body: file,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Не удалось загрузить обложку");
+      }
+
+      setCoverImageUrl(signData.publicUrl);
+      setCoverPreviewUrl(URL.createObjectURL(file));
+    } catch (error) {
+      setErrorText(
+        error instanceof Error ? error.message : "Ошибка загрузки обложки",
+      );
+    } finally {
+      setIsUploadingCover(false);
+
+      if (coverInputRef.current) {
+        coverInputRef.current.value = "";
+      }
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -109,6 +187,7 @@ export default function ShowcaseItemCreateForm({
       setPromptTemplate("");
       setGenerationPriceCredits("10");
       setCoverImageUrl("");
+      setCoverPreviewUrl("");
       setSubcategoryId("");
       setSortOrder(String(Number(sortOrder || 0) + 10));
       setIsActive(true);
@@ -214,20 +293,84 @@ export default function ShowcaseItemCreateForm({
         </>
       ) : null}
 
-      <div>
-        <label
-          htmlFor="showcase-cover"
-          className="mb-2 block text-sm font-medium text-[#6f6156]"
-        >
-          URL обложки
-        </label>
-        <Input
-          id="showcase-cover"
-          value={coverImageUrl}
-          onChange={(event) => setCoverImageUrl(event.target.value)}
-          placeholder="/demo/styles/old-money-portrait.png"
-          autoComplete="off"
-        />
+      <div className="space-y-3">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-[#6f6156]">
+            Обложка
+          </label>
+
+          <div className="rounded-[24px] border border-dashed border-[#dfd1c4] bg-[#fffaf6] p-5">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) {
+                      void handleCoverUpload(file);
+                    }
+                  }}
+                />
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={isUploadingCover}
+                >
+                  {isUploadingCover ? (
+                    <>
+                      <LoaderCircle className="size-4.5 animate-spin" />
+                      Загрузка...
+                    </>
+                  ) : (
+                    <>
+                      <ImagePlus className="size-4.5" />
+                      Загрузить PNG / JPG
+                    </>
+                  )}
+                </Button>
+
+                <p className="text-xs text-[#8f7f73]">
+                  Разрешены JPG, PNG, WEBP. Максимум 15 MB.
+                </p>
+              </div>
+
+              {(coverPreviewUrl || coverImageUrl) ? (
+                <div className="overflow-hidden rounded-[20px] border border-[#eadfd6] bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={coverPreviewUrl || coverImageUrl}
+                    alt="Preview"
+                    className="aspect-[0.82] w-full object-cover"
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="showcase-cover"
+            className="mb-2 block text-sm font-medium text-[#6f6156]"
+          >
+            URL обложки
+          </label>
+          <Input
+            id="showcase-cover"
+            value={coverImageUrl}
+            onChange={(event) => {
+              setCoverImageUrl(event.target.value);
+              setCoverPreviewUrl("");
+            }}
+            placeholder="https://... или /demo/styles/old-money-portrait.png"
+            autoComplete="off"
+          />
+        </div>
       </div>
 
       <div>
@@ -276,61 +419,48 @@ export default function ShowcaseItemCreateForm({
         </select>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-        <div>
-          <label
-            htmlFor="showcase-sort-order"
-            className="mb-2 block text-sm font-medium text-[#6f6156]"
-          >
-            Порядок сортировки
-          </label>
-          <Input
-            id="showcase-sort-order"
-            type="number"
-            inputMode="numeric"
-            value={sortOrder}
-            onChange={(event) => setSortOrder(event.target.value)}
-            placeholder="10"
-          />
-        </div>
-
-        <div className="flex items-end">
-          <label className="flex h-12 cursor-pointer items-center gap-3 rounded-2xl border border-[#dfd1c4] bg-white px-4 text-sm text-[#3d3128] shadow-[0_2px_10px_rgba(88,62,40,0.03)]">
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(event) => setIsActive(event.target.checked)}
-              className="size-4 rounded border-[#ccb6a3] accent-[#bc9670]"
-            />
-            Показывать карточку
-          </label>
-        </div>
+      <div>
+        <label
+          htmlFor="showcase-sort-order"
+          className="mb-2 block text-sm font-medium text-[#6f6156]"
+        >
+          Порядок сортировки
+        </label>
+        <Input
+          id="showcase-sort-order"
+          type="number"
+          inputMode="numeric"
+          value={sortOrder}
+          onChange={(event) => setSortOrder(event.target.value)}
+          placeholder="10"
+        />
       </div>
 
-      {previewSlug ? (
-        <div className="rounded-[18px] border border-[#eadfd6] bg-[#fffaf6] px-4 py-3 text-sm text-[#6f6156]">
-          Предварительный slug:{" "}
-          <span className="font-medium text-[#3d3128]">{previewSlug}</span>
-        </div>
-      ) : null}
+      <label className="flex items-center gap-3 rounded-2xl border border-[#eadfd6] bg-[#fffaf6] px-4 py-3">
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={(event) => setIsActive(event.target.checked)}
+          className="size-4 rounded border-[#d9c8bb]"
+        />
+        <span className="text-sm text-[#5f5248]">Карточка активна</span>
+      </label>
 
       {errorText ? (
-        <div className="rounded-[18px] border border-[#e7c7bf] bg-[#fff6f3] px-4 py-3 text-sm text-[#8b4f43]">
+        <div className="rounded-2xl border border-[#efc7c1] bg-[#fff5f3] px-4 py-3 text-sm text-[#9e5145]">
           {errorText}
         </div>
       ) : null}
 
       {successText ? (
-        <div className="rounded-[18px] border border-[#d8d7c7] bg-[#fafaf4] px-4 py-3 text-sm text-[#58624c]">
+        <div className="rounded-2xl border border-[#d7e7cf] bg-[#f4fbef] px-4 py-3 text-sm text-[#5d7a4b]">
           {successText}
         </div>
       ) : null}
 
-      <div className="flex flex-wrap gap-3">
-        <Button type="submit" size="lg" disabled={isSubmitting}>
-          {isSubmitting ? "Создаём..." : "Добавить карточку"}
-        </Button>
-      </div>
+      <Button type="submit" size="xl" className="w-full" disabled={isSubmitting || isUploadingCover}>
+        {isSubmitting ? "Сохраняем..." : "Создать карточку"}
+      </Button>
     </form>
   );
 }
