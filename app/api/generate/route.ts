@@ -19,9 +19,15 @@ import { describeReferenceImage, editImageWithOpenAi } from "@/lib/openai";
 import {
   buildR2Key,
   getSignedReadUrl,
+  headObjectInR2,
   readObjectFromR2,
   uploadBufferToR2,
 } from "@/lib/r2";
+import {
+  getRequestIp,
+  getThrottleState,
+  registerThrottleFailure,
+} from "@/lib/auth-throttle";
 
 type UploadedAssetInput = {
   storageKey: string;
@@ -45,6 +51,15 @@ type GenerateBody = {
   referenceAsset?: UploadedAssetInput | null;
   sourceAsset?: UploadedAssetInput | null;
 };
+
+const MAX_FACE_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_REFERENCE_FILE_SIZE = 15 * 1024 * 1024;
+const MAX_FACE_FILES = 10;
+
+const GENERATE_MAX_ATTEMPTS_IP = 12;
+const GENERATE_MAX_ATTEMPTS_USER = 8;
+const GENERATE_WINDOW_MS = 10 * 60 * 1000;
+const GENERATE_BLOCK_MS = 20 * 60 * 1000;
 
 function buildAssetCreate(
   type: AssetType,
@@ -81,6 +96,42 @@ function assertUserOwnsStorageKey(storageKey: string, userId: string) {
   }
 }
 
+function assertClientDeclaredFileSize(
+  item: UploadedAssetInput,
+  maxBytes: number,
+  label: string,
+) {
+  const fileSize = Number(item.fileSize ?? 0);
+
+  if (!Number.isFinite(fileSize) || fileSize <= 0) {
+    throw new Error(`Некорректный размер файла: ${label}`);
+  }
+
+  if (fileSize > maxBytes) {
+    throw new Error(
+      `${label} слишком большой. Максимум ${Math.floor(maxBytes / 1024 / 1024)} MB.`,
+    );
+  }
+}
+
+async function assertActualR2ObjectSize(
+  storageKey: string,
+  maxBytes: number,
+  label: string,
+) {
+  const meta = await headObjectInR2(storageKey);
+
+  if (!meta.contentLength || meta.contentLength <= 0) {
+    throw new Error(`Не удалось определить размер файла: ${label}`);
+  }
+
+  if (meta.contentLength > maxBytes) {
+    throw new Error(
+      `${label} слишком большой. Максимум ${Math.floor(maxBytes / 1024 / 1024)} MB.`,
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   let orderId: string | null = null;
   let chargedCredits = 0;
@@ -95,6 +146,32 @@ export async function POST(req: NextRequest) {
 
     sessionUserId = session.userId;
 
+    const ip = getRequestIp(req.headers);
+
+    const [ipState, userState] = await Promise.all([
+      getThrottleState({
+        scope: "generate-ip",
+        key: ip,
+        maxAttempts: GENERATE_MAX_ATTEMPTS_IP,
+        windowMs: GENERATE_WINDOW_MS,
+        blockMs: GENERATE_BLOCK_MS,
+      }),
+      getThrottleState({
+        scope: "generate-user",
+        key: session.userId,
+        maxAttempts: GENERATE_MAX_ATTEMPTS_USER,
+        windowMs: GENERATE_WINDOW_MS,
+        blockMs: GENERATE_BLOCK_MS,
+      }),
+    ]);
+
+    if (ipState.isBlocked || userState.isBlocked) {
+      return NextResponse.json(
+        { error: "Слишком много генераций. Попробуйте позже." },
+        { status: 429 },
+      );
+    }
+
     const body = (await req.json()) as GenerateBody;
     const mode = (body.mode || "READY") as GenerationMode;
 
@@ -108,6 +185,13 @@ export async function POST(req: NextRequest) {
     if (mode !== "EDIT" && (!body.faceAssets || body.faceAssets.length === 0)) {
       return NextResponse.json(
         { error: "Нужно загрузить хотя бы одно фото лица" },
+        { status: 400 },
+      );
+    }
+
+    if ((body.faceAssets || []).length > MAX_FACE_FILES) {
+      return NextResponse.json(
+        { error: `Можно загрузить максимум ${MAX_FACE_FILES} фото лица` },
         { status: 400 },
       );
     }
@@ -137,15 +221,50 @@ export async function POST(req: NextRequest) {
 
     for (const asset of faceAssets) {
       assertUserOwnsStorageKey(asset.storageKey, session.userId);
+      assertClientDeclaredFileSize(asset, MAX_FACE_FILE_SIZE, "Фото лица");
     }
 
     if (body.referenceAsset?.storageKey) {
       assertUserOwnsStorageKey(body.referenceAsset.storageKey, session.userId);
+      assertClientDeclaredFileSize(
+        body.referenceAsset,
+        MAX_REFERENCE_FILE_SIZE,
+        "Референс",
+      );
     }
 
     if (body.sourceAsset?.storageKey) {
       assertUserOwnsStorageKey(body.sourceAsset.storageKey, session.userId);
+      assertClientDeclaredFileSize(
+        body.sourceAsset,
+        MAX_REFERENCE_FILE_SIZE,
+        "Исходная картинка",
+      );
     }
+
+    await Promise.all([
+      ...faceAssets.map((asset) =>
+        assertActualR2ObjectSize(asset.storageKey, MAX_FACE_FILE_SIZE, "Фото лица"),
+      ),
+      ...(body.referenceAsset?.storageKey
+        ? [
+            assertActualR2ObjectSize(
+              body.referenceAsset.storageKey,
+              MAX_REFERENCE_FILE_SIZE,
+              "Референс",
+            ),
+          ]
+        : []),
+      ...(body.sourceAsset?.storageKey
+        ? [
+            assertActualR2ObjectSize(
+              body.sourceAsset.storageKey,
+              MAX_REFERENCE_FILE_SIZE,
+              "Исходная картинка",
+            ),
+          ]
+        : []),
+    ]);
 
     const showcaseItem =
       body.showcaseItemId && mode === "READY"
@@ -374,6 +493,27 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("generate error", error);
+
+    if (sessionUserId) {
+      const ip = getRequestIp(req.headers);
+
+      await Promise.all([
+        registerThrottleFailure({
+          scope: "generate-ip",
+          key: ip,
+          maxAttempts: GENERATE_MAX_ATTEMPTS_IP,
+          windowMs: GENERATE_WINDOW_MS,
+          blockMs: GENERATE_BLOCK_MS,
+        }),
+        registerThrottleFailure({
+          scope: "generate-user",
+          key: sessionUserId,
+          maxAttempts: GENERATE_MAX_ATTEMPTS_USER,
+          windowMs: GENERATE_WINDOW_MS,
+          blockMs: GENERATE_BLOCK_MS,
+        }),
+      ]).catch(() => undefined);
+    }
 
     if (orderId) {
       await prisma.order
