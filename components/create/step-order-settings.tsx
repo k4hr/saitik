@@ -47,7 +47,7 @@ export default function StepOrderSettings({
             value={notes}
             onChange={(event) => onNotesChange(event.target.value)}
             className="min-h-[150px]"
-            placeholder="Например: хочу мягкий свет, дорогой чистый образ, натуральное лицо, без сильной ретуши."
+            placeholder="Используйте когда на изображении есть какая либо числительная или буквенная информация. Например: на торте свечи 28."
           />
         </div>
       </CardContent>
