@@ -6,12 +6,22 @@ import {
   hashPassword,
   setSessionCookie,
 } from "@/lib/auth";
+import {
+  clearThrottle,
+  getRequestIp,
+  getThrottleState,
+  registerThrottleFailure,
+} from "@/lib/auth-throttle";
 
 type RegisterBody = {
   email?: string;
   login?: string;
   password?: string;
 };
+
+const REGISTER_MAX_ATTEMPTS_IP = 5;
+const REGISTER_WINDOW_MS = 60 * 60 * 1000;
+const REGISTER_BLOCK_MS = 60 * 60 * 1000;
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -28,11 +38,27 @@ export async function POST(req: NextRequest) {
     const email = body.email ? normalizeEmail(body.email) : "";
     const login = body.login ? normalizeLogin(body.login) : "";
     const password = body.password ?? "";
+    const ip = getRequestIp(req.headers);
 
     if (!email || !login || !password) {
       return NextResponse.json(
         { error: "email, login и password обязательны" },
         { status: 400 },
+      );
+    }
+
+    const ipState = await getThrottleState({
+      scope: "register-ip",
+      key: ip,
+      maxAttempts: REGISTER_MAX_ATTEMPTS_IP,
+      windowMs: REGISTER_WINDOW_MS,
+      blockMs: REGISTER_BLOCK_MS,
+    });
+
+    if (ipState.isBlocked) {
+      return NextResponse.json(
+        { error: "Слишком много попыток регистрации. Попробуйте позже." },
+        { status: 429 },
       );
     }
 
@@ -77,6 +103,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingUser) {
+      await registerThrottleFailure({
+        scope: "register-ip",
+        key: ip,
+        maxAttempts: REGISTER_MAX_ATTEMPTS_IP,
+        windowMs: REGISTER_WINDOW_MS,
+        blockMs: REGISTER_BLOCK_MS,
+      });
+
       return NextResponse.json(
         { error: "Пользователь с таким email или login уже существует" },
         { status: 409 },
@@ -118,6 +152,11 @@ export async function POST(req: NextRequest) {
       });
 
       return createdUser;
+    });
+
+    await clearThrottle({
+      scope: "register-ip",
+      key: ip,
     });
 
     const token = await createSessionToken({
