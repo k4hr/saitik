@@ -4,6 +4,7 @@ import SiteHeader from "@/components/layout/site-header";
 import SiteFooter from "@/components/layout/site-footer";
 import ReferenceCreateShell from "@/components/create/reference-create-shell";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export default async function ReferencesPage() {
   const session = await getSession();
@@ -12,10 +13,21 @@ export default async function ReferencesPage() {
     redirect("/auth/sign-in");
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: {
+      creditBalance: true,
+    },
+  });
+
+  if (!user) {
+    redirect("/auth/sign-in");
+  }
+
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
       <SiteHeader />
-      <ReferenceCreateShell />
+      <ReferenceCreateShell currentBalance={user.creditBalance} />
       <SiteFooter />
     </main>
   );
