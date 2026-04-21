@@ -45,6 +45,12 @@ export type OpenAiImageSize =
   | "1536x1024"
   | "auto";
 
+export type OpenAiInputImage = {
+  bytes: Uint8Array;
+  mimeType: string;
+  fileName: string;
+};
+
 export async function describeReferenceImage(params: {
   imageUrl: string;
   masterPrompt: string;
@@ -102,30 +108,38 @@ export async function describeReferenceImage(params: {
   return text;
 }
 
+function uint8ToArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  return bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
+}
+
 export async function editImageWithOpenAi(params: {
   prompt: string;
-  sourceImageBytes: Uint8Array;
-  sourceMimeType: string;
-  sourceFileName: string;
+  inputImages: OpenAiInputImage[];
   size?: OpenAiImageSize;
 }) {
   const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1.5";
   const size = params.size || process.env.OPENAI_IMAGE_SIZE || "1024x1536";
 
-  const formData = new FormData();
-  const arrayBuffer = params.sourceImageBytes.buffer.slice(
-    params.sourceImageBytes.byteOffset,
-    params.sourceImageBytes.byteOffset + params.sourceImageBytes.byteLength,
-  ) as ArrayBuffer;
+  if (!params.inputImages.length) {
+    throw new Error("OpenAI image edit requires at least one input image");
+  }
 
-  const blob = new Blob([arrayBuffer], {
-    type: params.sourceMimeType || "image/png",
-  });
+  const formData = new FormData();
 
   formData.append("model", model);
   formData.append("prompt", params.prompt);
   formData.append("size", size);
-  formData.append("image", blob, params.sourceFileName || "source.png");
+
+  for (const image of params.inputImages) {
+    const blob = new Blob([uint8ToArrayBuffer(image.bytes)], {
+      type: image.mimeType || "image/png",
+    });
+
+    formData.append("image[]", blob, image.fileName || "source.png");
+  }
 
   const response = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
