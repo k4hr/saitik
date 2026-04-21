@@ -5,9 +5,11 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 type TopUpBody = {
+  targetUserId?: string;
   amountRub?: number;
   credits?: number;
   provider?: string;
+  description?: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -15,35 +17,49 @@ export async function POST(req: NextRequest) {
     const session = await getSession();
 
     if (!session) {
+      return NextResponse.json({ error: "Неавторизован" }, { status: 401 });
+    }
+
+    if (session.role !== "ADMIN") {
       return NextResponse.json(
-        { error: "Неавторизован" },
-        { status: 401 }
+        { error: "Недостаточно прав" },
+        { status: 403 },
       );
     }
 
     const body = (await req.json()) as TopUpBody;
 
+    const targetUserId = body.targetUserId?.trim() || "";
     const amountRub = Number(body.amountRub);
     const credits = Number(body.credits);
-    const provider = body.provider?.trim() || "manual";
+    const provider = body.provider?.trim() || "admin_manual";
+    const description =
+      body.description?.trim() || `Ручное пополнение на ${credits} кредитов`;
 
-    if (!Number.isInteger(amountRub) || amountRub <= 0) {
+    if (!targetUserId) {
       return NextResponse.json(
-        { error: "amountRub должен быть положительным целым числом" },
-        { status: 400 }
+        { error: "targetUserId обязателен" },
+        { status: 400 },
+      );
+    }
+
+    if (!Number.isInteger(amountRub) || amountRub < 0) {
+      return NextResponse.json(
+        { error: "amountRub должен быть целым числом >= 0" },
+        { status: 400 },
       );
     }
 
     if (!Number.isInteger(credits) || credits <= 0) {
       return NextResponse.json(
         { error: "credits должен быть положительным целым числом" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const result = await prisma.$transaction(async (tx) => {
       const currentUser = await tx.user.findUnique({
-        where: { id: session.userId },
+        where: { id: targetUserId },
         select: { id: true, creditBalance: true },
       });
 
@@ -78,10 +94,10 @@ export async function POST(req: NextRequest) {
       const creditTransaction = await tx.creditTransaction.create({
         data: {
           userId: currentUser.id,
-          type: CreditTransactionType.TOPUP,
+          type: CreditTransactionType.ADMIN_ADJUSTMENT,
           amount: credits,
           balanceAfter: newBalance,
-          description: `Пополнение баланса на ${credits} кредитов`,
+          description,
         },
       });
 
@@ -104,13 +120,13 @@ export async function POST(req: NextRequest) {
     if (error instanceof Error && error.message === "USER_NOT_FOUND") {
       return NextResponse.json(
         { error: "Пользователь не найден" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json(
       { error: "Не удалось пополнить баланс" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
