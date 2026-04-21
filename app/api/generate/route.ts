@@ -136,25 +136,9 @@ async function assertActualR2ObjectSize(
   }
 }
 
-function resolveFaceCount(faceAssets: UploadedAssetInput[]): number {
-  if (!faceAssets.length) return 1;
-
-  const personIndexes = new Set<number>();
-
-  for (const asset of faceAssets) {
-    if (typeof asset.personIndex === "number" && asset.personIndex >= 0) {
-      personIndexes.add(asset.personIndex);
-    }
-  }
-
-  if (personIndexes.size > 0) {
-    return personIndexes.size;
-  }
-
-  return 1;
-}
-
-function sortFaceAssetsForOpenAi(faceAssets: UploadedAssetInput[]): UploadedAssetInput[] {
+function sortFaceAssetsForOpenAi(
+  faceAssets: UploadedAssetInput[],
+): UploadedAssetInput[] {
   return [...faceAssets].sort((a, b) => {
     const personA =
       typeof a.personIndex === "number" && a.personIndex >= 0 ? a.personIndex : 0;
@@ -269,7 +253,6 @@ export async function POST(req: NextRequest) {
 
     const faceAssets = body.faceAssets || [];
     const sortedFaceAssets = sortFaceAssetsForOpenAi(faceAssets);
-    const faceCount = resolveFaceCount(sortedFaceAssets);
 
     for (const asset of sortedFaceAssets) {
       assertUserOwnsStorageKey(asset.storageKey, session.userId);
@@ -447,14 +430,10 @@ export async function POST(req: NextRequest) {
 
     if (mode === "READY") {
       finalPrompt = buildReadyStylePrompt({
-        presetTitle: showcaseItem?.title || "Ready style",
-        presetDescription: showcaseItem?.description || null,
         presetPromptTemplate: showcaseItem?.promptTemplate || null,
         selectedFormat: body.selectedFormat,
         selectedMood: body.selectedMood,
-        goal: body.goal,
         notes: body.notes,
-        faceCount,
       });
 
       inputImages = await Promise.all(
@@ -480,9 +459,7 @@ export async function POST(req: NextRequest) {
         analyzedReferencePrompt,
         selectedFormat: body.selectedFormat,
         selectedMood: body.selectedMood,
-        goal: body.goal,
         notes: body.notes,
-        faceCount,
       });
 
       inputImages = await Promise.all(
@@ -495,7 +472,6 @@ export async function POST(req: NextRequest) {
     if (mode === "EDIT") {
       finalPrompt = buildEditPrompt({
         prompt: body.prompt!.trim(),
-        faceCount,
       });
 
       const editBase = await buildOpenAiInputImage(
