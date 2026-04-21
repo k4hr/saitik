@@ -72,6 +72,20 @@ model User {
   showcaseItems      ShowcaseItem[]      @relation("ShowcaseItemCreatedBy")
 }
 
+model AuthThrottle {
+  key            String    @id
+  scope          String
+  attempts       Int       @default(0)
+  firstAttemptAt DateTime  @default(now())
+  lastAttemptAt  DateTime  @default(now())
+  blockedUntil   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([scope, blockedUntil])
+  @@index([scope, lastAttemptAt])
+}
+
 model ShowcaseCategory {
   id            String               @id @default(cuid())
   name          String
@@ -173,23 +187,23 @@ model Order {
 }
 
 model OrderAsset {
-  id         String    @id @default(cuid())
-  orderId    String
-  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  orderId     String
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  type       AssetType
-  url        String
-  storageKey String?
-  publicUrl  String?
-  fileName   String?
-  fileSize   Int?
-  mimeType   String?
-  width      Int?
-  height     Int?
+  type        AssetType
+  url         String
+  storageKey  String?
+  publicUrl   String?
+  fileName    String?
+  fileSize    Int?
+  mimeType    String?
+  width       Int?
+  height      Int?
   personIndex Int?
-  sortOrder  Int       @default(0)
+  sortOrder   Int       @default(0)
 
-  createdAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
 
   @@index([orderId, type, sortOrder])
   @@index([orderId, type, personIndex])
