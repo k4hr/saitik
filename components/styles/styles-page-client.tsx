@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
@@ -50,7 +49,8 @@ export default function StylesPageClient({
 }: StylesPageClientProps) {
   const [selectedKind, setSelectedKind] = useState<KindTab>("READY");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
-  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>("all");
+  const [selectedSubcategoryId, setSelectedSubcategoryId] =
+    useState<string>("all");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const primaryHref = isAuthenticated ? "/create" : "/auth/sign-in";
@@ -303,13 +303,14 @@ export default function StylesPageClient({
                     aria-label={item.title}
                     title={item.title}
                   >
-                    <div className="relative aspect-[0.82] overflow-hidden">
-                      <Image
+                    <div className="relative aspect-[0.82] overflow-hidden bg-[#f1e7de]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
                         src={item.coverImageUrl}
                         alt={item.title}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
                       />
                     </div>
                   </Link>
