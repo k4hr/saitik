@@ -46,9 +46,7 @@ export default function HeroSection({
           </h1>
 
           <p className="mt-6 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-            Пользователь входит по email, пополняет кредиты, выбирает стиль или
-            референс и получает серию кадров, которые выглядят как дорогая
-            реальная съёмка.
+            Создавайте в пару кликов, без студии и без сложных настроек.
           </p>
 
           <div className="mt-8 flex">
