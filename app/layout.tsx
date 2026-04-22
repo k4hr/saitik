@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import CookieConsentBanner from "@/components/layout/cookie-consent-banner";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,7 +18,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "ATELIA — AI фотосессии",
   description:
-    "Премиальные AI-фотосессии по готовым стилям и референсам. Авторизация по email, баланс кредитов и личный кабинет с заказами.",
+    "Премиальные фотосессии по готовым стилям и референсам с Вашим лицом.",
 };
 
 export default function RootLayout({
@@ -27,7 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
-      <body className={`${inter.variable} ${playfair.variable}`}>{children}</body>
+      <body className={`${inter.variable} ${playfair.variable}`}>
+        {children}
+        <CookieConsentBanner />
+      </body>
     </html>
   );
 }
