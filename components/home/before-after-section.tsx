@@ -26,8 +26,8 @@ const rows: BeforeAfterRow[] = [
       label: "Результат",
       images: [
         "/demo/before-after/after-1.png",
-        "/demo/before-after/after-1-2.png",
-        "/demo/before-after/after-1-3.png",
+        "/demo/before-after/after-1-2.PNG",
+        "/demo/before-after/after-1-3.PNG",
       ],
     },
   },
@@ -44,8 +44,8 @@ const rows: BeforeAfterRow[] = [
       label: "Результат",
       images: [
         "/demo/before-after/after-2.png",
-        "/demo/before-after/after-2-2.png",
-        "/demo/before-after/after-2-3.png",
+        "/demo/before-after/after-2-2.PNG",
+        "/demo/before-after/after-2-3.PNG",
       ],
     },
   },
@@ -62,8 +62,8 @@ const rows: BeforeAfterRow[] = [
       label: "Результат",
       images: [
         "/demo/before-after/after-3.PNG",
-        "/demo/before-after/after-3-2.png",
-        "/demo/before-after/after-3-3.png",
+        "/demo/before-after/after-3-2.PNG",
+        "/demo/before-after/after-3-3.PNG",
       ],
     },
   },
