@@ -155,8 +155,7 @@ export default function CreateEntryShell() {
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-8 text-[#726458] sm:text-lg">
-              Сначала пользователь выбирает сценарий работы, а дальше попадает в
-              нужный flow именно под свой способ создания.
+              Ниже сценарии по которым вы можете создать Ваше изображение.
             </p>
           </div>
         </div>
