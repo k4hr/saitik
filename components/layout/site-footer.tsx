@@ -22,8 +22,7 @@ export default async function SiteFooter() {
             </Link>
 
             <p className="mt-5 max-w-md text-base leading-8 text-white/72">
-              AI-фотосессии в премиальном стиле — быстро, аккуратно и с
-              сохранением общего визуального качества.
+              AI-фотосессии в премиальном стиле.
             </p>
           </div>
 
