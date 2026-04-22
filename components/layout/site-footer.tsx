@@ -1,415 +1,97 @@
-import SiteHeader from "@/components/layout/site-header";
-import SiteFooter from "@/components/layout/site-footer";
+import Link from "next/link";
+
 import Container from "@/components/ui/container";
+import { getSession } from "@/lib/auth";
 
-export default function PrivacyPolicyPage() {
+export default async function SiteFooter() {
+  const session = await getSession();
+  const createHref = session ? "/create" : "/auth/sign-in";
+  const billingHref = session ? "/dashboard/billing" : "/auth/sign-in";
+
   return (
-    <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
-      <SiteHeader />
+    <footer className="bg-[#201712] text-white">
+      <Container className="py-12 sm:py-14 lg:py-16">
+        <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="max-w-xl">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 text-2xl text-white transition hover:text-[#ead6c7]"
+            >
+              <span className="text-[#c79f7a]">✦</span>
+              <span className="tracking-[-0.02em]">ATELIA</span>
+            </Link>
 
-      <section className="py-14 sm:py-18 lg:py-24">
-        <Container className="max-w-[920px]">
-          <div className="rounded-[32px] border border-[#eadfd6] bg-white/90 p-8 shadow-[0_18px_48px_rgba(61,49,40,0.06)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
-              Документ
+            <p className="mt-5 max-w-md text-base leading-8 text-white/72">
+              AI-фотосессии в премиальном стиле.
             </p>
+          </div>
 
-            <h1 className="mt-4 text-4xl leading-[1.06] sm:text-5xl">
-              Политика конфиденциальности
-            </h1>
-
-            <p className="mt-4 text-sm leading-7 text-[#8a786b]">
-              Дата вступления в силу: [укажи дату]
-            </p>
-
-            <div className="mt-8 space-y-8 text-base leading-8 text-[#5f5248]">
-              <p>
-                Настоящая Политика конфиденциальности описывает порядок
-                обработки и защиты персональных данных пользователей сервиса{" "}
-                <strong>ATELIA</strong> (далее — «Сервис»).
+          <div className="grid gap-8 sm:grid-cols-3">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/62">
+                Продукт
               </p>
+              <div className="mt-4 flex flex-col gap-3 text-base text-white">
+                <Link href="/" className="transition hover:text-[#ead6c7]">
+                  Главная
+                </Link>
+                <Link href="/styles" className="transition hover:text-[#ead6c7]">
+                  Стили
+                </Link>
+                <Link href={createHref} className="transition hover:text-[#ead6c7]">
+                  Создать
+                </Link>
+                <Link
+                  href={billingHref}
+                  className="transition hover:text-[#ead6c7]"
+                >
+                  Кредиты
+                </Link>
+              </div>
+            </div>
 
-              <p>
-                Политика является частью <strong>Публичной оферты</strong> и{" "}
-                <strong>Условий использования</strong>.
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/62">
+                Поддержка
               </p>
+              <div className="mt-4 flex flex-col gap-3 text-base text-white">
+                <a
+                  href="mailto:support@atelia.site"
+                  className="transition hover:text-[#ead6c7]"
+                >
+                  support@atelia.site
+                </a>
+              </div>
+            </div>
 
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  1. Оператор персональных данных
-                </h2>
-
-                <p>
-                  <strong>ИП Меньшакова Анастасия Сергеевна</strong>,
-                  <br />
-                  ОГРН / ОГРНИП: <strong>325290000042402</strong>,
-                  <br />
-                  ИНН: <strong>290221242314</strong>,
-                  <br />
-                  адрес: <strong>г. Москва, ул. Хуторская 2-я, д. 38А, стр. 26</strong>.
-                </p>
-
-                <p>
-                  Контакты по вопросам обработки персональных данных и
-                  поддержки: <strong>[твой email поддержки]</strong>.
-                </p>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  2. Какие данные мы собираем
-                </h2>
-
-                <p>Мы можем обрабатывать следующие данные пользователей:</p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>
-                    данные аккаунта при регистрации и авторизации:{" "}
-                    <strong>email, логин, пароль в зашифрованном виде</strong>;
-                  </li>
-                  <li>
-                    технические данные: <strong>IP-адрес, тип браузера, язык интерфейса, cookies, сведения об устройстве и сессии</strong>;
-                  </li>
-                  <li>
-                    контент пользователя: <strong>текстовые описания, комментарии, промпты, пожелания к генерации, загруженные изображения, референсы</strong>;
-                  </li>
-                  <li>
-                    изображения с лицами людей, загружаемые для генерации и
-                    редактирования;
-                  </li>
-                  <li>
-                    данные о заказах, генерациях, балансе кредитов и истории
-                    операций;
-                  </li>
-                  <li>
-                    данные об оплате: <strong>факт и параметры транзакции</strong>,
-                    без хранения данных банковской карты;
-                  </li>
-                  <li>логи использования и события внутри Сервиса.</li>
-                </ul>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  3. Обработка изображений с лицами
-                </h2>
-
-                <p>
-                  Если вы загружаете изображения, содержащие лица людей,
-                  Сервис обрабатывает их исключительно для целей генерации,
-                  редактирования и создания визуальных материалов по вашему
-                  запросу.
-                </p>
-
-                <p>При этом:</p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>
-                    мы <strong>не осуществляем идентификацию личности</strong> по
-                    изображению;
-                  </li>
-                  <li>
-                    мы <strong>не сопоставляем лица с базами данных</strong>;
-                  </li>
-                  <li>
-                    мы <strong>не используем технологии распознавания лиц</strong>{" "}
-                    для установления личности человека;
-                  </li>
-                  <li>
-                    изображения могут передаваться сторонним провайдерам
-                    генерации и обработки изображений, используемым в
-                    инфраструктуре Сервиса, для выполнения вашего запроса;
-                  </li>
-                  <li>
-                    загружая изображение с лицом третьего лица, вы подтверждаете,
-                    что обладаете согласием такого лица на соответствующую
-                    обработку либо иным законным основанием;
-                  </li>
-                  <li>
-                    изображения хранятся в течение сроков, указанных в разделе 7
-                    настоящей Политики, после чего удаляются либо обезличиваются,
-                    если иное не требуется законом или условиями работы Сервиса.
-                  </li>
-                </ul>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  4. Цели обработки данных
-                </h2>
-
-                <p>Мы обрабатываем данные для следующих целей:</p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>предоставление доступа к Сервису и его функциям;</li>
-                  <li>
-                    выполнение генерации и редактирования изображений;
-                  </li>
-                  <li>
-                    сохранение заказов, результатов, истории генераций и баланса
-                    пользователя;
-                  </li>
-                  <li>обработка оплат и ведение внутреннего учета;</li>
-                  <li>поддержка пользователей;</li>
-                  <li>
-                    улучшение стабильности, качества и безопасности работы
-                    Сервиса;
-                  </li>
-                  <li>
-                    предотвращение злоупотреблений, мошенничества и
-                    несанкционированного использования.
-                  </li>
-                </ul>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  5. Правовые основания обработки
-                </h2>
-
-                <p>Правовыми основаниями обработки данных являются:</p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>
-                    исполнение договора с пользователем, включая{" "}
-                    <strong>Условия использования</strong> и{" "}
-                    <strong>Публичную оферту</strong>;
-                  </li>
-                  <li>
-                    согласие пользователя, предоставляемое при использовании
-                    Сервиса и в случаях, когда такое согласие требуется;
-                  </li>
-                  <li>
-                    соблюдение требований применимого законодательства
-                    Российской Федерации, включая{" "}
-                    <strong>
-                      Федеральный закон № 152-ФЗ «О персональных данных»
-                    </strong>
-                    .
-                  </li>
-                </ul>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  6. Кому мы передаем данные
-                </h2>
-
-                <p>
-                  Для работы Сервиса мы можем привлекать поставщиков услуг и
-                  технологических партнеров. Передача данных возможна в объеме,
-                  необходимом для оказания услуг, следующим категориям лиц:
-                </p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>
-                    провайдеры генерации и обработки изображений:{" "}
-                    <strong>OpenAI</strong> и иные подключенные провайдеры, если
-                    они используются Сервисом;
-                  </li>
-                  <li>
-                    провайдеры облачного хранения и инфраструктуры;
-                  </li>
-                  <li>
-                    провайдеры хостинга, серверной инфраструктуры и CDN;
-                  </li>
-                  <li>
-                    платежные провайдеры и сервисы обработки платежей;
-                  </li>
-                  <li>
-                    иные подрядчики, если их участие необходимо для работы
-                    Сервиса.
-                  </li>
-                </ul>
-
-                <p>
-                  Если в Сервисе используются конкретные внешние провайдеры,
-                  рекомендуется перечислить их явно, например:
-                </p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>
-                    <strong>OpenAI</strong> — генерация и обработка изображений;
-                  </li>
-                  <li>
-                    <strong>Cloudflare R2</strong> — хранение пользовательских
-                    файлов;
-                  </li>
-                  <li>
-                    <strong>Railway</strong> — размещение серверной
-                    инфраструктуры;
-                  </li>
-                  <li>
-                    <strong>[ЮKassa / другой платежный сервис]</strong> —
-                    обработка платежей.
-                  </li>
-                </ul>
-
-                <p>
-                  Некоторые из провайдеров могут находиться за пределами
-                  Российской Федерации.
-                </p>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  7. Сроки хранения
-                </h2>
-
-                <p>
-                  Если иное не требуется законом или договором, данные могут
-                  храниться в следующие сроки:
-                </p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>
-                    данные аккаунта, история заказов, результаты генераций,
-                    баланс и операции — до <strong>12 месяцев</strong> с момента
-                    последней активности пользователя;
-                  </li>
-                  <li>
-                    загруженные изображения, референсы и результаты генерации —
-                    до <strong>12 месяцев</strong> с момента последней
-                    активности пользователя;
-                  </li>
-                  <li>
-                    технические логи и события безопасности — до{" "}
-                    <strong>12 месяцев</strong>;
-                  </li>
-                  <li>
-                    данные, связанные с оплатами и бухгалтерским учетом, — в
-                    сроки, требуемые законодательством.
-                  </li>
-                </ul>
-
-                <p>
-                  Вы можете запросить удаление данных, написав на{" "}
-                  <strong>[твой email поддержки]</strong>. Мы рассмотрим запрос в
-                  разумный срок с учетом требований закона и технических
-                  ограничений.
-                </p>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  8. Cookies и аналитика
-                </h2>
-
-                <p>
-                  Мы используем файлы cookies для обеспечения корректной работы
-                  Сервиса.
-                </p>
-
-                <p>
-                  <strong>Необходимые cookies</strong> могут использоваться для:
-                </p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>авторизации и управления сессией;</li>
-                  <li>обеспечения безопасности;</li>
-                  <li>защиты от злоупотреблений;</li>
-                  <li>сохранения пользовательских настроек;</li>
-                  <li>корректной работы интерфейса.</li>
-                </ul>
-
-                <p>
-                  <strong>Аналитические cookies</strong> могут использоваться для:
-                </p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>оценки посещаемости;</li>
-                  <li>анализа поведения пользователей;</li>
-                  <li>улучшения качества и удобства Сервиса.</li>
-                </ul>
-
-                <p>
-                  При первом посещении сайта пользователю может отображаться
-                  уведомление о cookies с предложением принять их использование.
-                  Вы можете удалить cookies или ограничить их использование через
-                  настройки браузера, однако это может повлиять на работу
-                  отдельных функций Сервиса.
-                </p>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  9. Права пользователя
-                </h2>
-
-                <p>Пользователь вправе:</p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>запрашивать сведения об обработке своих данных;</li>
-                  <li>
-                    получать доступ к своим данным и их копию в предусмотренных
-                    законом случаях;
-                  </li>
-                  <li>
-                    требовать уточнения, обновления или удаления данных;
-                  </li>
-                  <li>
-                    отозвать согласие на обработку данных, если такая обработка
-                    основана именно на согласии;
-                  </li>
-                  <li>
-                    обращаться к оператору по вопросам обработки персональных
-                    данных.
-                  </li>
-                </ul>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">10. Безопасность</h2>
-
-                <p>
-                  Мы применяем разумные технические и организационные меры для
-                  защиты данных от утраты, утечки, неправомерного доступа,
-                  изменения, блокирования или уничтожения.
-                </p>
-
-                <p>
-                  При этом пользователь понимает, что ни один способ хранения и
-                  передачи данных через интернет не гарантирует абсолютной
-                  безопасности.
-                </p>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  11. Изменения Политики
-                </h2>
-
-                <p>
-                  Мы можем вносить изменения в настоящую Политику
-                  конфиденциальности. Актуальная версия всегда публикуется на
-                  этой странице. Продолжение использования Сервиса после
-                  публикации обновленной версии означает согласие пользователя с
-                  новой редакцией, если иное не предусмотрено законом.
-                </p>
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="text-2xl text-[#3d3128]">
-                  12. Связанные документы
-                </h2>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>
-                    <strong>Публичная оферта</strong> — условия оказания услуг,
-                    оплаты и возвратов;
-                  </li>
-                  <li>
-                    <strong>Условия использования</strong> — правила
-                    использования Сервиса.
-                  </li>
-                </ul>
-              </section>
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/62">
+                Документы
+              </p>
+              <div className="mt-4 flex flex-col gap-3 text-base text-white">
+                <Link
+                  href="/privacy-policy"
+                  className="transition hover:text-[#ead6c7]"
+                >
+                  Конфиденциальность
+                </Link>
+                <Link href="/terms" className="transition hover:text-[#ead6c7]">
+                  Условия
+                </Link>
+                <Link href="/offer" className="transition hover:text-[#ead6c7]">
+                  Оферта
+                </Link>
+              </div>
             </div>
           </div>
-        </Container>
-      </section>
+        </div>
 
-      <SiteFooter />
-    </main>
+        <div className="mt-10 border-t border-white/15 pt-6">
+          <p className="text-sm text-white/74">
+            © 2026 ATELIA. Все права защищены.
+          </p>
+        </div>
+      </Container>
+    </footer>
   );
 }
