@@ -14,28 +14,23 @@ export default async function CTASection() {
       <Container>
         <div className="rounded-[36px] border border-[#e5d7cb] bg-[linear-gradient(180deg,#fffaf6_0%,#f4ebe4_100%)] px-6 py-10 text-center shadow-[0_18px_60px_rgba(88,62,40,0.08)] sm:px-10 sm:py-14 lg:px-16 lg:py-16">
           <p className="text-xs uppercase tracking-[0.24em] text-[#a18672]">
-            Готов к запуску
+            Всё ещё не уверены?
           </p>
 
           <h2 className="mx-auto mt-4 max-w-4xl text-3xl leading-tight text-[#3d3128] sm:text-4xl lg:text-5xl">
-            Войди по почте и собери первую AI-фотосессию в ATELIA
+            Попробуйте создать несколько фото бесплатно. Привязывать карту не нужно.
           </h2>
-
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[#7e6f63] sm:text-base">
-            Авторизация, баланс кредитов, каталог стилей и личный кабинет уже
-            заложены в архитектуру проекта и готовы к следующему этапу.
-          </p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
               <Link href={primaryHref}>
-                {session ? "Перейти к созданию" : "Войти по почте"}
+                {session ? "Перейти к созданию" : "Перейти к созданию"}
               </Link>
             </Button>
 
             <Button asChild variant="secondary" size="lg">
               <Link href={secondaryHref}>
-                {session ? "Посмотреть кредиты" : "Открыть кабинет"}
+                {session ? "Открыть кабинет" : "Открыть кабинет"}
               </Link>
             </Button>
           </div>
