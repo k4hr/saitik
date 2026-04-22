@@ -53,7 +53,10 @@ const rows: BeforeAfterRow[] = [
     id: "row-3",
     before: {
       label: "Исходник",
-      images: ["/demo/before-after/before-3.PNG"],
+      images: [
+        "/demo/before-after/before-3a.png",
+        "/demo/before-after/before-3b.png",
+      ],
     },
     after: {
       label: "Результат",
