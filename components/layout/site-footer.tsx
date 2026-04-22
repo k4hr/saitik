@@ -9,29 +9,88 @@ export default async function SiteFooter() {
   const billingHref = session ? "/dashboard/billing" : "/auth/sign-in";
 
   return (
-    <footer className="border-t border-[#eadfd6] bg-[#f6efe9]">
-      <Container className="flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-lg tracking-[0.16em] text-[#3b2f26]">ATELIA</p>
-          <p className="mt-2 max-w-md text-sm leading-6 text-[#7e6f63]">
-            AI-фотосессии в премиальном стиле. Авторизация по email, кредиты на
-            балансе и личный кабинет со всеми заказами и результатами.
-          </p>
+    <footer className="bg-[#201712] text-white">
+      <Container className="py-12 sm:py-14 lg:py-16">
+        <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="max-w-xl">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 text-2xl text-white transition hover:text-[#ead6c7]"
+            >
+              <span className="text-[#c79f7a]">✦</span>
+              <span className="tracking-[-0.02em]">ATELIA</span>
+            </Link>
+
+            <p className="mt-5 max-w-md text-base leading-8 text-white/72">
+              AI-фотосессии в премиальном стиле — быстро, аккуратно и с
+              сохранением общего визуального качества.
+            </p>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-3">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/62">
+                Продукт
+              </p>
+              <div className="mt-4 flex flex-col gap-3 text-base text-white">
+                <Link href="/" className="transition hover:text-[#ead6c7]">
+                  Главная
+                </Link>
+                <Link href="/styles" className="transition hover:text-[#ead6c7]">
+                  Стили
+                </Link>
+                <Link href={createHref} className="transition hover:text-[#ead6c7]">
+                  Создать
+                </Link>
+                <Link
+                  href={billingHref}
+                  className="transition hover:text-[#ead6c7]"
+                >
+                  Кредиты
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/62">
+                Поддержка
+              </p>
+              <div className="mt-4 flex flex-col gap-3 text-base text-white">
+                <a
+                  href="mailto:support@atelia.site"
+                  className="transition hover:text-[#ead6c7]"
+                >
+                  support@atelia.site
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/62">
+                Документы
+              </p>
+              <div className="mt-4 flex flex-col gap-3 text-base text-white">
+                <Link
+                  href="/privacy-policy"
+                  className="transition hover:text-[#ead6c7]"
+                >
+                  Конфиденциальность
+                </Link>
+                <Link href="/terms" className="transition hover:text-[#ead6c7]">
+                  Условия
+                </Link>
+                <Link href="/offer" className="transition hover:text-[#ead6c7]">
+                  Оферта
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm text-[#7e6f63]">
-          <Link href="/styles" className="transition hover:text-[#3b2f26]">
-            Стили
-          </Link>
-          <Link href={createHref} className="transition hover:text-[#3b2f26]">
-            Создать
-          </Link>
-          <Link href={billingHref} className="transition hover:text-[#3b2f26]">
-            Кредиты
-          </Link>
-          <a href="#" className="transition hover:text-[#3b2f26]">
-            Политика
-          </a>
+        <div className="mt-10 border-t border-white/15 pt-6">
+          <p className="text-sm text-white/74">
+            © 2026 ATELIA. Все права защищены.
+          </p>
         </div>
       </Container>
     </footer>
