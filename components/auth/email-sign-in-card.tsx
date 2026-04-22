@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -301,6 +302,23 @@ export default function EmailSignInCard() {
             </Button>
           </form>
         )}
+
+        <div className="mt-6 border-t border-[#efe4db] pt-5 text-center text-sm leading-7 text-[#7e6f63]">
+          Продолжая, вы соглашаетесь с{" "}
+          <Link
+            href="/terms"
+            className="underline underline-offset-4 transition hover:text-[#3d3128]"
+          >
+            Условиями использования
+          </Link>{" "}
+          и{" "}
+          <Link
+            href="/privacy-policy"
+            className="underline underline-offset-4 transition hover:text-[#3d3128]"
+          >
+            Политикой конфиденциальности
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );
