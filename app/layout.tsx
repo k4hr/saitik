@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   },
   description:
     "Премиальные фотосессии по готовым стилям и референсам с Вашим лицом.",
+  alternates: {
+    canonical: "https://www.ateliaai.ru",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -30,6 +33,20 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-icon.png" }],
     shortcut: ["/favicon.ico"],
+  },
+  openGraph: {
+    type: "website",
+    url: "https://www.ateliaai.ru",
+    siteName: "ATELIA",
+    title: "ATELIA — AI фотосессии",
+    description:
+      "Премиальные фотосессии по готовым стилям и референсам с Вашим лицом.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ATELIA — AI фотосессии",
+    description:
+      "Премиальные фотосессии по готовым стилям и референсам с Вашим лицом.",
   },
 };
 
