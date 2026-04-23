@@ -59,7 +59,7 @@ export default async function SiteFooter() {
                   href="mailto:support@atelia.site"
                   className="transition hover:text-[#ead6c7]"
                 >
-                  support@atelia.site
+                  atelia.ai@yandex.ru
                 </a>
               </div>
             </div>
