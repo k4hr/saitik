@@ -15,7 +15,7 @@ export default function SignInPage() {
             </p>
 
             <h1 className="mt-4 text-4xl leading-[1.06] sm:text-5xl">
-              Войди в ATELIA и управляй своими заказами
+              Премиальные фотосессии с Вашим лицом - создавайте в пару кликов, без студии и без сложных настроек.
             </h1>
 
             <p className="mt-5 text-base leading-8 text-[#726458] sm:text-lg">
