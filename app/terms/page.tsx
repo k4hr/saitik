@@ -131,7 +131,7 @@ export default function TermsPage() {
                   <li>
                     При обнаружении несанкционированного доступа к Учетной
                     записи Пользователь обязан незамедлительно уведомить
-                    Оператора по адресу <strong>[твой email поддержки]</strong>.
+                    Оператора по адресу <strong>atelia.ai@yandex.ru</strong>.
                   </li>
                 </ul>
               </section>
@@ -376,7 +376,7 @@ export default function TermsPage() {
                 <p>
                   Пользователь вправе в любой момент запросить удаление Учетной
                   записи и связанных с ней данных, направив запрос на адрес{" "}
-                  <strong>[твой email поддержки]</strong>.
+                  <strong>atelia.ai@yandex.ru</strong>.
                 </p>
 
                 <p>
@@ -469,7 +469,7 @@ export default function TermsPage() {
                 </p>
 
                 <p>
-                  Контакты: <strong>[твой email поддержки]</strong>.
+                  Контакты: <strong>atelia.ai@yandex.ru</strong>.
                 </p>
               </section>
 
