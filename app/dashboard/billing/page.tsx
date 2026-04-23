@@ -14,12 +14,21 @@ function formatDateLabel(date: Date): string {
   }).format(date);
 }
 
-export default async function DashboardBillingPage() {
+export default async function DashboardBillingPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    payment?: string;
+  }>;
+}) {
   const session = await getSession();
 
   if (!session) {
     redirect("/auth/sign-in");
   }
+
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const paymentStatus = resolvedSearchParams.payment;
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
@@ -62,10 +71,29 @@ export default async function DashboardBillingPage() {
   return (
     <main className="min-h-screen bg-[#f8f2ed] text-[#3d3128]">
       <SiteHeader />
+
+      {paymentStatus === "success" ? (
+        <div className="px-4 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+          <div className="mx-auto max-w-[1440px] rounded-[22px] border border-[#d8e8d5] bg-[#f5fbf3] px-5 py-4 text-sm text-[#4f7a4c] shadow-[0_10px_24px_rgba(95,69,48,0.04)] sm:px-6 sm:text-base">
+            Оплата прошла успешно. Кредиты будут начислены сразу после
+            подтверждения платежа.
+          </div>
+        </div>
+      ) : null}
+
+      {paymentStatus === "failed" ? (
+        <div className="px-4 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+          <div className="mx-auto max-w-[1440px] rounded-[22px] border border-[#e7c7bf] bg-[#fff6f3] px-5 py-4 text-sm text-[#8b4f43] shadow-[0_10px_24px_rgba(95,69,48,0.04)] sm:px-6 sm:text-base">
+            Платёж не завершён или был отменён. Попробуйте ещё раз.
+          </div>
+        </div>
+      ) : null}
+
       <DashboardBilling
         transactions={transactions}
         welcomeOfferEndsAt={user.welcomeOfferEndsAt?.toISOString() ?? null}
       />
+
       <SiteFooter />
     </main>
   );
