@@ -64,23 +64,6 @@ export default function HeroSection({
               </Link>
             </Button>
           </div>
-
-          <div className="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-[#e7dbd1] pt-6">
-            <div>
-              <p className="text-2xl text-[#3d3128] sm:text-3xl">150</p>
-              <p className="mt-2 text-sm text-[#7b6c61]">
-                кредитов стартовый пакет
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl text-[#3d3128] sm:text-3xl">20+</p>
-              <p className="mt-2 text-sm text-[#7b6c61]">готовых стилей</p>
-            </div>
-            <div>
-              <p className="text-2xl text-[#3d3128] sm:text-3xl">Email</p>
-              <p className="mt-2 text-sm text-[#7b6c61]">вход и кабинет</p>
-            </div>
-          </div>
         </motion.div>
 
         <motion.div
