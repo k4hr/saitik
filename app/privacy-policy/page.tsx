@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
             </h1>
 
             <p className="mt-4 text-sm leading-7 text-[#8a786b]">
-              Дата вступления в силу: [укажи дату]
+              Дата вступления в силу: 23.04.2026
             </p>
 
             <div className="mt-8 space-y-8 text-base leading-8 text-[#5f5248]">
@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
 
                 <p>
                   Контакты по вопросам обработки персональных данных и
-                  поддержки: <strong>[твой email поддержки]</strong>.
+                  поддержки: <strong>atelia.ai@yandex.ru.</strong>.
                 </p>
               </section>
 
@@ -204,44 +204,20 @@ export default function PrivacyPolicyPage() {
                 <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
                   <li>
                     провайдеры генерации и обработки изображений:{" "}
-                    <strong>OpenAI</strong> и иные подключенные провайдеры, если
-                    они используются Сервисом;
+                    <strong>OpenAI</strong> и Nano Banana Pro;
                   </li>
                   <li>
-                    провайдеры облачного хранения и инфраструктуры;
+                    провайдеры облачного хранения и инфраструктуры - cloudflare;
                   </li>
                   <li>
-                    провайдеры хостинга, серверной инфраструктуры и CDN;
+                    провайдеры хостинга, серверной инфраструктуры и CDN - spaceweb;
                   </li>
                   <li>
-                    платежные провайдеры и сервисы обработки платежей;
+                    платежные провайдеры и сервисы обработки платежей - ТБанк;
                   </li>
                   <li>
                     иные подрядчики, если их участие необходимо для работы
                     Сервиса.
-                  </li>
-                </ul>
-
-                <p>
-                  Если в Сервисе используются конкретные внешние провайдеры,
-                  рекомендуется перечислить их явно, например:
-                </p>
-
-                <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
-                  <li>
-                    <strong>OpenAI</strong> — генерация и обработка изображений;
-                  </li>
-                  <li>
-                    <strong>Cloudflare R2</strong> — хранение пользовательских
-                    файлов;
-                  </li>
-                  <li>
-                    <strong>Railway</strong> — размещение серверной
-                    инфраструктуры;
-                  </li>
-                  <li>
-                    <strong>[ЮKassa / другой платежный сервис]</strong> —
-                    обработка платежей.
                   </li>
                 </ul>
 
@@ -284,7 +260,7 @@ export default function PrivacyPolicyPage() {
 
                 <p>
                   Вы можете запросить удаление данных, написав на{" "}
-                  <strong>[твой email поддержки]</strong>. Мы рассмотрим запрос в
+                  <strong>atelia.ai@yandex.ru.</strong>. Мы рассмотрим запрос в
                   разумный срок с учетом требований закона и технических
                   ограничений.
                 </p>
