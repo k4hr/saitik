@@ -6,6 +6,8 @@ import {
   LayoutGrid,
   FolderTree,
   Shield,
+  Users,
+  WalletCards,
 } from "lucide-react";
 
 import SiteHeader from "@/components/layout/site-header";
@@ -42,6 +44,20 @@ const adminSections = [
       "Создание подкатегорий внутри уже существующих категорий.",
     href: "/dashboard/admin/subcategories",
     icon: FolderTree,
+  },
+  {
+    title: "Пользователи",
+    description:
+      "Все пользователи сайта: дата регистрации, количество генераций и потраченные кредиты.",
+    href: "/dashboard/admin/users",
+    icon: Users,
+  },
+  {
+    title: "Начислить кредиты",
+    description:
+      "Начисление кредитов пользователю по логину с записью в историю операций.",
+    href: "/dashboard/admin/credits",
+    icon: WalletCards,
   },
 ];
 
@@ -80,7 +96,7 @@ export default async function AdminDashboardPage() {
 
             <p className="mt-5 max-w-4xl text-base leading-8 text-[#6f6156] sm:text-lg">
               Здесь ты управляешь готовыми стилями, пользовательскими
-              карточками, категориями и подкатегориями витрины.
+              карточками, категориями, подкатегориями и пользователями сайта.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -97,7 +113,7 @@ export default async function AdminDashboardPage() {
               </Button>
             </div>
 
-            <div className="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
               {adminSections.map((section) => {
                 const Icon = section.icon;
 
