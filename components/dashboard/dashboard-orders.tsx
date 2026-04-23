@@ -98,8 +98,7 @@ export default function DashboardOrders({
 
                   <div className="flex flex-col justify-between gap-5">
                     <div>
-                      <p className="text-sm text-[#a18672]">{generation.id}</p>
-                      <h2 className="mt-2 text-2xl text-[#3d3128]">
+                      <h2 className="text-2xl text-[#3d3128]">
                         {generation.title}
                       </h2>
                       <p className="mt-2 text-sm leading-7 text-[#7e6f63]">
@@ -114,7 +113,9 @@ export default function DashboardOrders({
                       </Badge>
                     </div>
 
-                    {generation.imagePath && generation.downloadPath && generation.sharePath ? (
+                    {generation.imagePath &&
+                    generation.downloadPath &&
+                    generation.sharePath ? (
                       <div className="flex flex-wrap gap-3">
                         <Button asChild size="lg">
                           <a href={generation.downloadPath}>
