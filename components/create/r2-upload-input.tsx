@@ -190,7 +190,6 @@ export default function R2UploadInput({
             </h3>
 
             <p className="mt-2 max-w-xl text-sm leading-7 text-[#7e6f63]">
-              {limitText} Загрузка идёт сразу в Cloudflare R2.
             </p>
 
             <div className="mt-5">
