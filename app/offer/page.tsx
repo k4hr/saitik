@@ -53,7 +53,7 @@ export default function OfferPage() {
 
               <p>
                 Актуальный текст настоящей Оферты размещен на Сайте Исполнителя
-                по адресу: <strong>[укажи свой адрес страницы offer]</strong>.
+                по адресу: <strong>www.ateliaai.ru/offer</strong>.
               </p>
 
               <section className="space-y-3">
@@ -88,7 +88,7 @@ export default function OfferPage() {
                 <p>
                   <strong>Сайт Исполнителя</strong> — информационный ресурс в
                   информационно-телекоммуникационной сети «Интернет» по
-                  электронному адресу: <strong>[укажи домен сайта]</strong>,
+                  электронному адресу: <strong>www.ateliaai.ru</strong>,
                   содержащий информацию об Услугах Исполнителя.
                 </p>
 
@@ -435,7 +435,7 @@ export default function OfferPage() {
 
                 <p>
                   7.3. Для оформления возврата Заказчик направляет запрос на
-                  адрес: <strong>[твой email поддержки]</strong> с указанием
+                  адрес: <strong>atelia.ai@yandex.ru</strong> с указанием
                   причины возврата и подтверждающих документов.
                 </p>
 
@@ -589,7 +589,7 @@ export default function OfferPage() {
                 <ul className="list-disc space-y-2 pl-6 marker:text-[#b79273]">
                   <li>Заказчик: Контактный адрес электронной почты;</li>
                   <li>
-                    Исполнитель: <strong>[твой email поддержки]</strong>.
+                    Исполнитель: <strong>atelia.ai@yandex.ru</strong>.
                   </li>
                 </ul>
               </section>
@@ -631,7 +631,7 @@ export default function OfferPage() {
 
                 <p>
                   13.2. Претензия направляется на адрес:{" "}
-                  <strong>[твой email поддержки]</strong> с указанием существа
+                  <strong>atelia.ai@yandex.ru</strong> с указанием существа
                   требования и подтверждающих документов.
                 </p>
 
@@ -696,12 +696,12 @@ export default function OfferPage() {
 
                 <p>
                   <strong>Контактный адрес электронной почты:</strong>{" "}
-                  [твой email поддержки]
+                  atelia.ai@yandex.ru
                 </p>
 
                 <p>
                   <strong>Адрес для обращений и поддержки:</strong>{" "}
-                  [твой email поддержки]
+                  atelia.ai@yandex.ru
                 </p>
               </section>
             </div>
