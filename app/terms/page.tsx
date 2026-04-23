@@ -19,7 +19,7 @@ export default function TermsPage() {
             </h1>
 
             <p className="mt-4 text-sm leading-7 text-[#8a786b]">
-              Дата вступления в силу: [укажи дату]
+              Дата вступления в силу: 23.04.2026
             </p>
 
             <div className="mt-8 space-y-8 text-base leading-8 text-[#5f5248]">
