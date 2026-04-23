@@ -16,9 +16,21 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "ATELIA — AI фотосессии",
+  metadataBase: new URL("https://www.ateliaai.ru"),
+  title: {
+    default: "ATELIA — AI фотосессии",
+    template: "%s | ATELIA",
+  },
   description:
     "Премиальные фотосессии по готовым стилям и референсам с Вашим лицом.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png" }],
+    shortcut: ["/favicon.ico"],
+  },
 };
 
 export default function RootLayout({
