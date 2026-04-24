@@ -6,9 +6,11 @@ import { Loader2 } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import type { BillingPackKey } from "@/lib/billing-packs";
 
+type PurchaseOffer = "regular" | "welcome_studio" | "business_flash";
+
 type TBankPurchaseButtonProps = Omit<ButtonProps, "onClick"> & {
   packKey: BillingPackKey;
-  offer?: "regular" | "welcome_studio";
+  offer?: PurchaseOffer;
 };
 
 type InitResponse = {
@@ -43,10 +45,26 @@ export default function TBankPurchaseButton({
         }),
       });
 
-      const data = (await response.json()) as InitResponse;
+      const contentType = response.headers.get("content-type") || "";
+      let data: InitResponse | null = null;
+      let rawText = "";
 
-      if (!response.ok || !data.paymentUrl) {
-        throw new Error(data.error || "Не удалось создать платёж");
+      if (contentType.includes("application/json")) {
+        data = (await response.json()) as InitResponse;
+      } else {
+        rawText = await response.text();
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error ||
+            rawText ||
+            `Ошибка создания платежа (HTTP ${response.status})`,
+        );
+      }
+
+      if (!data?.paymentUrl) {
+        throw new Error("Сервер не вернул ссылку на оплату");
       }
 
       window.location.href = data.paymentUrl;
