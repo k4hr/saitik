@@ -4,42 +4,11 @@ import { Sparkles, Check, Clock3, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-const creditPacks = [
-  {
-    name: "Старт",
-    subtitle: "Для первого знакомства",
-    priceRub: 290,
-    credits: 60,
-    images: 6,
-    featured: false,
-  },
-  {
-    name: "Креатор",
-    subtitle: "Для регулярных генераций",
-    priceRub: 690,
-    credits: 160,
-    images: 16,
-    featured: false,
-  },
-  {
-    name: "Студия",
-    subtitle: "Оптимальный выбор",
-    priceRub: 1490,
-    credits: 380,
-    images: 38,
-    featured: true,
-    badge: "Лучший выбор",
-  },
-  {
-    name: "Бизнес",
-    subtitle: "Максимум выгоды",
-    priceRub: 2990,
-    credits: 800,
-    images: 80,
-    featured: false,
-  },
-] as const;
+import {
+  BILLING_PACKS,
+  STUDIO_PROMO_PRICE_RUB,
+} from "@/lib/billing-packs";
+import TBankPurchaseButton from "@/components/billing/tbank-purchase-button";
 
 function formatRub(value: number): string {
   return `${new Intl.NumberFormat("ru-RU").format(value)} ₽`;
@@ -79,9 +48,8 @@ export default async function PricingSection() {
     Boolean(user?.welcomeOfferEndsAt) &&
     user!.welcomeOfferEndsAt!.getTime() > Date.now();
 
-  const studioPromoPriceRub = 890;
   const studioRegularPriceRub = 1490;
-  const studioDiscountRub = studioRegularPriceRub - studioPromoPriceRub;
+  const studioDiscountRub = studioRegularPriceRub - STUDIO_PROMO_PRICE_RUB;
   const timeLeft = hasWelcomeOffer
     ? formatTimeLeft(user!.welcomeOfferEndsAt!)
     : null;
@@ -141,7 +109,7 @@ export default async function PricingSection() {
                     {formatRub(studioRegularPriceRub)}
                   </span>
                   <span className="text-4xl font-semibold text-white">
-                    {formatRub(studioPromoPriceRub)}
+                    {formatRub(STUDIO_PROMO_PRICE_RUB)}
                   </span>
                   <span className="rounded-full bg-white/12 px-3 py-1 text-sm text-[#ead6c7]">
                     Выгода {formatRub(studioDiscountRub)}
@@ -162,17 +130,28 @@ export default async function PricingSection() {
                 </p>
 
                 <div className="mt-6">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="w-full bg-white text-[#2f241d] hover:bg-[#f7efe9]"
-                  >
-                    <Link href={primaryHref}>
-                      <span className="text-[#2f241d]">
-                        Купить тариф Студия
-                      </span>
-                    </Link>
-                  </Button>
+                  {session ? (
+                    <TBankPurchaseButton
+                      packKey="studio"
+                      offer="welcome_studio"
+                      size="lg"
+                      className="w-full bg-white text-[#2f241d] hover:bg-[#f7efe9]"
+                    >
+                      Купить тариф Студия
+                    </TBankPurchaseButton>
+                  ) : (
+                    <Button
+                      asChild
+                      size="lg"
+                      className="w-full bg-white text-[#2f241d] hover:bg-[#f7efe9]"
+                    >
+                      <Link href={primaryHref}>
+                        <span className="text-[#2f241d]">
+                          Купить тариф Студия
+                        </span>
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -180,15 +159,15 @@ export default async function PricingSection() {
         ) : null}
 
         <div className="mt-10 grid gap-5 lg:grid-cols-4">
-          {creditPacks.map((pack) => {
-            const isPromoStudio = hasWelcomeOffer && pack.name === "Студия";
+          {BILLING_PACKS.map((pack) => {
+            const isPromoStudio = hasWelcomeOffer && pack.key === "studio";
             const actualPriceRub = isPromoStudio
-              ? studioPromoPriceRub
+              ? STUDIO_PROMO_PRICE_RUB
               : pack.priceRub;
 
             return (
               <div
-                key={pack.name}
+                key={pack.key}
                 className={`relative rounded-[32px] border p-7 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm ${
                   pack.featured
                     ? "border-[#d9b392] bg-[#fff9f4] text-[#2f241d]"
@@ -208,7 +187,7 @@ export default async function PricingSection() {
                   {isPromoStudio ? (
                     <div className="space-y-2">
                       <p className="text-xl text-[#9d8470] line-through">
-                        {formatRub(studioRegularPriceRub)}
+                        {formatRub(pack.priceRub)}
                       </p>
                       <p className="text-5xl font-semibold tracking-tight text-[#1f1712]">
                         {formatRub(actualPriceRub)}
@@ -240,9 +219,7 @@ export default async function PricingSection() {
                     <div className="flex size-6 items-center justify-center rounded-full bg-[#bc9670] text-white">
                       <Check className="size-4" />
                     </div>
-                    <p className="text-lg">
-                      {pack.images} изображений
-                    </p>
+                    <p className="text-lg">{pack.images} изображений</p>
                   </div>
 
                   <p className="mt-4 text-sm leading-7 text-[#6e5d51]">
@@ -250,23 +227,40 @@ export default async function PricingSection() {
                   </p>
                 </div>
 
-                <Button
-                  asChild
-                  size="lg"
-                  className={`mt-8 w-full ${
-                    pack.featured
-                      ? "bg-[#bc9670] text-[#2f241d] hover:bg-[#b18861]"
-                      : "bg-[#2f241d] text-white hover:bg-[#241b16]"
-                  }`}
-                >
-                  <Link href={primaryHref}>
-                    <span
-                      className={pack.featured ? "text-[#2f241d]" : "text-white"}
-                    >
-                      Купить
-                    </span>
-                  </Link>
-                </Button>
+                {session ? (
+                  <TBankPurchaseButton
+                    packKey={pack.key}
+                    offer={isPromoStudio ? "welcome_studio" : "regular"}
+                    size="lg"
+                    className={`mt-8 w-full ${
+                      pack.featured
+                        ? "bg-[#bc9670] text-[#2f241d] hover:bg-[#b18861]"
+                        : "bg-[#2f241d] text-white hover:bg-[#241b16]"
+                    }`}
+                  >
+                    Купить
+                  </TBankPurchaseButton>
+                ) : (
+                  <Button
+                    asChild
+                    size="lg"
+                    className={`mt-8 w-full ${
+                      pack.featured
+                        ? "bg-[#bc9670] text-[#2f241d] hover:bg-[#b18861]"
+                        : "bg-[#2f241d] text-white hover:bg-[#241b16]"
+                    }`}
+                  >
+                    <Link href={primaryHref}>
+                      <span
+                        className={
+                          pack.featured ? "text-[#2f241d]" : "text-white"
+                        }
+                      >
+                        Купить
+                      </span>
+                    </Link>
+                  </Button>
+                )}
               </div>
             );
           })}
