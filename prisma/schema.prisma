@@ -55,21 +55,23 @@ enum GenerationMode {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  email              String              @unique
-  login              String              @unique
-  passwordHash       String
-  role               UserRole            @default(USER)
-  creditBalance      Int                 @default(0)
-  isActive           Boolean             @default(true)
-  welcomeOfferEndsAt DateTime?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id                      String              @id @default(cuid())
+  email                   String              @unique
+  login                   String              @unique
+  passwordHash            String
+  role                    UserRole            @default(USER)
+  creditBalance           Int                 @default(0)
+  isActive                Boolean             @default(true)
+  welcomeOfferEndsAt      DateTime?
+  businessOfferTriggeredAt DateTime?
+  businessOfferEndsAt     DateTime?
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
 
-  orders             Order[]
-  payments           Payment[]
-  creditTransactions CreditTransaction[]
-  showcaseItems      ShowcaseItem[]      @relation("ShowcaseItemCreatedBy")
+  orders                  Order[]
+  payments                Payment[]
+  creditTransactions      CreditTransaction[]
+  showcaseItems           ShowcaseItem[]      @relation("ShowcaseItemCreatedBy")
 }
 
 model AuthThrottle {
