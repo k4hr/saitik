@@ -52,6 +52,7 @@ export const BILLING_PACKS: BillingPack[] = [
 ];
 
 export const STUDIO_PROMO_PRICE_RUB = 890;
+export const BUSINESS_PROMO_PRICE_RUB = 2490;
 
 export function getBillingPack(packKey: BillingPackKey): BillingPack | null {
   return BILLING_PACKS.find((item) => item.key === packKey) ?? null;
