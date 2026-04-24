@@ -13,6 +13,7 @@ import {
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
+import TBankPurchaseButton from "@/components/billing/tbank-purchase-button";
 
 type DashboardOverviewProps = {
   login: string;
@@ -125,9 +126,14 @@ export default function DashboardOverview({
                   </p>
 
                   <div className="mt-6">
-                    <Button asChild size="lg" className="w-full">
-                      <Link href="/dashboard/billing">Купить тариф Студия</Link>
-                    </Button>
+                    <TBankPurchaseButton
+                      packKey="studio"
+                      offer="welcome_studio"
+                      size="lg"
+                      className="w-full"
+                    >
+                      Купить тариф Студия
+                    </TBankPurchaseButton>
                   </div>
                 </div>
               </div>
