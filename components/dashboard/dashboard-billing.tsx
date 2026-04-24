@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Sparkles, Check, Clock3, Gift } from "lucide-react";
 
 import Container from "@/components/ui/container";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,42 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-const creditPacks = [
-  {
-    name: "Старт",
-    subtitle: "Для первого знакомства",
-    priceRub: 290,
-    credits: 60,
-    images: 6,
-    featured: false,
-  },
-  {
-    name: "Креатор",
-    subtitle: "Для регулярных генераций",
-    priceRub: 690,
-    credits: 160,
-    images: 16,
-    featured: false,
-  },
-  {
-    name: "Студия",
-    subtitle: "Оптимальный выбор",
-    priceRub: 1490,
-    credits: 380,
-    images: 38,
-    featured: true,
-    badge: "Лучший выбор",
-  },
-  {
-    name: "Бизнес",
-    subtitle: "Максимум выгоды",
-    priceRub: 2990,
-    credits: 800,
-    images: 80,
-    featured: false,
-  },
-] as const;
+import TBankPurchaseButton from "@/components/billing/tbank-purchase-button";
+import { BILLING_PACKS, STUDIO_PROMO_PRICE_RUB } from "@/lib/billing-packs";
 
 type TransactionItem = {
   id: string;
@@ -108,9 +73,8 @@ export default function DashboardBilling({
     return new Date(welcomeOfferEndsAt).getTime() > Date.now();
   }, [welcomeOfferEndsAt]);
 
-  const studioPromoPriceRub = 890;
   const studioRegularPriceRub = 1490;
-  const studioDiscountRub = studioRegularPriceRub - studioPromoPriceRub;
+  const studioDiscountRub = studioRegularPriceRub - STUDIO_PROMO_PRICE_RUB;
 
   return (
     <section className="relative overflow-hidden py-12 sm:py-14 lg:py-18">
@@ -153,7 +117,7 @@ export default function DashboardBilling({
                     {formatRub(studioRegularPriceRub)}
                   </span>
                   <span className="text-4xl font-semibold text-[#2f241d]">
-                    {formatRub(studioPromoPriceRub)}
+                    {formatRub(STUDIO_PROMO_PRICE_RUB)}
                   </span>
                   <span className="rounded-full bg-[#f1e4d8] px-3 py-1 text-sm text-[#8f6d55]">
                     Выгода {formatRub(studioDiscountRub)}
@@ -174,9 +138,14 @@ export default function DashboardBilling({
                 </p>
 
                 <div className="mt-6">
-                  <Button size="lg" className="w-full">
+                  <TBankPurchaseButton
+                    packKey="studio"
+                    offer="welcome_studio"
+                    size="lg"
+                    className="w-full"
+                  >
                     Купить тариф Студия
-                  </Button>
+                  </TBankPurchaseButton>
                 </div>
               </div>
             </div>
@@ -206,15 +175,15 @@ export default function DashboardBilling({
             </div>
 
             <div className="mt-10 grid gap-5 lg:grid-cols-4">
-              {creditPacks.map((pack) => {
-                const isPromoStudio = hasWelcomeOffer && pack.name === "Студия";
+              {BILLING_PACKS.map((pack) => {
+                const isPromoStudio = hasWelcomeOffer && pack.key === "studio";
                 const actualPriceRub = isPromoStudio
-                  ? studioPromoPriceRub
+                  ? STUDIO_PROMO_PRICE_RUB
                   : pack.priceRub;
 
                 return (
                   <div
-                    key={pack.name}
+                    key={pack.key}
                     className={`relative rounded-[32px] border p-7 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm ${
                       pack.featured
                         ? "border-[#d9b392] bg-[#fff9f4] text-[#2f241d]"
@@ -234,7 +203,7 @@ export default function DashboardBilling({
                       {isPromoStudio ? (
                         <div className="space-y-2">
                           <p className="text-xl text-[#9d8470] line-through">
-                            {formatRub(studioRegularPriceRub)}
+                            {formatRub(pack.priceRub)}
                           </p>
                           <p className="text-5xl font-semibold tracking-tight text-[#1f1712]">
                             {formatRub(actualPriceRub)}
@@ -274,7 +243,9 @@ export default function DashboardBilling({
                       </p>
                     </div>
 
-                    <Button
+                    <TBankPurchaseButton
+                      packKey={pack.key}
+                      offer={isPromoStudio ? "welcome_studio" : "regular"}
                       size="lg"
                       className={`mt-8 w-full ${
                         pack.featured
@@ -283,7 +254,7 @@ export default function DashboardBilling({
                       }`}
                     >
                       Купить
-                    </Button>
+                    </TBankPurchaseButton>
                   </div>
                 );
               })}
@@ -291,49 +262,51 @@ export default function DashboardBilling({
           </div>
         </div>
 
-        <Card className="mt-8 rounded-[30px] border border-[#eadfd6] bg-[#fffaf6] shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
-          <CardHeader>
-            <CardTitle>История транзакций</CardTitle>
-            <CardDescription>
-              Здесь отображаются все пополнения баланса пользователя.
-            </CardDescription>
-          </CardHeader>
+        <div className="mt-8">
+          <Card className="rounded-[30px] border border-[#eadfd6] bg-[#fffaf6] shadow-[0_20px_60px_rgba(95,69,48,0.08)]">
+            <CardHeader>
+              <CardTitle>История транзакций</CardTitle>
+              <CardDescription>
+                Здесь отображаются все пополнения баланса пользователя.
+              </CardDescription>
+            </CardHeader>
 
-          <CardContent className="space-y-4">
-            {transactions.length === 0 ? (
-              <div className="rounded-[20px] border border-[#eadfd6] bg-white p-4 text-sm text-[#7e6f63]">
-                Пока нет ни одного пополнения.
-              </div>
-            ) : (
-              transactions.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-[20px] border border-[#eadfd6] bg-white p-4 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-[#3d3128]">
-                        Пополнение баланса
-                      </p>
-                      <p className="mt-1 text-xs text-[#8f7f73]">
-                        {item.dateLabel}
-                      </p>
-                    </div>
+            <CardContent className="space-y-4">
+              {transactions.length === 0 ? (
+                <div className="rounded-[20px] border border-[#eadfd6] bg-white p-4 text-sm text-[#7e6f63]">
+                  Пока нет ни одного пополнения.
+                </div>
+              ) : (
+                transactions.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-[20px] border border-[#eadfd6] bg-white p-4 shadow-[0_8px_24px_rgba(95,69,48,0.04)]"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-[#3d3128]">
+                          Пополнение баланса
+                        </p>
+                        <p className="mt-1 text-xs text-[#8f7f73]">
+                          {item.dateLabel}
+                        </p>
+                      </div>
 
-                    <div className="text-right">
-                      <p className="text-sm text-[#3d3128]">
-                        +{item.credits} credits
-                      </p>
-                      <p className="mt-1 text-xs text-[#8f7f73]">
-                        {formatRub(item.amountRub)}
-                      </p>
+                      <div className="text-right">
+                        <p className="text-sm text-[#3d3128]">
+                          +{item.credits} credits
+                        </p>
+                        <p className="mt-1 text-xs text-[#8f7f73]">
+                          {formatRub(item.amountRub)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </Container>
     </section>
   );
