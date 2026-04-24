@@ -143,9 +143,13 @@ function sortFaceAssetsForOpenAi(
 ): UploadedAssetInput[] {
   return [...faceAssets].sort((a, b) => {
     const personA =
-      typeof a.personIndex === "number" && a.personIndex >= 0 ? a.personIndex : 0;
+      typeof a.personIndex === "number" && a.personIndex >= 0
+        ? a.personIndex
+        : 0;
     const personB =
-      typeof b.personIndex === "number" && b.personIndex >= 0 ? b.personIndex : 0;
+      typeof b.personIndex === "number" && b.personIndex >= 0
+        ? b.personIndex
+        : 0;
 
     if (personA !== personB) {
       return personA - personB;
@@ -165,6 +169,29 @@ async function buildOpenAiInputImage(
     bytes: object.bytes,
     mimeType: item.mimeType || object.contentType || "image/png",
     fileName: item.fileName || fallbackName,
+  };
+}
+
+async function buildOpenAiInputImageFromUrl(
+  imageUrl: string,
+  fallbackName: string,
+): Promise<OpenAiInputImage> {
+  const response = await fetch(imageUrl, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Не удалось загрузить обложку стиля");
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  const mimeType = response.headers.get("content-type") || "image/png";
+
+  return {
+    bytes,
+    mimeType,
+    fileName: fallbackName,
   };
 }
 
@@ -274,7 +301,11 @@ export async function POST(req: NextRequest) {
 
     await Promise.all([
       ...sortedFaceAssets.map((asset) =>
-        assertActualR2ObjectSize(asset.storageKey, MAX_FACE_FILE_SIZE, "Фото лица"),
+        assertActualR2ObjectSize(
+          asset.storageKey,
+          MAX_FACE_FILE_SIZE,
+          "Фото лица",
+        ),
       ),
       ...(body.referenceAsset?.storageKey
         ? [
@@ -308,6 +339,7 @@ export async function POST(req: NextRequest) {
               promptTemplate: true,
               generationPriceCredits: true,
               isActive: true,
+              coverImageUrl: true,
             },
           })
         : null;
@@ -317,10 +349,11 @@ export async function POST(req: NextRequest) {
       (!showcaseItem ||
         !showcaseItem.isActive ||
         showcaseItem.kind !== "READY" ||
-        !showcaseItem.promptTemplate)
+        !showcaseItem.promptTemplate ||
+        !showcaseItem.coverImageUrl)
     ) {
       return NextResponse.json(
-        { error: "Готовый стиль не найден или у него нет промпта" },
+        { error: "Готовый стиль не найден или у него нет промпта/обложки" },
         { status: 404 },
       );
     }
@@ -440,11 +473,18 @@ export async function POST(req: NextRequest) {
         notes: body.notes,
       });
 
-      inputImages = await Promise.all(
+      const userFaceImages = await Promise.all(
         sortedFaceAssets.map((asset, index) =>
           buildOpenAiInputImage(asset, `face-${index + 1}.png`),
         ),
       );
+
+      const styleCoverImage = await buildOpenAiInputImageFromUrl(
+        showcaseItem!.coverImageUrl,
+        "style-cover.png",
+      );
+
+      inputImages = [...userFaceImages, styleCoverImage];
     }
 
     if (mode === "REFERENCE") {
