@@ -5,6 +5,7 @@ import SiteFooter from "@/components/layout/site-footer";
 import DashboardOverview from "@/components/dashboard/dashboard-overview";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureBusinessOfferForUser } from "@/lib/business-offer";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -13,12 +14,15 @@ export default async function DashboardPage() {
     redirect("/auth/sign-in");
   }
 
+  await ensureBusinessOfferForUser(session.userId);
+
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     select: {
       login: true,
       creditBalance: true,
       welcomeOfferEndsAt: true,
+      businessOfferEndsAt: true,
     },
   });
 
@@ -34,6 +38,7 @@ export default async function DashboardPage() {
         balance={user.creditBalance}
         isAdmin={session.role === "ADMIN"}
         welcomeOfferEndsAt={user.welcomeOfferEndsAt?.toISOString() ?? null}
+        businessOfferEndsAt={user.businessOfferEndsAt?.toISOString() ?? null}
       />
       <SiteFooter />
     </main>
