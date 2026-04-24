@@ -1,0 +1,3 @@
+ALTER TABLE "User"
+ADD COLUMN IF NOT EXISTS "businessOfferTriggeredAt" TIMESTAMP(3),
+ADD COLUMN IF NOT EXISTS "businessOfferEndsAt" TIMESTAMP(3);
