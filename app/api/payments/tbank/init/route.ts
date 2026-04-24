@@ -4,6 +4,7 @@ import { PaymentStatus } from "@prisma/client";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  buildTBankReceipt,
   getAppUrl,
   initTBankPayment,
 } from "@/lib/tbank";
@@ -56,6 +57,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!user.email) {
+      return NextResponse.json(
+        { error: "Для оплаты у пользователя должен быть указан email" },
+        { status: 400 },
+      );
+    }
+
     const hasWelcomeOffer =
       Boolean(user.welcomeOfferEndsAt) &&
       user.welcomeOfferEndsAt!.getTime() > Date.now();
@@ -81,16 +89,22 @@ export async function POST(req: NextRequest) {
     });
 
     const appUrl = getAppUrl();
+    const itemName = `Пакет "${pack.name}" — ${pack.credits} кредитов`;
 
     try {
       const tbankPayment = await initTBankPayment({
         amountRub,
         orderId: createdPayment.id,
-        description: `Пакет "${pack.name}" — ${pack.credits} кредитов`,
+        description: itemName,
         customerKey: user.id,
         notificationURL: `${appUrl}/api/payments/tbank/notify`,
         successURL: `${appUrl}/dashboard/billing?payment=success`,
         failURL: `${appUrl}/dashboard/billing?payment=failed`,
+        receipt: buildTBankReceipt({
+          email: user.email,
+          itemName,
+          amountRub,
+        }),
       });
 
       await prisma.payment.update({
