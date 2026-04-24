@@ -2,6 +2,63 @@ import crypto from "node:crypto";
 
 type Primitive = string | number | boolean | null | undefined;
 
+type TBankTaxation =
+  | "osn"
+  | "usn_income"
+  | "usn_income_outcome"
+  | "patent"
+  | "envd"
+  | "esn";
+
+type TBankTax =
+  | "none"
+  | "vat0"
+  | "vat10"
+  | "vat20"
+  | "vat110"
+  | "vat120";
+
+type TBankPaymentMethod =
+  | "full_prepayment"
+  | "prepayment"
+  | "advance"
+  | "full_payment"
+  | "partial_payment"
+  | "credit"
+  | "credit_payment";
+
+type TBankPaymentObject =
+  | "commodity"
+  | "excise"
+  | "job"
+  | "service"
+  | "gambling_bet"
+  | "gambling_prize"
+  | "lottery"
+  | "lottery_prize"
+  | "intellectual_activity"
+  | "payment"
+  | "agent_commission"
+  | "composite"
+  | "another";
+
+type TBankReceiptItem = {
+  Name: string;
+  Price: number;
+  Quantity: number;
+  Amount: number;
+  Tax: TBankTax;
+  PaymentMethod: TBankPaymentMethod;
+  PaymentObject: TBankPaymentObject;
+};
+
+type TBankReceipt = {
+  Email?: string;
+  Phone?: string;
+  Taxation: TBankTaxation;
+  Items: TBankReceiptItem[];
+};
+
 type InitPayload = {
   TerminalKey: string;
   Amount: number;
@@ -13,6 +70,7 @@ type InitPayload = {
   CustomerKey?: string;
   Language?: "ru" | "en";
   PayType?: "O" | "T";
+  Receipt?: TBankReceipt;
   Token: string;
 };
 
@@ -59,6 +117,13 @@ export function getAppUrl(): string {
     process.env.APP_URL?.trim() ||
     "https://www.ateliaai.ru"
   ).replace(/\/+$/, "");
+}
+
+export function getTBankTaxation(): TBankTaxation {
+  return (
+    (process.env.TINKOFF_TAXATION?.trim() as TBankTaxation | undefined) ||
+    "usn_income"
+  );
 }
 
 function normalizeValue(value: Primitive): string {
@@ -116,6 +181,32 @@ export function verifyTBankToken(payload: Record<string, unknown>): boolean {
   return expectedToken === providedToken;
 }
 
+export function buildTBankReceipt(params: {
+  email?: string | null;
+  phone?: string | null;
+  itemName: string;
+  amountRub: number;
+}): TBankReceipt {
+  const amountKopecks = params.amountRub * 100;
+
+  return {
+    Email: params.email?.trim() || undefined,
+    Phone: params.phone?.trim() || undefined,
+    Taxation: getTBankTaxation(),
+    Items: [
+      {
+        Name: params.itemName,
+        Price: amountKopecks,
+        Quantity: 1,
+        Amount: amountKopecks,
+        Tax: "none",
+        PaymentMethod: "full_payment",
+        PaymentObject: "service",
+      },
+    ],
+  };
+}
+
 export async function initTBankPayment(params: {
   amountRub: number;
   orderId: string;
@@ -124,6 +215,7 @@ export async function initTBankPayment(params: {
   notificationURL: string;
   successURL: string;
   failURL: string;
+  receipt?: TBankReceipt;
 }): Promise<InitResponse> {
   const TerminalKey = getTBankTerminalKey();
 
@@ -142,6 +234,7 @@ export async function initTBankPayment(params: {
 
   const body: InitPayload = {
     ...bodyWithoutToken,
+    Receipt: params.receipt,
     Token: createTBankToken(bodyWithoutToken),
   };
 
