@@ -3,12 +3,9 @@ import { PaymentStatus } from "@prisma/client";
 
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { buildTBankReceipt, getAppUrl, initTBankPayment } from "@/lib/tbank";
 import {
-  buildTBankReceipt,
-  getAppUrl,
-  initTBankPayment,
-} from "@/lib/tbank";
-import {
+  BUSINESS_PROMO_PRICE_RUB,
   getBillingPack,
   STUDIO_PROMO_PRICE_RUB,
   type BillingPackKey,
@@ -16,7 +13,7 @@ import {
 
 type InitPaymentBody = {
   packKey?: BillingPackKey;
-  offer?: "regular" | "welcome_studio";
+  offer?: "regular" | "welcome_studio" | "business_flash";
 };
 
 export async function POST(req: NextRequest) {
@@ -47,6 +44,7 @@ export async function POST(req: NextRequest) {
         email: true,
         login: true,
         welcomeOfferEndsAt: true,
+        businessOfferEndsAt: true,
       },
     });
 
@@ -68,12 +66,25 @@ export async function POST(req: NextRequest) {
       Boolean(user.welcomeOfferEndsAt) &&
       user.welcomeOfferEndsAt!.getTime() > Date.now();
 
+    const hasBusinessOffer =
+      Boolean(user.businessOfferEndsAt) &&
+      user.businessOfferEndsAt!.getTime() > Date.now();
+
     const isWelcomeStudio =
       pack.key === "studio" &&
       body.offer === "welcome_studio" &&
       hasWelcomeOffer;
 
-    const amountRub = isWelcomeStudio ? STUDIO_PROMO_PRICE_RUB : pack.priceRub;
+    const isBusinessFlash =
+      pack.key === "business" &&
+      body.offer === "business_flash" &&
+      hasBusinessOffer;
+
+    const amountRub = isWelcomeStudio
+      ? STUDIO_PROMO_PRICE_RUB
+      : isBusinessFlash
+        ? BUSINESS_PROMO_PRICE_RUB
+        : pack.priceRub;
 
     const createdPayment = await prisma.payment.create({
       data: {
