@@ -44,6 +44,21 @@ Do not add explanations.
 Do not add markdown.
 `.trim();
 
+const READY_STYLE_REFERENCE_PROMPT = `
+Use the uploaded face photo(s) as the only source of facial identity for the final subject.
+
+Use the uploaded style cover image only as a visual reference for:
+composition, framing, pose, outfit, styling, lighting, color palette, environment, background, atmosphere, camera feel, and overall realism.
+
+The final image must preserve the uploaded user identity, but follow the visual direction of the uploaded style cover image as closely as possible.
+
+Do not copy or reuse the face from the style cover image.
+Do not mix the face from the style cover with the uploaded user face.
+Replace the person from the style cover with the uploaded user identity while preserving the style, scene, and photographic feel.
+
+Keep the result realistic, photographic, premium, and visually close to the style cover image.
+`.trim();
+
 export const REFERENCE_EXTRA_PROMPT = `
 Use the uploaded face photo(s) as the only identity source for the main subject.
 
@@ -89,12 +104,15 @@ export function buildReadyStylePrompt(params: {
   selectedMood?: string | null;
   notes?: string | null;
 }): string {
-  return buildStylePromptBlock({
-    presetPromptTemplate: params.presetPromptTemplate,
-    selectedFormat: params.selectedFormat,
-    selectedMood: params.selectedMood,
-    notes: params.notes,
-  });
+  return joinBlocks(
+    READY_STYLE_REFERENCE_PROMPT,
+    buildStylePromptBlock({
+      presetPromptTemplate: params.presetPromptTemplate,
+      selectedFormat: params.selectedFormat,
+      selectedMood: params.selectedMood,
+      notes: params.notes,
+    }),
+  );
 }
 
 export function buildReferencePrompt(params: {
