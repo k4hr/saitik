@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Check, Clock3, Gift } from "lucide-react";
+import { Sparkles, Check, Clock3, Gift, Crown } from "lucide-react";
 
 import Container from "@/components/ui/container";
 import {
@@ -12,7 +12,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import TBankPurchaseButton from "@/components/billing/tbank-purchase-button";
-import { BILLING_PACKS, STUDIO_PROMO_PRICE_RUB } from "@/lib/billing-packs";
+import {
+  BILLING_PACKS,
+  BUSINESS_PROMO_PRICE_RUB,
+  STUDIO_PROMO_PRICE_RUB,
+} from "@/lib/billing-packs";
 
 type TransactionItem = {
   id: string;
@@ -24,6 +28,7 @@ type TransactionItem = {
 type DashboardBillingProps = {
   transactions: TransactionItem[];
   welcomeOfferEndsAt?: string | null;
+  businessOfferEndsAt?: string | null;
 };
 
 function formatRub(value: number): string {
@@ -54,8 +59,12 @@ function formatTimeLeft(targetIso: string | null): string {
 export default function DashboardBilling({
   transactions,
   welcomeOfferEndsAt = null,
+  businessOfferEndsAt = null,
 }: DashboardBillingProps) {
   const [timeLeft, setTimeLeft] = useState(formatTimeLeft(welcomeOfferEndsAt));
+  const [businessTimeLeft, setBusinessTimeLeft] = useState(
+    formatTimeLeft(businessOfferEndsAt),
+  );
 
   useEffect(() => {
     if (!welcomeOfferEndsAt) return;
@@ -68,13 +77,32 @@ export default function DashboardBilling({
     return () => window.clearInterval(timer);
   }, [welcomeOfferEndsAt]);
 
+  useEffect(() => {
+    if (!businessOfferEndsAt) return;
+
+    const tick = () => setBusinessTimeLeft(formatTimeLeft(businessOfferEndsAt));
+
+    tick();
+    const timer = window.setInterval(tick, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [businessOfferEndsAt]);
+
   const hasWelcomeOffer = useMemo(() => {
     if (!welcomeOfferEndsAt) return false;
     return new Date(welcomeOfferEndsAt).getTime() > Date.now();
   }, [welcomeOfferEndsAt]);
 
+  const hasBusinessOffer = useMemo(() => {
+    if (!businessOfferEndsAt) return false;
+    return new Date(businessOfferEndsAt).getTime() > Date.now();
+  }, [businessOfferEndsAt]);
+
   const studioRegularPriceRub = 1490;
   const studioDiscountRub = studioRegularPriceRub - STUDIO_PROMO_PRICE_RUB;
+  const businessRegularPriceRub = 2990;
+  const businessDiscountRub =
+    businessRegularPriceRub - BUSINESS_PROMO_PRICE_RUB;
 
   return (
     <section className="relative overflow-hidden py-12 sm:py-14 lg:py-18">
@@ -152,6 +180,71 @@ export default function DashboardBilling({
           </div>
         ) : null}
 
+        {hasBusinessOffer ? (
+          <div className="mb-8 overflow-hidden rounded-[32px] border border-[#d8c1ad] bg-[linear-gradient(135deg,#fffaf6_0%,#f6ece3_100%)] p-6 shadow-[0_20px_60px_rgba(95,69,48,0.10)] sm:p-8">
+            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-[#f1e4d8] text-[#a07f66]">
+                    <Crown className="size-5" />
+                  </div>
+
+                  <p className="text-sm uppercase tracking-[0.24em] text-[#a18672]">
+                    Персональное предложение
+                  </p>
+                </div>
+
+                <h2 className="mt-5 text-3xl leading-tight text-[#3d3128] sm:text-4xl">
+                  После 4 генераций для Вас открыт Бизнес со скидкой
+                </h2>
+
+                <p className="mt-4 max-w-2xl text-base leading-8 text-[#6f6156]">
+                  Вместо <span className="line-through">2 990 ₽</span> Вы можете
+                  купить тариф <span className="font-medium">Бизнес</span> за{" "}
+                  <span className="font-medium">{formatRub(BUSINESS_PROMO_PRICE_RUB)}</span>.
+                  Предложение активно только 15 минут.
+                </p>
+
+                <div className="mt-6 flex flex-wrap items-end gap-3">
+                  <span className="text-xl text-[#9d8470] line-through">
+                    {formatRub(businessRegularPriceRub)}
+                  </span>
+                  <span className="text-4xl font-semibold text-[#2f241d]">
+                    {formatRub(BUSINESS_PROMO_PRICE_RUB)}
+                  </span>
+                  <span className="rounded-full bg-[#f1e4d8] px-3 py-1 text-sm text-[#8f6d55]">
+                    Выгода {formatRub(businessDiscountRub)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-[28px] border border-[#eadfd6] bg-white/80 p-6 shadow-[0_12px_30px_rgba(95,69,48,0.05)]">
+                <div className="flex items-center gap-3">
+                  <Clock3 className="size-5 text-[#a07f66]" />
+                  <p className="text-sm uppercase tracking-[0.18em] text-[#a18672]">
+                    До конца предложения
+                  </p>
+                </div>
+
+                <p className="mt-4 text-4xl font-semibold tracking-[0.06em] text-[#2f241d]">
+                  {businessTimeLeft}
+                </p>
+
+                <div className="mt-6">
+                  <TBankPurchaseButton
+                    packKey="business"
+                    offer="business_flash"
+                    size="lg"
+                    className="w-full"
+                  >
+                    Купить Бизнес за 2490 ₽
+                  </TBankPurchaseButton>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <div className="relative overflow-hidden rounded-[34px] bg-[radial-gradient(circle_at_top_right,rgba(222,207,194,0.65),transparent_32%),linear-gradient(180deg,#2d241f_0%,#4f3f35_38%,#d9c8bb_100%)] px-4 py-8 text-white shadow-[0_24px_80px_rgba(91,67,49,0.10)] sm:px-6 lg:px-8">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute left-[-120px] top-[80px] h-[280px] w-[280px] rounded-full bg-[#8b6b56]/25 blur-3xl" />
@@ -177,9 +270,14 @@ export default function DashboardBilling({
             <div className="mt-10 grid gap-5 lg:grid-cols-4">
               {BILLING_PACKS.map((pack) => {
                 const isPromoStudio = hasWelcomeOffer && pack.key === "studio";
+                const isPromoBusiness =
+                  hasBusinessOffer && pack.key === "business";
+
                 const actualPriceRub = isPromoStudio
                   ? STUDIO_PROMO_PRICE_RUB
-                  : pack.priceRub;
+                  : isPromoBusiness
+                    ? BUSINESS_PROMO_PRICE_RUB
+                    : pack.priceRub;
 
                 return (
                   <div
@@ -200,7 +298,7 @@ export default function DashboardBilling({
                     <p className="mt-2 text-lg text-[#6e5d51]">{pack.subtitle}</p>
 
                     <div className="mt-7">
-                      {isPromoStudio ? (
+                      {isPromoStudio || isPromoBusiness ? (
                         <div className="space-y-2">
                           <p className="text-xl text-[#9d8470] line-through">
                             {formatRub(pack.priceRub)}
@@ -209,7 +307,9 @@ export default function DashboardBilling({
                             {formatRub(actualPriceRub)}
                           </p>
                           <p className="text-sm text-[#9d8470]">
-                            Только для новых пользователей
+                            {isPromoStudio
+                              ? "Только для новых пользователей"
+                              : "Только 15 минут после 4 генераций"}
                           </p>
                         </div>
                       ) : (
@@ -245,7 +345,13 @@ export default function DashboardBilling({
 
                     <TBankPurchaseButton
                       packKey={pack.key}
-                      offer={isPromoStudio ? "welcome_studio" : "regular"}
+                      offer={
+                        isPromoStudio
+                          ? "welcome_studio"
+                          : isPromoBusiness
+                            ? "business_flash"
+                            : "regular"
+                      }
                       size="lg"
                       className={`mt-8 w-full ${
                         pack.featured
