@@ -5,6 +5,7 @@ import SiteFooter from "@/components/layout/site-footer";
 import DashboardBilling from "@/components/dashboard/dashboard-billing";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureBusinessOfferForUser } from "@/lib/business-offer";
 
 function formatDateLabel(date: Date): string {
   return new Intl.DateTimeFormat("ru-RU", {
@@ -30,11 +31,14 @@ export default async function DashboardBillingPage({
   const resolvedSearchParams = (await searchParams) ?? {};
   const paymentStatus = resolvedSearchParams.payment;
 
+  await ensureBusinessOfferForUser(session.userId);
+
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     select: {
       id: true,
       welcomeOfferEndsAt: true,
+      businessOfferEndsAt: true,
     },
   });
 
@@ -92,6 +96,7 @@ export default async function DashboardBillingPage({
       <DashboardBilling
         transactions={transactions}
         welcomeOfferEndsAt={user.welcomeOfferEndsAt?.toISOString() ?? null}
+        businessOfferEndsAt={user.businessOfferEndsAt?.toISOString() ?? null}
       />
 
       <SiteFooter />
