@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 import Container from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,8 @@ type StylesPageClientProps = {
 
 type KindTab = "READY" | "CUSTOM";
 
+const ITEMS_PER_PAGE = 12;
+
 export default function StylesPageClient({
   isAuthenticated,
   categories,
@@ -52,6 +54,7 @@ export default function StylesPageClient({
   const [selectedSubcategoryId, setSelectedSubcategoryId] =
     useState<string>("all");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const primaryHref = isAuthenticated ? "/create" : "/auth/sign-in";
 
@@ -84,7 +87,10 @@ export default function StylesPageClient({
 
     const filteredItems = showcaseItems.filter((item) => {
       if (item.kind !== currentKind) return false;
-      if (selectedCategoryId !== "all" && item.categoryId !== selectedCategoryId) {
+      if (
+        selectedCategoryId !== "all" &&
+        item.categoryId !== selectedCategoryId
+      ) {
         return false;
       }
       return Boolean(item.subcategoryId);
@@ -97,7 +103,10 @@ export default function StylesPageClient({
     );
 
     return subcategories.filter((subcategory) => {
-      if (selectedCategoryId !== "all" && subcategory.categoryId !== selectedCategoryId) {
+      if (
+        selectedCategoryId !== "all" &&
+        subcategory.categoryId !== selectedCategoryId
+      ) {
         return false;
       }
 
@@ -120,7 +129,10 @@ export default function StylesPageClient({
 
     return showcaseItems.filter((item) => {
       if (item.kind !== currentKind) return false;
-      if (selectedCategoryId !== "all" && item.categoryId !== selectedCategoryId) {
+      if (
+        selectedCategoryId !== "all" &&
+        item.categoryId !== selectedCategoryId
+      ) {
         return false;
       }
       if (
@@ -132,6 +144,51 @@ export default function StylesPageClient({
       return true;
     });
   }, [showcaseItems, selectedKind, selectedCategoryId, selectedSubcategoryId]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedKind, selectedCategoryId, selectedSubcategoryId]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredItems, currentPage]);
+
+  const visiblePageNumbers = useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 3) {
+      return [1, 2, 3, 4, 5];
+    }
+
+    if (currentPage >= totalPages - 2) {
+      return [
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    }
+
+    return [
+      currentPage - 2,
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      currentPage + 2,
+    ];
+  }, [currentPage, totalPages]);
 
   function getItemHref(item: ShowcaseItem): string {
     if (!isAuthenticated) {
@@ -294,28 +351,115 @@ export default function StylesPageClient({
                 </div>
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredItems.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={getItemHref(item)}
-                    className="group block overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white/85 shadow-[0_14px_38px_rgba(88,62,40,0.08)] transition-transform duration-500 hover:-translate-y-1"
-                    aria-label={item.title}
-                    title={item.title}
-                  >
-                    <div className="relative aspect-[0.82] overflow-hidden bg-[#f1e7de]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.coverImageUrl}
-                        alt={item.title}
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                      />
+              <>
+                <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+                  {paginatedItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={getItemHref(item)}
+                      className="group block overflow-hidden rounded-[30px] border border-[#eadfd6] bg-white/85 shadow-[0_14px_38px_rgba(88,62,40,0.08)] transition-transform duration-500 hover:-translate-y-1"
+                      aria-label={item.title}
+                      title={item.title}
+                    >
+                      <div className="relative aspect-[0.82] overflow-hidden bg-[#f1e7de]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.coverImageUrl}
+                          alt={item.title}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {totalPages > 1 ? (
+                  <div className="mt-8 flex flex-col items-center gap-4">
+                    <p className="text-sm text-[#7e6f63]">
+                      Страница {currentPage} из {totalPages}
+                    </p>
+
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(1, prev - 1))
+                        }
+                        disabled={currentPage === 1}
+                        className="inline-flex h-11 items-center justify-center rounded-full border border-[#d8c5b7] bg-white px-4 text-sm text-[#5f5248] transition hover:bg-[#efe4db] disabled:cursor-not-allowed disabled:opacity-40"
+                        aria-label="Предыдущая страница"
+                      >
+                        <ChevronLeft className="size-4.5" />
+                      </button>
+
+                      {visiblePageNumbers[0] > 1 ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setCurrentPage(1)}
+                            className="inline-flex h-11 min-w-11 items-center justify-center rounded-full border border-[#d8c5b7] bg-white px-4 text-sm text-[#5f5248] transition hover:bg-[#efe4db]"
+                          >
+                            1
+                          </button>
+                          {visiblePageNumbers[0] > 2 ? (
+                            <span className="px-1 text-sm text-[#8d7b6d]">
+                              ...
+                            </span>
+                          ) : null}
+                        </>
+                      ) : null}
+
+                      {visiblePageNumbers.map((pageNumber) => (
+                        <button
+                          key={pageNumber}
+                          type="button"
+                          onClick={() => setCurrentPage(pageNumber)}
+                          className={`inline-flex h-11 min-w-11 items-center justify-center rounded-full px-4 text-sm transition ${
+                            currentPage === pageNumber
+                              ? "bg-[#b79273] text-white"
+                              : "border border-[#d8c5b7] bg-white text-[#5f5248] hover:bg-[#efe4db]"
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      ))}
+
+                      {visiblePageNumbers[visiblePageNumbers.length - 1] <
+                      totalPages ? (
+                        <>
+                          {visiblePageNumbers[visiblePageNumbers.length - 1] <
+                          totalPages - 1 ? (
+                            <span className="px-1 text-sm text-[#8d7b6d]">
+                              ...
+                            </span>
+                          ) : null}
+                          <button
+                            type="button"
+                            onClick={() => setCurrentPage(totalPages)}
+                            className="inline-flex h-11 min-w-11 items-center justify-center rounded-full border border-[#d8c5b7] bg-white px-4 text-sm text-[#5f5248] transition hover:bg-[#efe4db]"
+                          >
+                            {totalPages}
+                          </button>
+                        </>
+                      ) : null}
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                        className="inline-flex h-11 items-center justify-center rounded-full border border-[#d8c5b7] bg-white px-4 text-sm text-[#5f5248] transition hover:bg-[#efe4db] disabled:cursor-not-allowed disabled:opacity-40"
+                        aria-label="Следующая страница"
+                      >
+                        <ChevronRight className="size-4.5" />
+                      </button>
                     </div>
-                  </Link>
-                ))}
-              </div>
+                  </div>
+                ) : null}
+              </>
             )}
           </div>
         </div>
