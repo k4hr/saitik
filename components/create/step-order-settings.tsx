@@ -47,7 +47,7 @@ export default function StepOrderSettings({
             value={notes}
             onChange={(event) => onNotesChange(event.target.value)}
             className="min-h-[150px]"
-            placeholder="Используйте когда на изображении нужно что-то уточнить. Например: на торте свечи 28. Сохрани татуировку на руке (шее). Номера на машине."
+            placeholder="Используйте когда на изображении нужно что-то уточнить. Например: на торте свечи 28. Сохрани татуировку на руке (шее). Номера на машине. Сделай девушку без очков."
           />
         </div>
       </CardContent>
