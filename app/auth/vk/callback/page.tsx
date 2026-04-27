@@ -1,12 +1,11 @@
 "use client";
 
 import Script from "next/script";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 
-import SiteHeader from "@/components/layout/site-header";
-import SiteFooter from "@/components/layout/site-footer";
 import Container from "@/components/ui/container";
 
 declare global {
@@ -65,13 +64,21 @@ function extractVkProfile(data: any): CompletePayload {
 export default function VkCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [statusText, setStatusText] = useState("Подтверждаем вход через ВКонтакте...");
+  const [statusText, setStatusText] = useState(
+    "Подтверждаем вход через ВКонтакте...",
+  );
   const [errorText, setErrorText] = useState("");
   const [sdkLoaded, setSdkLoaded] = useState(false);
   const hasStartedRef = useRef(false);
 
-  const callbackCode = useMemo(() => searchParams.get("code") || "", [searchParams]);
-  const deviceId = useMemo(() => searchParams.get("device_id") || "", [searchParams]);
+  const callbackCode = useMemo(
+    () => searchParams.get("code") || "",
+    [searchParams],
+  );
+  const deviceId = useMemo(
+    () => searchParams.get("device_id") || "",
+    [searchParams],
+  );
 
   const completeLogin = useCallback(async () => {
     if (!sdkLoaded || hasStartedRef.current) {
@@ -88,10 +95,16 @@ export default function VkCallbackPage() {
 
     try {
       const VKID = window.VKIDSDK;
+      const appId = process.env.NEXT_PUBLIC_VK_APP_ID;
+      const redirectUri = process.env.NEXT_PUBLIC_VK_REDIRECT_URI;
+
+      if (!appId || !redirectUri) {
+        throw new Error("VK ID не настроен");
+      }
 
       VKID.Config.init({
-        app: Number(process.env.NEXT_PUBLIC_VK_APP_ID),
-        redirectUrl: process.env.NEXT_PUBLIC_VK_REDIRECT_URI,
+        app: Number(appId),
+        redirectUrl: redirectUri,
         responseMode: VKID.ConfigResponseMode.Callback,
         source: VKID.ConfigSource.LOWCODE,
         scope: "email",
@@ -144,11 +157,22 @@ export default function VkCallbackPage() {
         onLoad={() => setSdkLoaded(true)}
       />
 
-      <SiteHeader />
-
       <section className="py-14 sm:py-18 lg:py-24">
         <Container className="max-w-[720px]">
           <div className="rounded-[32px] border border-[#eadfd6] bg-white/90 p-8 shadow-[0_24px_80px_rgba(88,62,40,0.08)]">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <p className="text-xs uppercase tracking-[0.22em] text-[#a18672]">
+                ATELIA
+              </p>
+
+              <Link
+                href="/auth/sign-in"
+                className="text-sm text-[#8f7f73] underline underline-offset-4 transition hover:text-[#3d3128]"
+              >
+                Назад ко входу
+              </Link>
+            </div>
+
             <h1 className="text-3xl leading-tight sm:text-4xl">
               Вход через ВКонтакте
             </h1>
@@ -168,8 +192,6 @@ export default function VkCallbackPage() {
           </div>
         </Container>
       </section>
-
-      <SiteFooter />
     </main>
   );
 }
