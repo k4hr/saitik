@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import VkSignInButton from "@/components/auth/vk-sign-in-button";
 
 type Mode = "login" | "register";
 
@@ -180,6 +181,18 @@ export default function EmailSignInCard() {
             {successText}
           </div>
         ) : null}
+
+        <div className="mb-6">
+          <VkSignInButton />
+        </div>
+
+        <div className="mb-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-[#efe4db]" />
+          <span className="text-xs uppercase tracking-[0.18em] text-[#a18672]">
+            или
+          </span>
+          <div className="h-px flex-1 bg-[#efe4db]" />
+        </div>
 
         {mode === "login" ? (
           <form onSubmit={handleLogin} className="grid gap-4">
