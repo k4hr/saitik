@@ -18,7 +18,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.ateliaai.ru"),
   title: {
-    default: "ATELIA — AI фотосессии",
+    default: "ATELIA — ИИ фотосессии",
     template: "%s | ATELIA",
   },
   description:
